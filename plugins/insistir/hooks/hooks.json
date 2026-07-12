@@ -1,0 +1,28 @@
+{
+  "description": "Insistir quality gates — review-before-complete",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/reviewer_bash_filter.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task_completed.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

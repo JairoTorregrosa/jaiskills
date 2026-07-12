@@ -1,0 +1,27 @@
+{
+  "name": "insistir",
+  "version": "0.1.0",
+  "displayName": "Insistir Sin Desistir — Agents Checking Agents",
+  "description": "Multi-agent orchestration with cross-validation, Codex cross-provider judge, codex advisor, goal loop (loop engineering), knowledge compounding, file-based TODO lifecycle, and plan deepening",
+  "author": {
+    "name": "Jairo Torregrosa",
+    "url": "https://github.com/JairoTorregrosa"
+  },
+  "repository": "https://github.com/JairoTorregrosa/jaiskills",
+  "license": "MIT",
+  "keywords": [
+    "multi-agent",
+    "orchestration",
+    "cross-review",
+    "quality-gates",
+    "agent-teams",
+    "dialectical-autocoding",
+    "knowledge-compounding",
+    "file-todos",
+    "research",
+    "loop-engineering",
+    "codex",
+    "llm-as-judge",
+    "cross-provider"
+  ]
+}
