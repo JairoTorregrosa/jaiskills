@@ -9,7 +9,7 @@ covers: GPT-5.6 (Sol, Terra, Luna), GPT-5, GPT-5.1, GPT-5.2, GPT-5.3, Codex (GPT
 
 # GPT-5.6 Family (GA 2026-07-09)
 
-The GPT-5.6 family comprises three tiers — Sol, Terra, and Luna — sharing a common architecture with 1,050,000-token context, 128K output, and a February 2026 knowledge cutoff. All accept text and image input and produce text output. No fine-tuning, audio, or video support on any tier.
+The GPT-5.6 family comprises three tiers — Sol, Terra, and Luna — with 1,050,000-token context, 128K output, and a February 2026 knowledge cutoff. All accept text and image input and produce text output. No fine-tuning, audio, or video support on any tier.
 
 ## Model Selection Table
 
@@ -23,29 +23,29 @@ The GPT-5.6 family comprises three tiers — Sol, Terra, and Luna — sharing a 
 
 **Selection guidance:** Start with Terra for most agent and workflow tasks. Use Sol only for problems that demonstrably need frontier intelligence (complex multi-step reasoning, hard coding, deep research). Luna at `xhigh` effort can match or beat Sol at `medium` effort at a fraction of the cost — always benchmark your actual workload before defaulting to Sol.
 
-Source: https://developers.openai.com/docs/models
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-sol
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-terra
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-luna
 Source: https://sebastianraschka.com/blog/2026/gpt-5-6-configurations.html
 
 ## GPT-5.6 Sol
 
 Flagship model for the hardest professional problems. Use `gpt-5.6-sol` (or the alias `gpt-5.6`) when the task demands frontier reasoning: complex multi-file code generation, multi-step research synthesis, or agent orchestration with high-stakes decisions. Pair with `reasoning.mode: pro` for maximum intelligence when latency is acceptable.
 
-SWE-Bench Pro: Sol scores 64.6% (compared to Claude Fable 5 at 80%).
-
-Source: https://developers.openai.com/docs/models
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-sol
 Source: https://simonwillison.net/2026/Jul/9/gpt-5-6/
 
 ## GPT-5.6 Terra
 
 Balanced intelligence and cost. Terra is the recommended default for agent workflows, structured data processing, and production pipelines where Sol's ceiling is unnecessary. Its price-to-performance ratio makes it the natural starting point for new projects — move to Sol only if Terra measurably underperforms on your eval suite.
 
-Source: https://developers.openai.com/docs/models
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-terra
 
 ## GPT-5.6 Luna
 
 Optimized for high-volume, cost-sensitive workloads: classification, extraction, grading, routing, and subagent tiers. Luna at `xhigh` effort can outperform Sol at `medium` on coding benchmarks while costing substantially less — consult the Artificial Analysis Coding Agent Index for current comparisons.
 
-Source: https://developers.openai.com/docs/models
+Source: https://developers.openai.com/api/docs/models/gpt-5.6-luna
 Source: https://sebastianraschka.com/blog/2026/gpt-5-6-configurations.html
 
 ## GPT-5.6 API Parameters
@@ -56,14 +56,14 @@ Controls how deeply the model reasons before answering. GPT-5.6 supports six lev
 
 | Level | When to Use |
 |---|---|
-| `none` | Latency-critical tasks with no reasoning benefit (voice, simple classification) |
+| `none` | Latency-critical tasks with no reasoning benefit (simple classification, format conversion) |
 | `low` | Tool-use orchestration, light planning, straightforward coding |
 | `medium` | Default for most workloads — balanced quality and latency |
 | `high` | Complex debugging, deep planning, quality over latency |
 | `xhigh` | Deep research, asynchronous workflows requiring maximum depth |
 | `max` | Hardest quality-first workloads — reserve for problems that justify the cost |
 
-Source: https://developers.openai.com/docs/guides/reasoning
+Source: https://developers.openai.com/api/docs/guides/reasoning
 
 ### reasoning.mode
 
@@ -74,7 +74,7 @@ Independent of effort. Two modes:
 
 Mode and effort are orthogonal — you can combine `low` effort with `pro` mode or `max` effort with `standard` mode.
 
-Source: https://developers.openai.com/docs/guides/reasoning
+Source: https://developers.openai.com/api/docs/guides/reasoning
 
 ### reasoning.context
 
@@ -84,7 +84,7 @@ Controls reasoning persistence across multi-turn conversations:
 - **`all_turns`**: Renders compatible reasoning from earlier turns into the next sample. Use when task goals remain stable; provide `previous_response_id`.
 - **`current_turn`**: Reasoning available only within the active turn. Use when earlier reasoning is no longer relevant.
 
-Source: https://developers.openai.com/docs/guides/reasoning
+Source: https://developers.openai.com/api/docs/guides/reasoning
 
 ### text.verbosity
 
@@ -100,7 +100,7 @@ Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
 ### Image detail: `original`
 
-GPT-5.6 supports `detail: "original"` for image inputs, preserving full resolution without downscaling.
+GPT-5.6 supports `detail: "original"` for image inputs, preserving full resolution without downscaling. Use this for higher-fidelity analysis of full-resolution images where fine details matter, such as reading small text, inspecting UI elements, or analyzing technical diagrams.
 
 Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
@@ -132,7 +132,7 @@ Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
 ### Control verbosity via parameter, not prompt
 
-Since GPT-5.6 is more concise by default than its predecessors, legacy brevity instructions ("keep it short", "be brief") stack with the model's natural conciseness and produce unhelpfully terse output. Set `text.verbosity` to the desired level and remove prompt-based verbosity instructions.
+Use `text.verbosity` instead of prompt-based brevity instructions (see the `text.verbosity` section above for details and rationale).
 
 Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
@@ -152,11 +152,11 @@ Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
 ## Migration from GPT-5.x to GPT-5.6
 
-1. **Effort baseline:** Keep your current GPT-5.5/5.4 effort level as the starting baseline, then benchmark one level lower — GPT-5.6 often matches predecessor quality at reduced effort.
+1. **Effort baseline:** Keep your current GPT-5.5/5.4 effort level as the starting baseline, then benchmark one level lower.
 2. **Verbosity cleanup:** Remove prompt-level brevity instructions; use `text.verbosity` instead.
 3. **Deduplicate instructions:** Audit for repeated rules and collapse them. The 10-15% eval improvement from deduplication is effectively free.
-4. **Test `reasoning.mode: pro`:** For your hardest tasks, compare `pro` mode against higher effort levels — `pro` at `medium` effort may outperform `standard` at `high`.
-5. **Review autonomy prompts:** GPT-5.6's improved instruction-following means vague autonomy guidance causes more harm than in 5.x. Add explicit boundaries.
+4. **Test `reasoning.mode: pro`:** For your hardest tasks, compare `pro` mode against higher effort levels.
+5. **Review autonomy prompts:** GPT-5.6's improved instruction-following requires explicit autonomy boundaries. Add clear statements of what the model may do without confirmation and what requires approval.
 
 Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 
