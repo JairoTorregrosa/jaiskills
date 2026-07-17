@@ -96,13 +96,13 @@ Sets the default detail level of the final answer:
 
 GPT-5.6 is more concise by default than GPT-5.5. Legacy "be brief" prompt instructions may now over-correct — use this parameter instead of prompt text to control verbosity.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ### Image detail: `original`
 
 GPT-5.6 supports `detail: "original"` for image inputs, preserving full resolution without downscaling. Use this for higher-fidelity analysis of full-resolution images where fine details matter, such as reading small text, inspecting UI elements, or analyzing technical diagrams.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## GPT-5.6 Prompting Rules
 
@@ -112,13 +112,13 @@ GPT-5.6 rewards leaner, more precise prompts. These rules supersede older GPT-5.
 
 Internal testing showed that removing duplicated instructions improved eval scores by 10-15% and reduced tokens by 41-66%. GPT-5.6 actively penalizes redundancy — repeating a rule for emphasis degrades performance rather than reinforcing it.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ### Specify concrete behaviors, not vague adjectives
 
 Replace "be thorough" with measurable instructions: "Check all files matching `*.test.ts` before declaring the fix complete." Replace "be concise" with the `text.verbosity` parameter. Vague tone adjectives waste reasoning tokens without guiding behavior.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ### Define autonomy boundaries
 
@@ -128,13 +128,13 @@ Explicitly state what the model may do without confirmation and what requires ap
 
 Without these boundaries, GPT-5.6 may either over-ask (slowing workflows) or over-act (taking unreviewed actions).
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ### Control verbosity via parameter, not prompt
 
 Use `text.verbosity` instead of prompt-based brevity instructions (see the `text.verbosity` section above for details and rationale).
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## Programmatic Tool Calling (PTC)
 
@@ -142,13 +142,13 @@ PTC lets the model write JavaScript to orchestrate tool calls in an isolated run
 
 The multi-agent "ultra" mode is beta. Keep a single-agent fallback path in production.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## Prompt Cache Breakpoints
 
 GPT-5.6 supports explicit prompt cache breakpoints — prefix markers that tell the API where cacheable content ends. Cached prefixes have a minimum 30-minute lifetime. Structure system prompts with stable content first (instructions, reference data) and variable content last (user query, conversation history) to maximize cache hits.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## Migration from GPT-5.x to GPT-5.6
 
@@ -158,7 +158,7 @@ Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
 4. **Test `reasoning.mode: pro`:** For your hardest tasks, compare `pro` mode against higher effort levels.
 5. **Review autonomy prompts:** GPT-5.6's improved instruction-following requires explicit autonomy boundaries. Add clear statements of what the model may do without confirmation and what requires approval.
 
-Source: https://developers.openai.com/docs/guides/prompt-guidance-gpt-5p6
+Source: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## Codex Integration with GPT-5.6
 
