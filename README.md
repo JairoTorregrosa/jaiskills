@@ -187,6 +187,26 @@ Enrich plans with external research before execution. Parallel researcher agents
 | `.mcp.json` | Config | Bundles Codex MCP server into the plugin for advisor/judge features |
 | `insistir.py` | Script | Plan validator CLI (validate, waves, status) |
 
+## remoto — Remote Agent Orchestration over SSH
+
+Orchestrate headless Claude Code and Codex agents on a remote SSH host (e.g. a Jetson) from your Mac. The local session is the lead: it spawns `claude -p` / `codex exec` jobs over SSH, polls file-based job state, collects results, and cross-reviews across providers. Jobs survive disconnects (`nohup setsid`, state under `~/.remoto/jobs/<id>/` on the host).
+
+```
+/plugin install remoto@jaiskills
+
+/remoto:run Migrate the sensor pipeline to async — implement with claude, cross-review with codex
+/remoto:status
+```
+
+| Component | Type | Description |
+|-----------|------|-------------|
+| `remote-agents` | Skill | Orchestration playbook: probe, prepare workspace, spawn, wait, collect, cross-review |
+| `prompt-templates` | Reference | Metaprompt-engineered worker/reviewer/fixer templates per model family |
+| `remoto.sh` | Script | SSH job runner: hosts, spawn, ls, status, wait, logs, result, kill, push, pull, clean |
+| `run` / `status` | Commands | `/remoto:run <task>`, `/remoto:status [job ...]` |
+
+Requires: SSH key auth to the host (`Host jetson` in `~/.ssh/config`), `claude` and `codex` logged in on the remote, `rsync` for push/pull.
+
 ## Requirements
 
 - Claude Code 1.0.33+

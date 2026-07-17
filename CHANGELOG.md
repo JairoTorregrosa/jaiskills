@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 (2026-07-16)
+
+- **New plugin `remoto`** (Remote Agent Orchestration over SSH): spawn and manage headless `claude -p` / `codex exec` workers on a remote host (Jetson) from the local Claude Code session.
+  - `scripts/remoto.sh` — file-based job runner over SSH: `hosts`, `spawn` (nohup/setsid, per-job dir under `~/.remoto/jobs/`), `ls`, `status`, `wait`, `logs`, `result` (parses claude stream-json / codex last-message), `kill` (process group), `push`/`pull` (rsync), `clean`.
+  - `remote-agents` skill — orchestration playbook: probe → prepare workspace → self-contained prompts → parallel spawn → background wait → collect → cross-provider cross-review (claude work reviewed by codex and vice versa).
+  - `references/prompt-templates.md` — metaprompt-engineered worker/reviewer/fixer templates (Claude: XML structuring, default-to-action, grounded claims; Codex/GPT-5: contradiction-free hard requirements, persistence) sharing a machine-collectable REPORT contract.
+  - Commands `/remoto:run` and `/remoto:status`.
+
 ## 0.3.0 (2026-07-12)
 
 - **goal-loop becomes a software factory**: new Phase 0.5 (observability plan + dynamic instrument generation) grounded in a second literature deep-dive (The Verification Horizon arXiv:2606.26300, Verifier Engineering arXiv:2411.11504, Tool-Genesis arXiv:2603.05578, LATM arXiv:2305.17126, metamorphic-testing surveys):
