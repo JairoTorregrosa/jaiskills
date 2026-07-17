@@ -96,6 +96,8 @@ Send your findings to the lead via SendMessage with this structure:
 ### Output Rules
 
 - Every finding must be backed by a source (file path, URL, or code reference)
+- **Per-claim URL granularity**: each factual claim must carry the EXACT URL you WebFetch'd to support it — full path to the specific page. Domain-level or directory-level URLs (e.g., `developers.openai.com/docs/...` when the fetched page was `/api/docs/models/<model>`) are insufficient and cause provenance drift downstream.
+- **Label provenance**: mark each claim `[fetched: <exact URL>]` when you read it on the page, or `[asserted]` when it is your inference/synthesis. Downstream workers must not present `[asserted]` claims as sourced facts without re-fetching.
 - Do NOT include speculative recommendations — only what the evidence supports
 - Flag uncertainty explicitly: "Could not confirm whether X applies to version Y"
 - If local context contradicts online advice, highlight the conflict and recommend the local convention unless there is a strong reason not to

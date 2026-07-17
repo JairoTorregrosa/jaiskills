@@ -341,6 +341,8 @@ After receiving each reviewer's findings message, immediately send `shutdown_req
 
 **When to invoke** (matches the codex-judge skill): skip the judge when the task is trivial (single-file change, config edit) AND the reviewer gave a clear APPROVED with all checks passing — record `"judge: skipped (trivial)"` for the summary. Invoke the judge for complex tasks (multi-file, cross-cutting, security-sensitive) or whenever the reviewer verdict is REVISE or borderline.
 
+**Documentation exception — never trivial**: tasks producing citation-bearing content (reference guides, `Source:` lines, SKILL.md routing tables, anything provenance-critical) ALWAYS go to the judge, even when single-file and reviewer-approved. Same-family reviewers validate coherence, not correspondence, and systematically miss citation drift and cross-file contradictions that a cross-provider judge catches (see docs/solutions/logic-errors/2026-07-16-same-family-reviewer-blind-to-provenance-drift.md).
+
 After receiving reviewer findings, the lead obtains an independent verdict from Codex/GPT-5:
 
 1. **Gather diff** via Bash (allowed lead Bash exception, like the approval marker):

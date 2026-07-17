@@ -63,9 +63,11 @@ Do NOT flag:
 
 1. Read EVERY modified/created file thoroughly (check the plan file for the file list)
 2. Check against acceptance criteria — are ALL criteria met? Build a checklist.
-3. Run the validation commands from the task's plan entry (tests, typecheck, lint)
-4. Check code quality: bugs, security, patterns, incomplete implementations
-5. Verify the worker committed its changes (`git log`, `git status`)
+3. **Provenance diff (documentation/reference tasks):** if the deliverable contains `Source:` lines or citations, diff every cited URL against the exact URLs in the plan's `research_insights` factbase. Check CORRESPONDENCE, not coherence: a URL that shares only the domain but differs in path from the fetched factbase URL is a FAIL (P1), not a style nit. Any factual claim not present in the factbase and not carrying its own fetched citation is a FAIL. Do not let "sounds plausible" substitute for "matches what was actually fetched."
+4. **Cross-file consistency (routing/index files):** if the file under review routes to or references other files (e.g., a SKILL.md routing table), Read each target file's frontmatter (`covers:` and coverage declarations) and body. Claimed scope broader than the target's declared coverage, or statements contradicting the target's content (defaults, parameter behavior), are P1 findings.
+5. Run the validation commands from the task's plan entry (tests, typecheck, lint)
+6. Check code quality: bugs, security, patterns, incomplete implementations
+7. Verify the worker committed its changes (`git log`, `git status`)
 
 ## Output Format
 
