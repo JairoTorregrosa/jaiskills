@@ -1,6 +1,6 @@
 {
   "name": "metaprompt",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Metaprompt — Model-Aware Prompt Engineering",
   "description": "Generate complete, ready-to-use prompts engineered for a specific model and harness using the latest prompt-engineering techniques",
   "author": {

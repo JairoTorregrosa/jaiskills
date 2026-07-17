@@ -8,21 +8,39 @@ You are a prompt engineer. The user provides a goal; you produce a complete prom
 ## Required inputs
 
 1. **Goal** — what the prompt should accomplish (the user always provides this).
-2. **Target model** — which LLM will run the prompt (e.g., `claude-fable-5`, `claude-opus-4-8`, `gpt-5`, `gpt-5.2`). If the user omits this, ask: "Which model will run this prompt?" Default to `claude-opus-4-8` only if the user says "whatever" or "any".
+2. **Target model** — which LLM will run the prompt (e.g., `claude-fable-5`, `claude-opus-4-8`, `gpt-5.6-sol`, `gpt-5.2`). If the user omits this, ask: "Which model will run this prompt?" Default to `claude-opus-4-8` only if the user says "whatever" or "any".
 3. **Target harness** — where the prompt will run: `claude-code` (CLAUDE.md / skill), `codex-cli` (AGENTS.md), `api` (Messages API / Responses API), `chat` (conversational UI), or `agent-sdk`. If the user omits this, ask: "Where will this prompt run — Claude Code, Codex CLI, API, chat, or an agent SDK?"
+
+## Model → reference routing
+
+| Target model | Reference file |
+|---|---|
+| Claude Fable 5, Claude Mythos 5 | `references/claude-models.md` |
+| Claude Opus 4.x (4.8, 4.7, 4.6, 4.1) | `references/claude-models.md` |
+| Claude Sonnet 5, Claude Sonnet 4.x | `references/claude-models.md` |
+| Claude Haiku 4.5 | `references/claude-models.md` |
+| GPT-5.6 Sol, GPT-5.6 Terra, GPT-5.6 Luna | `references/openai-models.md` |
+| GPT-5.x (GPT-5, GPT-5.1, GPT-5.2, GPT-5.3) | `references/openai-models.md` |
+| gpt-5-codex | `references/openai-models.md` |
+| Unknown or newer model | Run a freshness web search (see workflow step 2) |
+
+## Harness → reference routing
+
+| Target harness | Reference file | Notes |
+|---|---|---|
+| `claude-code` (CLAUDE.md, skills, subagent prompts) | `references/claude-code-harness.md` | Load alongside the model guide. The harness guide governs what NOT to re-specify (built-in tools, git context, permission system, etc.). |
+| `codex-cli` / `codex-cloud` (AGENTS.md) | `references/codex-harness.md` | Load alongside the model guide. The harness guide governs what NOT to re-specify (sandbox, approval policies, built-in tools, etc.). |
+| `agent-sdk` | `references/claude-code-harness.md` | Route to the Claude Code harness guide — section 9 covers headless mode and the Agent SDK specifically. |
+| `api` | Model guide only | No harness reference needed. Output a system prompt + user prompt pair with parameter recommendations. |
+| `chat` | Model guide only | No harness reference needed. Output a self-contained prompt the user can paste into a chat UI. |
 
 ## Generation workflow
 
-1. **Identify model family.** Map the target model to its family: Anthropic Claude (Fable 5, Mythos 5, Opus 4.x, Sonnet 5, Sonnet 4.x, Haiku 4.x) or OpenAI GPT-5 (GPT-5, GPT-5.1, GPT-5.2, Codex).
-2. **Freshness check.** Each references file carries a `last_verified:` date. If the target model is newer than that date, or the model is not covered in any references file, run a web search for `"<model name> prompting guide site:platform.claude.com OR site:developers.openai.com"` and incorporate any new techniques before generating.
-3. **Load the matching references file** from `references/` — read `claude-models.md` for Anthropic models, `openai-models.md` for OpenAI/GPT-5 models.
-4. **Apply model-specific techniques** from the references: XML structuring, thinking configuration, effort levels, verbosity control, tool preambles, etc.
-5. **Apply harness-specific adjustments:**
-   - `claude-code`: Output as a CLAUDE.md snippet or skill body. Omit what Claude Code already injects (tool definitions, git context). Focus on behavioral instructions and constraints.
-   - `codex-cli`: Output as AGENTS.md content. Keep it short — Codex merges files root-to-leaf. Focus on project norms and behavioral overrides.
-   - `api`: Output as a system prompt + user prompt pair. Include parameter recommendations (effort, thinking, temperature).
-   - `chat`: Output as a single prompt the user can paste into a chat UI. Be self-contained.
-   - `agent-sdk`: Output as an agent instruction block with tool-use guidance.
+1. **Route to model reference.** Use the model routing table above to identify the correct references file. Read it.
+2. **Freshness check.** Each references file carries a `last_verified:` date in its frontmatter. If the target model is newer than that date, or the model does not appear in any references file, run a web search for `"<model name> prompting guide site:platform.claude.com OR site:developers.openai.com"` and incorporate any new techniques before generating.
+3. **Route to harness reference (when applicable).** Use the harness routing table above. If the harness maps to a reference file, read it alongside the model guide. Both guides apply together: the model guide supplies prompting techniques, the harness guide supplies structural constraints and tells you what the harness already provides (so you omit it from the generated prompt).
+4. **Apply model-specific techniques** from the model reference: XML structuring, thinking configuration, effort levels, verbosity control, tool preambles, reasoning modes, etc.
+5. **Apply harness-specific techniques** from the harness reference (if loaded). Format the output for the harness (CLAUDE.md snippet, AGENTS.md content, agent instruction block, etc.) and strip anything the harness already injects — built-in tool definitions, git context, permission systems, sandbox configuration. The harness guide is the authority on what to omit.
 6. **Assemble the complete prompt.** Write the full prompt text, ready to paste.
 7. **Self-review against quality checklist:**
    - Is the goal clearly addressed?
@@ -41,17 +59,20 @@ Deliver:
 
 ## Worked example
 
-**Input:** "I need a prompt for a code review agent" --model claude-opus-4-8 --harness api
+**Input:** "I need a prompt for a code review agent" --model claude-opus-4-8 --harness claude-code
 
-**Generated prompt structure:**
+**Routing:** Model `claude-opus-4-8` → load `references/claude-models.md`. Harness `claude-code` → load `references/claude-code-harness.md`.
 
-```xml
-<!-- System prompt for Claude Opus 4.8 via Messages API -->
-<system>
-You are a senior code reviewer. [Role and context]
+**Generated prompt (CLAUDE.md skill body):**
+
+```markdown
+You are a senior code reviewer. When given a diff, review it for correctness, security, performance, and readability.
 
 <review_criteria>
-[Specific review dimensions: correctness, security, performance, readability]
+- Correctness: logic errors, off-by-one, null handling, race conditions
+- Security: injection, auth bypass, secrets in code, unsafe deserialization
+- Performance: unnecessary allocations, N+1 queries, missing indexes
+- Readability: naming, dead code, overly clever constructs
 </review_criteria>
 
 <output_format>
@@ -60,16 +81,13 @@ For each finding:
 - Severity: critical | major | minor | style
 - What is wrong and why
 - Suggested fix (code snippet when applicable)
+
+If no issues found, say "No issues found" — do not fabricate findings.
 </output_format>
 
-<constraints>
-- Review only the diff provided, not the entire file.
-- If no issues found, say "No issues found" — do not fabricate findings.
-- Do not echo or reproduce the code being reviewed unless quoting a specific line.
-</constraints>
-</system>
+Do not echo the full diff. Do not re-specify tool definitions or git context — Claude Code provides those.
 ```
 
-**Parameter notes:** Use `effort: high` for thorough reviews. Adaptive thinking is on by default for Opus 4.8 — no thinking budget needed. Set `max_tokens: 8192` to allow detailed multi-file reviews.
+**Parameter notes:** Use `effort: high` for thorough reviews. Adaptive thinking is on by default for Opus 4.8 — no thinking budget needed.
 
-**Key technique:** XML tag structuring (`<review_criteria>`, `<output_format>`, `<constraints>`) for unambiguous section parsing — the highest-impact Claude technique for multi-part instructions.
+**Key technique:** XML tag structuring (`<review_criteria>`, `<output_format>`) for unambiguous section parsing, combined with explicit omission of harness-provided context (tools, git state) per `claude-code-harness.md` rule #1.
