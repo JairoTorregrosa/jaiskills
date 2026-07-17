@@ -174,7 +174,7 @@ The main configuration file lives at `~/.codex/config.toml` (or `$CODEX_HOME/con
 ```toml
 model = "gpt-5.5"
 model_reasoning_effort = "high"    # minimal | low | medium | high | xhigh
-model_verbosity = "medium"         # low | medium | high (GPT-5+ Responses API)
+model_verbosity = "medium"         # low | medium | high (GPT-5+ Responses API, config-reference)
 model_context_window = 200000
 model_auto_compact_token_limit = 150000
 
@@ -404,3 +404,5 @@ When generating a prompt targeting the Codex harness:
 6. **Specify sandbox mode and approval policy** when the task has security constraints.
 7. **Use the preamble pattern** — acknowledge, plan, then execute.
 8. **Reference files as** `path/to/file.ts:line` — no URI schemes.
+
+Source: synthesis of sections 1-3 and 8-12 above (learn.chatgpt.com/docs/agent-configuration/agents-md, developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide)
