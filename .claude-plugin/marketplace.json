@@ -12,12 +12,15 @@
       "description": "Insistir Sin Desistir — multi-agent orchestration with cross-validation using Claude Code Agent Teams",
       "version": "0.3.0",
       "category": "development",
-      "tags": [
-        "multi-agent",
-        "orchestration",
-        "cross-review",
-        "quality-gates"
-      ]
+      "tags": ["multi-agent", "orchestration", "cross-review", "quality-gates"]
+    },
+    {
+      "name": "metaprompt",
+      "source": "./plugins/metaprompt",
+      "description": "Metaprompt — generate complete, ready-to-use prompts engineered for a specific model and harness",
+      "version": "0.1.0",
+      "category": "prompt-engineering",
+      "tags": ["metaprompt", "prompt-engineering", "prompt-optimization", "model-specific"]
     }
   ]
 }

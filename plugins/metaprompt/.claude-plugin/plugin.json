@@ -1,0 +1,22 @@
+{
+  "name": "metaprompt",
+  "version": "0.1.0",
+  "displayName": "Metaprompt — Model-Aware Prompt Engineering",
+  "description": "Generate complete, ready-to-use prompts engineered for a specific model and harness using the latest prompt-engineering techniques",
+  "author": {
+    "name": "Jairo Torregrosa",
+    "url": "https://github.com/JairoTorregrosa"
+  },
+  "repository": "https://github.com/JairoTorregrosa/jaiskills",
+  "license": "MIT",
+  "keywords": [
+    "metaprompt",
+    "prompt-engineering",
+    "prompt-optimization",
+    "model-specific",
+    "claude",
+    "gpt-5",
+    "codex",
+    "agentic"
+  ]
+}
