@@ -1,6 +1,6 @@
 {
   "name": "insistir",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "displayName": "Insistir Sin Desistir — Agents Checking Agents",
   "description": "Multi-agent orchestration with cross-validation, Codex cross-provider judge, codex advisor, goal loop (loop engineering), knowledge compounding, file-based TODO lifecycle, and plan deepening",
   "author": {

@@ -122,22 +122,21 @@ The judge never sees implementer reasoning — only the code diff and review ver
 
 ## Goal Loop (Loop Engineering)
 
-A structured implement-verify-judge iteration loop that converges on a provably-met objective.
+Gradient descent for goals: an agent factory generates goal-specialized agents, then the loop runs forward → loss → backward → update until the goal is provably met. Grounded in TextGrad/ProTeGi (textual gradients), SkillGrad (diagnoser/momentum/patcher, contrastive diagnosis, early stopping), ADAS (meta-agent + design archive), and SpecBench (visible/held-out evidence split against reward hacking).
 
 ### `/insistir:goal`
 
 ```
-/insistir:goal Reduce p95 latency below 200ms on the /search endpoint --max-iterations 5
+/insistir:goal Reduce p95 latency below 200ms on the /search endpoint --max-epochs 6 --patience 2
 ```
 
-**Goal Contract** — Before iterating, the loop establishes a contract with:
-- Clear objective and desired end state
-- Evidence criteria (concrete, machine-verifiable where possible)
-- Budget (default: 5 iterations, configurable with `--max-iterations`)
+**Goal Contract (guided intake)** — Objective and end state, a loss function of observable evidence **partitioned into visible validation** (the implementer's optimization target) **and held-out compositional checks** (judge-only — never shown to the implementer), constraints, epoch budget, and an initial edit scope (the learning rate). Unverifiable goals are rejected upfront.
 
-**Fresh-Iteration Loop** — Each iteration spawns a fresh implementer agent (no context pollution), preserving only the goal contract and iteration log. The iteration log is kept verbatim so mistakes serve as learning signal.
+**Agent Factory** — Before looping, a meta-step generates four goal-specialized agent prompts into `loops/<slug>/agents/` (implementer, verifier, diagnoser, judge), seeded by `loops/archive.md` and `docs/solutions/` — designs compound across goals, ADAS-style.
 
-**Anti-Reward-Hacking Judge** — After each iteration, the judge (Codex by default, Claude subagent fallback) evaluates evidence against the goal contract, specifically watching for gaming of metrics vs genuine progress. Goals that cannot be verified with evidence are rejected upfront.
+**Descent Loop** — Each epoch: a fresh implementer (forward pass) acts on the gradient log and momentum; evidence commands compute the loss; a diagnoser converts failures into textual gradients and newly-passing checks into contrastive "preserve this" signal; momentum accumulates recurring patterns; plateau shrinks the edit scope and eventually early-stops (textual optimization is non-monotonic).
+
+**Anti-Reward-Hacking Judge** — When visible evidence is green, the judge (Codex by default, Claude fallback) runs the held-out checks and reports the **hacking gap** (visible minus held-out pass rate). A positive gap with green visible evidence is presumptive gaming — deleted tests, hardcoded values, lookup-table memorization, feature isolation — and yields NOT MET.
 
 ## Knowledge Compounding
 
@@ -170,7 +169,7 @@ Enrich plans with external research before execution. Parallel researcher agents
 |-----------|------|-------------|
 | `insistir` | Skill | Main orchestration pipeline (intake, plan, execute, cross-review, judge, cleanup) |
 | `codex-judge` | Skill | Cross-provider LLM judge — scores review verdicts via Codex/GPT-5, dual-threshold gating |
-| `goal-loop` | Skill | Loop-engineering iteration loop with goal contract, fresh implementers, and anti-reward-hacking judge |
+| `goal-loop` | Skill | Loop engineering as gradient descent: agent factory, textual gradients, momentum, held-out evidence, anti-reward-hacking judge |
 | `compound-knowledge` | Skill | Orchestrates parallel sub-agents to capture solved problems as documentation |
 | `file-todos` | Skill | Defines TODO format, lifecycle, and management operations |
 | `insistir-worker` | Agent | Implements tasks or applies review fixes, commits, reports to lead |

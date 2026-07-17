@@ -1,135 +1,165 @@
 ---
 name: goal-loop
 description: >
-  Loop-engineering goal loop — implement → verify → judge → iterate until the goal is provably met.
-  Separates worker from judge (different model instances) to prevent self-comforting optimism.
-  Fresh implementer each iteration preserves mistakes as learning signal without context pollution.
-  Use when: (1) user says /insistir:goal, (2) a task needs verifiable completion evidence,
-  (3) "goal loop", "loop until done", "iterate until passing", "keep going until tests pass".
-  Do NOT use for: (1) goals that cannot be expressed as observable evidence (ask user to refine first),
-  (2) trivial one-shot tasks, (3) open-ended exploration with no clear done-state.
+  Loop engineering as gradient descent — a guided goal loop where an agent factory generates
+  goal-specialized agents (implementer, verifier, diagnoser, judge) and iterates
+  forward → loss → backward → update until the goal is provably met.
+  Evidence is split into visible validation (the implementer's loss) and held-out checks
+  (judge-only, anti-reward-hacking). A diagnoser turns failures into textual gradients;
+  momentum accumulates recurring patterns; plateau detection triggers early stopping.
+  A Phase 0.5 observability plan dynamically reuses or generates the instruments (tools/probes/
+  harnesses) needed to verify the goal, calibrated red-first before the loop starts.
+  Use when: (1) user says /insistir:goal, (2) "loop engineering", "goal loop", "agent factory",
+  "instrument factory", "software factory", "dynamic tool generation",
+  "gradient descent on a task", "loop until done", "iterate until passing",
+  (3) a task needs verifiable completion evidence across multiple attempts.
+  Do NOT use for: (1) goals that cannot be expressed as observable evidence (refine with the
+  user first), (2) trivial one-shot tasks, (3) open-ended exploration with no done-state.
 ---
 
-# Goal Loop: Implement → Verify → Judge → Iterate
+# Goal Loop: Gradient Descent for Goals, Built by an Agent Factory
 
-Loop engineering applied to goal completion. A fresh implementer attempts the goal each iteration, concrete evidence commands verify the result, and an independent judge (different model, no access to implementer reasoning) decides whether the goal is genuinely met — catching reward hacking, deleted tests, and weakened assertions.
+Formal contract (invariants, phase pre/postconditions, conformance checks): [SPEC.md](SPEC.md).
+Worked example, end to end: [references/example-cv-os.md](references/example-cv-os.md).
 
-## Architecture
+Treat the goal as a training problem. The working tree is the parameter, evidence commands are the loss function, a fresh implementer is the forward pass, a diagnoser produces textual gradients (the backward pass), momentum accumulates recurring error patterns, and an independent judge validates against held-out checks the implementer never sees. An agent factory generates all of these agents specialized to the goal, consulting an archive of past loops.
+
+## Deep-Learning Mapping
+
+| Deep learning | This loop | Where it lives |
+|---|---|---|
+| Parameter θ | Working tree + artifacts | the repo |
+| Forward pass | Fresh implementer attempt | `agents/implementer.md` |
+| Training loss | Visible validation evidence | `loop.md` § Evidence (visible) |
+| Held-out test set | Hidden compositional checks | `heldout.md` (judge-only) |
+| Gradient ∂L/∂θ | Textual diagnosis: which behavior caused the failure, what to change | diagnoser output |
+| Momentum | Recurring-pattern memory across epochs | `loop.md` § Momentum |
+| Learning rate | Edit scope per epoch (shrinks on plateau) | contract field |
+| Epoch | One full loop iteration | descent log |
+| Early stopping | No loss improvement for `patience` epochs | decide step |
+| Train/test leak | Showing held-out checks to the implementer | forbidden |
+
+## Directory Layout
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   GOAL CONTRACT                          │
-│  end state · evidence commands · constraints · budget   │
-└────────────────────────┬────────────────────────────────┘
-                         │
-              ┌──────────▼──────────┐
-              │   ITERATION N       │◄──────────────────┐
-              └──────────┬──────────┘                    │
-                         │                              │
-              ┌──────────▼──────────┐                    │
-              │  A. IMPLEMENT       │  fresh subagent    │
-              │  (goal contract +   │  (no reuse)        │
-              │   iteration log)    │                    │
-              └──────────┬──────────┘                    │
-                         │                              │
-              ┌──────────▼──────────┐                    │
-              │  B. VERIFY          │  run evidence      │
-              │  (Bash commands,    │  commands, capture  │
-              │   check outputs)    │  pass/fail         │
-              └──────────┬──────────┘                    │
-                         │                              │
-              ┌──────────▼──────────┐                    │
-              │  C. JUDGE           │  independent model  │
-              │  (goal + evidence   │  (Codex or Claude)  │
-              │   + diff — NO       │                    │
-              │   implementer       │                    │
-              │   reasoning)        │                    │
-              └──────────┬──────────┘                    │
-                         │                              │
-                    ┌────▼────┐                          │
-                    │  MET?   │── no ── append log ──────┘
-                    └────┬────┘
-                         │ yes
-              ┌──────────▼──────────┐
-              │  D. REPORT          │
-              │  status + evidence  │
-              └─────────────────────┘
+loops/
+  archive.md            # cross-goal archive: agent designs + instruments that worked (stepping stones)
+  <slug>/
+    loop.md             # goal contract + descent log — the implementer sees this
+    heldout.md          # held-out evidence — NEVER included in any implementer prompt
+    agents/             # factory-generated, goal-specialized agent prompts
+      implementer.md
+      verifier.md
+      diagnoser.md
+      judge.md
+    tools/              # factory-generated instruments (probes, harnesses, generators)
 ```
 
-## Phase A: Goal Contract
+The factory's conceptual model — observables, capability gaps, the acquisition ladder,
+instrument lifecycle, co-evolution — is defined in [references/factory-framework.md](references/factory-framework.md).
 
-Convert the user's objective into a goal contract. Ensure the directory exists (`mkdir -p goals`), then write it to `goals/<slug>-goal.md` using the template at [references/goal-template.md](references/goal-template.md).
+## Phase 0: Guided Intake → Goal Contract
 
-**Four required fields:**
+Interview the user (AskUserQuestion when genuinely ambiguous) to map the goal onto the loop:
 
-| Field | Purpose | Example |
-|-------|---------|---------|
-| Desired end state | What "done" looks like | "Auth module handles login, signup, reset with tests" |
-| Evidence | Commands + expected outcomes that PROVE success | `pytest tests/auth exits 0`, `grep -c "def test_" >= 5` |
-| Constraints | Must-not-violate invariants | "Do not delete existing tests", "No hardcoded credentials" |
-| Budget | Max iterations before giving up | Default: 5 |
+1. **Desired end state** — concrete and unambiguous.
+2. **Loss function (evidence)** — commands + expected outcomes that PROVE progress. Then **partition**:
+   - **Visible validation** — feature-level checks the implementer optimizes against (e.g. `pytest tests/auth -q` exits 0).
+   - **Held-out** — compositional / end-to-end checks that exercise interactions between features (e.g. a full signup→login→reset flow script, an integration scenario, error-path checks). Agents saturate visible tests while failing composition — the held-out set is what catches lookup-table-style gaming and feature-isolation failures.
+3. **Constraints** — must-not-violate invariants ("do not delete or weaken tests", "no hardcoded expected values").
+4. **Budget** — max epochs (default 6) and `patience` (default 2 epochs without visible-loss improvement → early stop; textual optimization is non-monotonic, more iterations can make things worse).
+5. **Initial learning rate** — edit scope for epoch 1: `broad` (restructure allowed) or `targeted` (minimal diffs).
 
-**Critical rule:** If evidence cannot be expressed as observable commands or artifacts, push back and refine with the user BEFORE entering the loop. Unverifiable goals are rejected — never silently accepted.
+Write the contract to `loops/<slug>/loop.md` and the held-out set to `loops/<slug>/heldout.md` using [references/loop-template.md](references/loop-template.md).
 
-## Phase B: Loop (iterate up to budget)
+**Hard rules:**
+- Evidence must be observable commands or artifacts. Self-assessment is not evidence — intrinsic self-correction without external signal does not converge. If the goal cannot be verified externally, push back and refine BEFORE looping.
+- If no meaningful held-out check exists, derive one from the end state (compose the visible checks into a scenario) rather than skipping the split.
+- If the goal is likely one-shottable (small, well-specified, cheap to verify), say so and skip the loop — implement and verify directly. The loop's overhead is for goals that resist a single attempt.
 
-For each iteration:
+## Phase 0.5: Observability Plan (instrument factory)
 
-### 1. IMPLEMENT
+"Working" is only ever observed through instruments, and reward hacking lives in their blind spots. Before generating agents, generate the measurement system (full procedure in [references/factory-framework.md](references/factory-framework.md), concrete instruments in [references/instrument-catalog.md](references/instrument-catalog.md)):
 
-Spawn a fresh subagent (Task tool) with:
-- The full goal contract
-- The accumulated iteration log (previous failures preserved verbatim — mistakes are learning signal, never truncated)
-- Instructions to implement and leave the working tree in a state that satisfies the evidence
+1. **Enumerate observables** — what must be seen for "done" to be believable (behaviors, compositions, qualities, side-effects).
+2. **Gap analysis** — required observables vs the environment's existing instruments (test frameworks, CLIs, MCP servers, dashboards, prior loops' `tools/`).
+3. **Acquire per the ladder** — reuse → configure → compose → generate → escalate. Generated instruments go to `loops/<slug>/tools/`, built interface-first (contract before implementation) with structured output and exit-code verdicts.
+4. **Calibrate red-first** — every evidence command and generated instrument must FAIL against the pre-implementation state (and pass a known-good reference where one exists) before epoch 1. An uncalibrated verifier is how label bugs poison the loss.
+5. **Register** — record each instrument's coverage, cost, and declared blind spots in `loop.md`; the judge hunts specifically in the declared blind spots.
 
-The implementer is a general-purpose coding agent. Do NOT reuse agents across iterations — fresh context prevents compounding hallucinations.
+**Evidence disputes:** if an implementer claims the evidence itself is wrong, the verifier (lead) adjudicates, owns the fix, and logs it in the descent log — implementers never touch evidence.
 
-### 2. VERIFY
+## Phase 1: Agent Factory
 
-Run every evidence command via Bash. Capture stdout, stderr, and exit code. Record pass/fail for each command in the goal file's Evidence table (last result column).
+Generate the four goal-specialized agent prompt files in `loops/<slug>/agents/` using [references/factory-templates.md](references/factory-templates.md). Before generating:
 
-### 3. JUDGE
+1. Read `loops/archive.md` (if present) and search `docs/solutions/` (spawn `insistir-learnings-researcher` if available) for prior loops in similar domains.
+2. Specialize each template with: the goal domain, the repo's toolchain and conventions, domain-specific failure modes from the archive, and the contract's constraints.
+3. Record in `loop.md` which archive entries seeded the designs (stepping stones).
 
-If all evidence commands pass, send to the judge:
-- Goal contract (end state + constraints)
-- Evidence outputs (raw command results)
-- `git diff` of changes made this iteration
+The factory output is prompts, not code: each file is the complete system-of-instructions for one subagent role. Do not reuse generic prompts — a diagnoser that knows the domain's failure taxonomy produces sharper gradients.
 
-The judge prompt:
+## Phase 2: Descent Loop (per epoch, up to budget)
 
-> You are an independent judge. Given the goal contract and evidence below, determine whether the goal is genuinely met. Look specifically for reward hacking: deleted tests, weakened assertions, hardcoded expected values, disabled checks, or any shortcut that makes evidence pass without truly satisfying the objective. Return JSON: {"met": true/false, "reason": "..."}
+### 1. FORWARD — implement
+Spawn a **fresh** subagent (Task/Agent tool) with `agents/implementer.md` plus the current contents of `loop.md` (contract, visible evidence, gradient log, momentum). Fresh context every epoch — mistakes are preserved in the log as learning signal, never in the agent's context.
 
-**Judge selection:**
-- Default (`--judge codex`): use `mcp__codex__codex` with `sandbox: "read-only"` and `approval-policy: "never"`
-- Fallback (`--judge claude` or Codex unavailable): spawn a fresh Claude subagent with the same prompt
+**Leak check before spawning:** the prompt must contain nothing from `heldout.md` — no commands, no expected outputs, no verbatim held-out failure messages.
 
-The judge NEVER sees the implementer's reasoning or chain of thought — only artifacts and outputs.
+### 2. LOSS — verify
+Run every **visible** evidence command per `agents/verifier.md` (Bash; capture stdout/stderr/exit code). Then run the **held-out** commands. Record visible results in `loop.md`; record held-out results ONLY in `heldout.md`.
 
-### 4. DECIDE
+### 3. BACKWARD — diagnose
+Spawn the diagnoser (`agents/diagnoser.md`) with: contract, this epoch's diff, visible results, held-out results, and the prior gradient log. It returns:
+- **Per-failure gradients** — which behavior caused each failure and what reusable change would fix it (not just the error text).
+- **Contrastive diagnosis** — for checks that newly pass, what changed relative to the earlier failing attempt; behaviors worth preserving. Successes are learning signal too.
+- **Abstracted held-out direction** — held-out failures translated into directional guidance ("compositions of X and Y break under Z") WITHOUT revealing the held-out commands or expected outputs.
 
-- **met = true** → exit loop, proceed to Report
-- **met = false** → append iteration entry to the goal file (attempt summary, evidence results, judge verdict + reason), increment counter, continue with a FRESH implementer
+### 4. MOMENTUM — accumulate
+Merge the diagnosis into `loop.md` § Momentum: recurring patterns with occurrence counts and coverage status (addressed / open). Momentum stabilizes updates — the next implementer acts on consolidated patterns, not one epoch's noise.
 
-## Phase C: Report
+### 5. LEARNING RATE — adapt
+- Same top pattern ≥2 epochs with no visible-loss improvement → shrink edit scope to `targeted` and constrain the next implementer to that pattern only.
+- Still no improvement after `patience` epochs → **early stop**: report plateau and propose decomposing the goal into sub-goals (each a new loop).
 
-Output final status:
-- **MET after N iterations** — evidence summary, pointer to goal file
-- **BUDGET EXHAUSTED** — closest state achieved, remaining failures, and suggestion: "Consider decomposing this goal into smaller sub-goals"
+### 6. JUDGE — validate (only when visible loss = 0)
+Send to the judge per `agents/judge.md`: contract, epoch diff, visible + held-out results. Never the implementer's reasoning.
+
+- Default `--judge codex`: `mcp__codex__codex` with `sandbox: "read-only"`, `approval-policy: "never"` (parameter names are kebab-case).
+- Fallback `--judge claude` or Codex unavailable: fresh Claude subagent, same prompt.
+
+The judge returns `{"met": bool, "hacking_gap": <visible pass-rate − held-out pass-rate>, "reason": "..."}` and explicitly hunts the seven hacking behaviors (arXiv:2606.26300): solution-artifact retrieval, external fix lookup, harness tampering, test-oracle tampering (deleted/weakened tests, hardcoded values, lookup-table memorization), visible-test overfitting, evaluator-aware patching, repository-history mining — plus feature isolation (units pass, composition fails). It also probes the blind spots each instrument declared in Phase 0.5. A positive hacking gap with green visible evidence is the signature of gaming — verdict must be NOT MET.
+
+### 7. DECIDE
+- **met** → Phase 3.
+- **not met** → append the epoch entry (attempt summary, loss results, gradients, judge reason) to `loop.md`, increment epoch, continue with a fresh implementer.
+- **budget/patience exhausted** → Phase 3 with status `exhausted`.
+
+## Phase 3: Report + Archive
+
+1. Report: **MET after N epochs** (evidence summary, final hacking gap, pointer to `loop.md`) or **EXHAUSTED/PLATEAU** (closest state, open patterns, proposed decomposition).
+2. Update `loops/archive.md`: goal domain, which factory designs worked, momentum patterns likely to recur, final outcome. This archive seeds the next loop's factory — designs compound across goals.
+3. Suggest `/insistir:compound` if a non-obvious problem was solved along the way.
 
 ## Flags
 
 | Flag | Default | Effect |
 |------|---------|--------|
-| `--max-iterations N` | 5 | Override iteration budget |
-| `--judge codex\|claude` | codex | Select judge provider |
+| `--max-epochs N` | 6 | Epoch budget |
+| `--patience N` | 2 | Epochs without visible-loss improvement before early stop |
+| `--judge codex\|claude` | codex | Judge provider |
 
-## Relation to Native /goal
+## Theoretical Grounding
 
-Claude Code ships a native `/goal` command (v2.1.139+) that uses Stop hooks with a prompt-based evaluator on the same conversation context. This skill complements it by adding:
-
-1. **Fresh-context iterations** — each implementer starts clean, avoiding context window exhaustion on hard problems
-2. **Cross-provider judging** — Codex (GPT-5.x) judges Claude's work, eliminating same-model optimism bias
-3. **Persistent goal file** — the iteration log survives sessions and compounds learnings
-4. **Explicit reward-hacking detection** — the judge prompt specifically targets gaming behaviors
-
-Use native `/goal` for quick single-session convergence. Use `/insistir:goal` for hard problems that need multiple fresh attempts and adversarial verification.
+| Design choice | Source |
+|---|---|
+| Textual gradients + explicit backward pass | TextGrad (arXiv:2406.07496), ProTeGi (arXiv:2305.03495) |
+| Diagnoser / momentum / patcher factory roles; contrastive diagnosis; non-monotonic iterations → early stopping | SkillGrad (arXiv:2605.27760) |
+| External evidence over self-critique; verbatim failure memory | Reflexion (arXiv:2303.11366) |
+| Meta-agent generating agents + archive as stepping stones | ADAS (arXiv:2408.08435) |
+| Visible/held-out evidence split; hacking gap; more search amplifies gaming | SpecBench (arXiv:2605.21384) |
+| Verifier = proxy for intent; scalability/faithfulness/robustness trade-off; hacking-behavior taxonomy; verifier–generator co-evolution | The Verification Horizon (arXiv:2606.26300) |
+| Combine weak verifiers; form × granularity × source taxonomy; routing as open problem | Verifier Engineering (arXiv:2411.11504) |
+| Oracle families beyond ground truth: differential, metamorphic, judgment | MR generation survey (arXiv:2406.05397) |
+| Tool creation = interface prediction → materialization → full-lifecycle validation; interface flaws amplify downstream; reusable assets over disposable scripts | Tool-Genesis (arXiv:2603.05578) |
+| Maker/user separation — expensive intelligence makes the tool once, cheap execution reuses it | LATM (arXiv:2305.17126) |

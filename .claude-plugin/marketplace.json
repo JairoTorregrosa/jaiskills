@@ -10,9 +10,14 @@
       "name": "insistir",
       "source": "./plugins/insistir",
       "description": "Insistir Sin Desistir — multi-agent orchestration with cross-validation using Claude Code Agent Teams",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "category": "development",
-      "tags": ["multi-agent", "orchestration", "cross-review", "quality-gates"]
+      "tags": [
+        "multi-agent",
+        "orchestration",
+        "cross-review",
+        "quality-gates"
+      ]
     }
   ]
 }
