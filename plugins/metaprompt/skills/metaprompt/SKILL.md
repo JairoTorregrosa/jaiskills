@@ -16,8 +16,9 @@ You are a prompt engineer. The user provides a goal; you produce a complete prom
 | Target model | Reference file |
 |---|---|
 | Claude Fable 5, Claude Mythos 5 | `references/claude-models.md` |
-| Claude Opus 4.x (4.8, 4.7, 4.6, 4.1) | `references/claude-models.md` |
-| Claude Sonnet 5, Claude Sonnet 4.x | `references/claude-models.md` |
+| Claude Opus 4.8, 4.7, 4.6 | `references/claude-models.md` |
+| Claude Opus 4.1 (deprecated — retiring Aug 2026; do not target) | `references/claude-models.md` (migration notes only) |
+| Claude Sonnet 5, Claude Sonnet 4.6 | `references/claude-models.md` |
 | Claude Haiku 4.5 | `references/claude-models.md` |
 | GPT-5.6 Sol, GPT-5.6 Terra, GPT-5.6 Luna | `references/openai-models.md` |
 | GPT-5.x (GPT-5, GPT-5.1, GPT-5.2, GPT-5.3) | `references/openai-models.md` |
@@ -40,7 +41,7 @@ You are a prompt engineer. The user provides a goal; you produce a complete prom
 2. **Freshness check.** Each references file carries a `last_verified:` date in its frontmatter. If the target model is newer than that date, or the model does not appear in any references file, run a web search for `"<model name> prompting guide site:platform.claude.com OR site:developers.openai.com"` and incorporate any new techniques before generating.
 3. **Route to harness reference (when applicable).** Use the harness routing table above. If the harness maps to a reference file, read it alongside the model guide. Both guides apply together: the model guide supplies prompting techniques, the harness guide supplies structural constraints and tells you what the harness already provides (so you omit it from the generated prompt).
 4. **Apply model-specific techniques** from the model reference: XML structuring, thinking configuration, effort levels, verbosity control, tool preambles, reasoning modes, etc.
-5. **Apply harness-specific techniques** from the harness reference (if loaded). Format the output for the harness (CLAUDE.md snippet, AGENTS.md content, agent instruction block, etc.) and strip anything the harness already injects — built-in tool definitions, git context, permission systems, sandbox configuration. The harness guide is the authority on what to omit.
+5. **Apply harness-specific techniques** from the harness reference (if loaded). Format the output for the harness (CLAUDE.md snippet, AGENTS.md content, agent instruction block, etc.) and omit redundant re-descriptions of harness defaults and built-ins (e.g., built-in tool definitions, git context). PRESERVE and explicitly specify sandbox mode, approval policy, and permission requirements when they are task constraints. Defer to each harness guide's exception rules — the harness guide is the authority on what to omit and what to retain.
 6. **Assemble the complete prompt.** Write the full prompt text, ready to paste.
 7. **Self-review against quality checklist:**
    - Is the goal clearly addressed?
@@ -88,6 +89,6 @@ If no issues found, say "No issues found" — do not fabricate findings.
 Do not echo the full diff. Do not re-specify tool definitions or git context — Claude Code provides those.
 ```
 
-**Parameter notes:** Use `effort: high` for thorough reviews. Adaptive thinking is on by default for Opus 4.8 — no thinking budget needed.
+**Parameter notes:** Use `effort: high` for thorough reviews. Adaptive thinking is off by default on Opus 4.8 — enable it explicitly with `thinking: {type: "adaptive"}` when the task benefits from deeper reasoning. Do not pass `budget_tokens` (returns 400 on Opus 4.8).
 
 **Key technique:** XML tag structuring (`<review_criteria>`, `<output_format>`) for unambiguous section parsing, combined with explicit omission of harness-provided context (tools, git state) per `claude-code-harness.md` rule #1.
