@@ -45,7 +45,7 @@ Use the Read tool to read files. It accepts a file_path parameter...
 Prefer Read over `cat` for viewing file contents.
 ```
 
-Source: https://docs.claude.ai/en/tools-reference
+Source: https://code.claude.com/docs/en/tools-reference
 
 ---
 
@@ -97,7 +97,7 @@ Skill content persists in context for the entire session. During compaction, the
 
 The `description` field is capped at 1,536 characters. This description is what the model reads to decide whether to invoke the skill, so it must be precise and trigger-rich.
 
-Source: https://docs.claude.ai/en/skills
+Source: https://code.claude.com/docs/en/skills
 
 ---
 
@@ -158,7 +158,7 @@ Agent({
 })
 ```
 
-Source: https://docs.claude.ai/en/sub-agents
+Source: https://code.claude.com/docs/en/sub-agents
 
 ---
 
@@ -192,12 +192,20 @@ A hook handler that exits with code 2 blocks the operation. The handler's stderr
 
 ```jsonc
 // .claude/settings.json — hook that blocks commits without a ticket reference
+// Hooks receive JSON on stdin with tool_name, tool_input, etc.
+// Exit code 2 blocks the operation; stderr is shown to Claude.
 {
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash(git commit*)",
-        "command": "bash -c 'echo \"$TOOL_INPUT\" | grep -qE \"[A-Z]+-[0-9]+\" || (echo \"Commit message must include a ticket reference (e.g. PROJ-123)\" >&2; exit 2)'"
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "CMD=$(jq -r '.tool_input.command' < /dev/stdin); echo \"$CMD\" | grep -q '^git commit' && ! echo \"$CMD\" | grep -qE '[A-Z]+-[0-9]+' && { echo 'Commit message must include a ticket reference (e.g. PROJ-123)' >&2; exit 2; }; exit 0"]
+          }
+        ]
       }
     ]
   }
@@ -215,7 +223,7 @@ A hook handler that exits with code 2 blocks the operation. The handler's stderr
   you will be asked to fix them before completing.
 ```
 
-Source: https://docs.claude.ai/en/hooks
+Source: https://code.claude.com/docs/en/hooks
 
 ---
 
@@ -256,7 +264,7 @@ Batch all needed tools into one `ToolSearch` call to avoid unnecessary round-tri
 
 Claude Code can itself serve as an MCP server via `claude mcp serve`, exposing its capabilities to other MCP clients.
 
-Source: https://docs.claude.ai/en/mcp
+Source: https://code.claude.com/docs/en/mcp
 
 ---
 
@@ -323,7 +331,7 @@ Use React Server Components by default. Only add "use client" when the component
 
 The project-root CLAUDE.md survives compaction and is re-injected. Nested CLAUDE.md files from subdirectories do not re-inject after compaction — put critical instructions at the root level.
 
-Source: https://docs.claude.ai/en/memory
+Source: https://code.claude.com/docs/en/memory
 
 ---
 
@@ -339,6 +347,8 @@ Claude Code's permission system controls which tools and commands can execute wi
 | `auto` | Allow listed tools without prompting |
 | `trust` | Allow all tools without prompting |
 | `deny` | Block specific tools entirely |
+
+> **Note:** The `deny` permission mode (the row above) is a top-level mode that blocks all non-read tools globally. It is distinct from `permissions.deny` rules, which are per-tool blocklist entries that can coexist with any mode (e.g. `"permissions": { "deny": ["Bash(rm -rf *)"] }`).
 
 ### Settings precedence
 
@@ -372,7 +382,7 @@ Tool names in permission rules must match the exact built-in tool names or MCP t
 
 Subagents can declare their own `permissionMode` in frontmatter. Plugin-defined agents have their `permissionMode` silently ignored — this is a known harness limitation.
 
-Source: https://docs.claude.ai/en/settings
+Source: https://code.claude.com/docs/en/settings
 
 ---
 
@@ -395,7 +405,7 @@ Prompts that involve multi-step architectural decisions benefit from instructing
 
 The built-in `Plan` agent type automatically operates in plan mode. It has access to all read-only tools but cannot use `Edit`, `Write`, or `NotebookEdit`. Similarly, the `Explore` agent type is read-only and skips CLAUDE.md loading entirely.
 
-Source: https://docs.claude.ai/en/tools-reference
+Source: https://code.claude.com/docs/en/tools-reference
 
 ---
 
@@ -418,28 +428,34 @@ echo "Fix the failing test in tests/auth.test.ts" | claude -p --output-format js
 The Agent SDK (Python and TypeScript) provides programmatic access to Claude Code's capabilities:
 
 ```python
-from claude_code import query
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-result = await query(
-    prompt="Review the PR diff and report issues",
-    options={
-        "model": "claude-fable-5",
-        "permission_mode": "auto",
-        "allowed_tools": ["Read", "Grep", "Bash(git diff*)"],
-    }
-)
+
+async def main():
+    async for message in query(
+        prompt="Review the PR diff and report issues",
+        options=ClaudeAgentOptions(
+            allowed_tools=["Read", "Grep", "Bash(git diff*)"],
+        ),
+    ):
+        if hasattr(message, "result"):
+            print(message.result)
+
+
+asyncio.run(main())
 ```
 
-Hooks can be registered as callbacks in the SDK, giving full programmatic control over the hook lifecycle.
+The SDK streams messages via an async generator. Hooks can be registered as callbacks in the `ClaudeAgentOptions`, giving full programmatic control over the hook lifecycle.
 
 ### Key considerations for prompts
 
 - Headless mode has no interactive user — prompts must not include `AskUserQuestion` calls.
-- Permission mode should be set to `auto` or `trust` with appropriate allow-lists.
+- Permission mode should default to `auto` with narrow `allowed_tools` lists that grant only the tools the task needs. Reserve `trust` (unrestricted) mode for isolated, disposable environments like CI containers — never use it on a developer machine or persistent system where unreviewed side effects could accumulate.
 - Output format (`json`) enables structured parsing of results.
 - The SDK's `query()` function accepts the same tool and permission configuration as the CLI.
 
-Source: https://docs.claude.ai/en/agent-sdk
+Source: https://code.claude.com/docs/en/agent-sdk
 
 ---
 
@@ -461,4 +477,22 @@ Source: https://docs.claude.ai/en/agent-sdk
 
 7. **Batch ToolSearch calls.** When working with deferred MCP tools, load all needed schemas in a single `ToolSearch` call.
 
-Source: https://docs.claude.ai/en/tools-reference, https://docs.claude.ai/en/memory, https://docs.claude.ai/en/hooks
+### BAD vs. GOOD prompt example
+
+```markdown
+<!-- BAD — re-specifies tool parameters, puts a mandatory rule in advisory text -->
+You have access to the Read tool (file_path: string, offset?: number, limit?: number).
+You MUST always run `npm test` before committing. This is mandatory — never skip it.
+```
+
+```markdown
+<!-- GOOD — references tools by name only; enforces the mandatory rule via a hook -->
+Prefer Read over `cat` for viewing file contents.
+
+<!-- In .claude/settings.json (not in the prompt): -->
+<!-- A PreToolUse hook on Bash(git commit*) runs `npm test` and blocks on failure (exit 2). -->
+<!-- The CLAUDE.md just explains the constraint so the model understands why commits may be rejected: -->
+A PreToolUse hook runs `npm test` before every commit. If tests fail, the commit is blocked.
+```
+
+Source: https://code.claude.com/docs/en/tools-reference, https://code.claude.com/docs/en/memory, https://code.claude.com/docs/en/hooks
