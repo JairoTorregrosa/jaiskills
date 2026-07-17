@@ -12,15 +12,25 @@
       "description": "Insistir Sin Desistir — multi-agent orchestration with cross-validation using Claude Code Agent Teams",
       "version": "0.3.0",
       "category": "development",
-      "tags": ["multi-agent", "orchestration", "cross-review", "quality-gates"]
+      "tags": [
+        "multi-agent",
+        "orchestration",
+        "cross-review",
+        "quality-gates"
+      ]
     },
     {
       "name": "metaprompt",
       "source": "./plugins/metaprompt",
       "description": "Metaprompt — generate complete, ready-to-use prompts engineered for a specific model and harness",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "prompt-engineering",
-      "tags": ["metaprompt", "prompt-engineering", "prompt-optimization", "model-specific"]
+      "tags": [
+        "metaprompt",
+        "prompt-engineering",
+        "prompt-optimization",
+        "model-specific"
+      ]
     },
     {
       "name": "remoto",
@@ -28,7 +38,13 @@
       "description": "Remoto — orchestrate headless Claude Code and Codex agents on a remote SSH host (Jetson) from your Mac",
       "version": "0.1.0",
       "category": "development",
-      "tags": ["remote-agents", "ssh", "orchestration", "headless", "fleet"]
+      "tags": [
+        "remote-agents",
+        "ssh",
+        "orchestration",
+        "headless",
+        "fleet"
+      ]
     }
   ]
 }
