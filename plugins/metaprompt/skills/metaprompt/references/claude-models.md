@@ -74,14 +74,7 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 
 ## 6. Claude Fable 5 specific techniques
 
-- **Effort levels:** Use `effort` parameter as the primary control. `high` is the default for most tasks; `xhigh` for the most capability-sensitive workloads; `medium`/`low` for routine work. Lower effort on Fable 5 often exceeds `xhigh` on prior models.
-- **Strong instruction following:** A brief instruction replaces enumerating each behavior. Example: a short brevity instruction is as effective as listing each verbosity pattern.
-- **Longer turns:** Individual requests on hard tasks can run for many minutes. Adjust client timeouts and streaming, consider async checking.
-- **Prevent overplanning:** "When you have enough information to act, act. Do not re-derive facts already established in the conversation."
-- **Ground progress claims:** "Before reporting progress, audit each claim against a tool result from this session."
-- **State boundaries explicitly:** Define what Claude should and should not do to prevent unrequested actions.
-- **Parallel subagents:** Fable 5 dispatches subagents more readily. "Delegate independent subtasks to subagents and keep working while they run."
-- **Memory systems:** Fable 5 performs well with a place to record and reference lessons from previous runs.
+Key behavioral shifts: effort-level control, stronger instruction following, longer turns, parallel subagents, and file-based memory as a stronger lever than on prior models. See the detailed [Claude Fable 5](#claude-fable-5) section below for full guidance, prompt templates, and per-behavior source links.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5
 
@@ -142,13 +135,13 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 | **Effort default** | high | high | high | N/A |
 | **Sampling params (temperature, top_p, top_k)** | Non-default values return 400 | Non-default values return 400 | Non-default values return 400 | Accepted |
 | **Prefilling** | Not supported (400 error) | Not supported (400 error) | Not supported (400 error) | Supported |
-| **Thinking display default** | omitted | omitted | omitted | summarized |
+| **Thinking display default** | omitted | omitted | omitted | N/A (legacy extended thinking) |
 | **Knowledge cutoff** | Jan 2026 | Jan 2026 | Jan 2026 | Feb 2025 |
 | **Best for** | Long-horizon agents, hardest problems | Complex agentic coding, enterprise | Speed + intelligence balance, agentic coding | Classification, high-volume, subagents |
 
-Claude Mythos 5 (`claude-mythos-5`) shares Fable 5's specs and pricing but is invitation-only through Project Glasswing, with fewer safety classifier restrictions.
+Claude Mythos 5 (`claude-mythos-5`) shares Fable 5's specs and pricing but is invitation-only through Project Glasswing, a collaboration with the US government deploying Mythos-class models to cyberdefenders and infrastructure providers. Mythos 5 is the same underlying model as Fable 5 but with certain safety safeguards lifted.
 
-Source: https://platform.claude.com/docs/en/docs/about-claude/models/overview
+Source: https://www.anthropic.com/news/claude-fable-5-mythos-5 , https://platform.claude.com/docs/en/docs/about-claude/models/overview
 
 ---
 
@@ -208,7 +201,7 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 
 ### File-based memory
 
-Fable 5 performs particularly well when it can record and reference lessons from previous runs. Provide a place to write notes (as simple as a Markdown file). To bootstrap a memory system from existing history, have Fable 5 review past sessions and extract core themes.
+Persistent file-based memory is a stronger lever on Fable 5 than on prior models. Fable 5 performs particularly well when it can record lessons from previous runs and reference them in later sessions. Provide a place to write notes (as simple as a Markdown file). To bootstrap a memory system from existing history, have Fable 5 review past sessions and extract core themes.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5
 
