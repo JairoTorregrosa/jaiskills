@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.1.0 (2026-08-21) — single-plugin reset
+
+- **BREAKING: one plugin instead of four.** The marketplace no longer publishes `insistir`, `metaprompt`, `constatar`, and `remoto` separately — everything ships as the single `jaiskills` plugin. Migration: uninstall the old plugins and `/plugin install jaiskills@jaiskills`. Command names are now flat and prefixed where they collided: `/constatar-run`, `/constatar-verify`, `/constatar-audit`, `/remoto-run`, `/remoto-status`; insistir's commands (`/advisor`, `/compound`, `/goal`, `/triage`, `/resolve-todos`, `/deepen-plan`) and `/metaprompt` keep their names.
+- **Layout: `skills/<category>/<skill>/`** (orchestration, prompting, knowledge, openai), with plugin-level `commands/`, `agents/`, `hooks/`, `scripts/`, `references/` at the root — structure inspired by [mattpocock/skills](https://github.com/mattpocock/skills).
+- **New skill `askcodex`** (openai): OpenAI GPT-5.x and image models as a CLI — one-shot text, image create/edit, models, quota. Canonical copy lives in the [askcodex repo](https://github.com/JairoTorregrosa/askcodex); this one tracks it.
+- **New skill `image-to-frontend`** (openai): reference image or brief → 4 visual variants → build spec → working React/HTML page, iterated to pixel-close. Rewritten to drive image generation through the askcodex CLI instead of the Codex MCP server.
+- README rewritten around the failure modes each skill fixes.
+
+## 0.4.2 (2026-07-18)
+
+- **metaprompt 0.3.0 — four new harness deep-dive guides** (pi, Amp, eve, Vercel AI Gateway), each researched against live docs on 2026-07-18 with per-section `Source:` URLs:
+  - `references/pi-harness.md` — minimal harness (4 tools, no MCP, no permission rails, `.pi/SYSTEM.md` full system-prompt replacement); subscription auth via `/login` OAuth — ChatGPT sub is OpenAI-endorsed; Claude sub bills per-token "extra usage" since April 2026.
+  - `references/amp-harness.md` — threads/orbs/subagents, mode-based multi-model routing (low/medium/high/ultra — write prompts model-agnostically), full-auto default permissions, BYOK removed; ChatGPT sub linkable at `/settings/model-providers`, Claude sub linking thinly documented.
+  - `references/eve-harness.md` — Vercel's agent framework ("an agent is a directory", `agent/instructions.md` as system prompt); no consumer-subscription path — API keys or AI Gateway only.
+  - `references/ai-gateway-harness.md` — model slugs, routing/fallback/BYOK, per-agent backend config; Claude Max pass-through works only with Claude Code as client and is fragile + ToS gray area; no ChatGPT pass-through.
+  - SKILL.md: harness routing table extended with the four harnesses plus a subscription-auth quick-reference matrix (never recommend token-sharing workarounds — Anthropic ToS Feb 2026, enforced April 2026).
+
+## 0.4.1 (2026-07-16)
+
+- **remoto 0.2.0 — harness-agnostic engine/role policy**: Codex is always driven headless (`codex exec`, prompt on stdin — never the Codex MCP server), symmetric with `claude -p`; role (implementer/reviewer/judge) is orthogonal to engine.
+  - Role matrix in the skill: orchestrator always Fable 5 (the local session); default implementer and judge codex `gpt-5.6-sol` at high reasoning; reviewer always the engine that did not author the work.
+  - `remoto.sh spawn` gains `-r/--effort low|medium|high|xhigh` → Codex `model_reasoning_effort` (codex-only, rejected for claude); effort recorded in job `meta.env`.
+  - New judge template in `prompt-templates.md` (scores goal fidelity, review rigor, fix completeness, evidence quality → PASS/FAIL) plus a universal no-background-remnants rule for headless workers (background children die with the process).
+
 ## 0.4.0 (2026-07-16)
 
 - **New plugin `remoto`** (Remote Agent Orchestration over SSH): spawn and manage headless `claude -p` / `codex exec` workers on a remote host (Jetson) from the local Claude Code session.

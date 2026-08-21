@@ -1,0 +1,34 @@
+{
+  "name": "jaiskills",
+  "version": "0.1.0",
+  "displayName": "jaiskills — Jairo's agent skills",
+  "description": "Orchestration (insistir, constatar, remoto), prompting (metaprompt), knowledge compounding, file-based TODOs, and OpenAI tooling (askcodex, image-to-frontend) as one Claude Code plugin.",
+  "author": {
+    "name": "Jairo Torregrosa",
+    "url": "https://github.com/JairoTorregrosa"
+  },
+  "repository": "https://github.com/JairoTorregrosa/jaiskills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "multi-agent",
+    "orchestration",
+    "verification",
+    "prompt-engineering",
+    "codex",
+    "openai"
+  ],
+  "skills": [
+    "./skills/orchestration/insistir",
+    "./skills/orchestration/constatar-plan",
+    "./skills/orchestration/constatar-verify",
+    "./skills/orchestration/goal-loop",
+    "./skills/orchestration/codex-judge",
+    "./skills/orchestration/remote-agents",
+    "./skills/prompting/metaprompt",
+    "./skills/knowledge/compound-knowledge",
+    "./skills/knowledge/file-todos",
+    "./skills/openai/askcodex",
+    "./skills/openai/image-to-frontend"
+  ]
+}

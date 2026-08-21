@@ -1,49 +1,80 @@
 # jaiskills
 
-A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agent skills and plugins.
+My agent skills for Claude Code, shipped as **one plugin**: agents checking agents, verification-first orchestration, model-aware prompting, and OpenAI tooling from the terminal.
 
-## insistir — Insistir Sin Desistir
+These skills exist to fix failure modes I kept hitting with coding agents. Each one is small, composable, and earns its place by closing a specific gap.
 
-A plugin for multi-agent orchestration with cross-validation. Every agent's work is reviewed by a different agent in an iterative adversarial loop, optionally judged by a cross-provider LLM (Codex/GPT-5). The name is the point: the pipeline insists — fix, review, judge — until the work is verified, never settling short.
-
-## Install
-
-1. Add the marketplace:
+## Install (30 seconds)
 
 ```
 /plugin marketplace add JairoTorregrosa/jaiskills
-```
-
-2. Install the plugin:
-
-```
-/plugin install insistir@jaiskills
+/plugin install jaiskills@jaiskills
 ```
 
 Or load locally for development:
 
 ```bash
-claude --plugin-dir /path/to/insistir
+claude --plugin-dir /path/to/jaiskills
 ```
 
-## Usage
+> **Migrating from ≤0.4.x?** This repo used to publish four separate plugins (`insistir`, `metaprompt`, `constatar`, `remoto`). They are now one plugin, `jaiskills`. Uninstall the old ones and install `jaiskills@jaiskills`; every skill and command came along.
 
-```
-/insistir Build a REST API with auth, CRUD endpoints, and tests
-```
+## Why these skills exist
 
-The plugin orchestrates the full lifecycle:
+### #1: The agent says it's done — and it isn't
 
-```
-Intake → Plan* → Create Team → [Execute Wave → Cross-Review Loop† → Judge‡] → Cleanup§
+Self-reported success is the most expensive lie in agentic coding.
 
-  * Optional: search past solutions, deepen plan with research agents
-  † REVISE findings persisted as TODO files for lifecycle tracking
-  ‡ Optional: Codex/GPT-5 cross-provider judge scores the review verdict
-  § Optional: compound learnings into docs/solutions/
-```
+- **`insistir`** (`/insistir <task>`) — multi-agent orchestration where every worker's output is cross-reviewed by a *different* agent in an adversarial loop. Tasks cannot be marked complete without a reviewer's APPROVED verdict (enforced by hook). The name is the point: fix, review, judge — insist until verified.
+- **`constatar-plan`** / **`constatar-verify`** (`/constatar-run`, `/constatar-verify`, `/constatar-audit`) — verification-first orchestration through the [constatar](https://github.com/JairoTorregrosa/constatar) Rust engine: plans with a 6-rung evidence ladder, grounded verdicts, resumable journals.
 
-## How It Works
+### #2: One model grades its own homework
+
+Same-model review inherits the same blind spots.
+
+- **`codex-judge`** — a cross-provider judge (Codex/GPT-5) scores each review verdict on a weighted rubric and gates auto-approve/auto-revise. The judge never sees implementer reasoning — only diff and verdict — preventing anchoring. Degrades gracefully when Codex is unavailable.
+- **`/advisor`** — an independent second opinion from a different-provider model on your plan, diff, or question.
+
+### #3: The loop plateaus, or worse, games the test
+
+- **`goal-loop`** (`/goal <goal>`) — loop engineering as gradient descent: an agent factory generates goal-specialized agents, then forward → loss → textual gradient → update, with momentum and early stopping. Evidence is split into visible checks (the implementer's target) and **held-out checks the implementer never sees**; a positive gap between them is treated as reward hacking and yields NOT MET.
+
+### #4: Lessons evaporate between sessions
+
+- **`compound-knowledge`** (`/compound`) — captures solved problems as searchable docs in `docs/solutions/`; a learnings-researcher agent feeds them into future planning.
+- **`file-todos`** (`/triage`, `/resolve-todos`) — review findings become markdown files with a file-name-driven lifecycle (`pending → ready → complete`), triaged one by one, then fixed by parallel workers.
+
+### #5: The prompt wasn't built for the model that runs it
+
+- **`metaprompt`** (`/metaprompt`) — takes a goal, a target model, and a target harness, and produces a complete prompt engineered for that combination, from researched per-model/per-harness guides (Claude, GPT-5.x/Codex; Claude Code, Codex CLI, pi, Amp, and more).
+
+### #6: Your laptop is the bottleneck
+
+- **`remote-agents`** (`/remoto-run`, `/remoto-status`) — orchestrate headless `claude -p` / `codex exec` workers on a remote SSH host. File-based job state, jobs survive disconnects, results collected and cross-reviewed across providers. Requires SSH key auth to the host and `claude`/`codex` logged in there.
+
+### #7: You want OpenAI's models from the terminal — or an image turned into a real page
+
+- **`askcodex`** — use GPT-5.x and image models from the CLI with the [askcodex](https://github.com/JairoTorregrosa/askcodex) binary: one-shot text, image create/edit, models, quota. No API key; it reuses `codex login` credentials. (Canonical copy lives in the askcodex repo; this one tracks it.)
+- **`image-to-frontend`** — brief → 4 visual variants → build spec → real React/HTML page, iterated to pixel-close. Image generation runs through askcodex.
+
+## Skills
+
+| Category | Skill | One line |
+|---|---|---|
+| orchestration | `insistir` | Cross-validated multi-agent pipeline; APPROVED-gated completion |
+| orchestration | `constatar-plan` / `constatar-verify` | Verification-first plans and grounded verdicts via the constatar engine |
+| orchestration | `goal-loop` | Goal descent with agent factory, textual gradients, anti-reward-hacking judge |
+| orchestration | `codex-judge` | Cross-provider review scoring with dual-threshold gating |
+| orchestration | `remote-agents` | Headless agent fleets over SSH |
+| prompting | `metaprompt` | Model- and harness-specific prompt generation |
+| knowledge | `compound-knowledge` | Solved problems → searchable solution docs |
+| knowledge | `file-todos` | File-based TODO lifecycle for review findings |
+| openai | `askcodex` | OpenAI models as a CLI (text, images, quota) |
+| openai | `image-to-frontend` | Reference image or brief → working frontend |
+
+Agents (`insistir-worker`, `insistir-reviewer`, `insistir-researcher`, `insistir-learnings-researcher`), hooks (completion gate, reviewer Bash whitelist), the bundled Codex MCP config, and the `remoto.sh` / `insistir.py` scripts ship in the same plugin. Full inventory in [docs/skills.md](docs/skills.md).
+
+## How insistir works
 
 ```
       ┌──────────────────────────────────────────────┐
@@ -54,164 +85,33 @@ Intake → Plan* → Create Team → [Execute Wave → Cross-Review Loop† → 
           │              │              │
    ┌──────▼──┐    ┌──────▼──┐    ┌──────▼──┐
    │Worker A │    │Worker B │    │Worker C │    IMPLEMENT
-   │implement│    │implement│    │implement│
-   │  commit │    │  commit │    │  commit │
    └────┬────┘    └────┬────┘    └────┬────┘
-        ✕              ✕              ✕         SHUTDOWN workers
         │              │              │
    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
    │Review B │    │Review C │    │Review A │    CROSS-REVIEW
-   │→ REVISE │    │→APPROVE │    │→ REVISE │
+   │→ REVISE │    │→APPROVE │    │→ REVISE │    (read-only reviewers)
    └────┬────┘    └─────────┘    └────┬────┘
         │                             │
    ┌────▼─────────────────────────────▼────┐
    │        CODEX JUDGE (optional)         │    CROSS-PROVIDER VERDICT
-   │  Scores review quality 1-5, flags     │    (graceful degradation:
-   │  critical issues, auto-approve/revise │     skipped if unavailable)
    └────┬─────────────────────────────┬────┘
-        ✕                             ✕         SHUTDOWN reviewers
         │                             │
    ┌────▼────┐                   ┌────▼────┐
    │Fixer A  │                   │Fixer C  │    FIX (fresh agents)
    └────┬────┘                   └────┬────┘
-        ✕                             ✕
    ┌────▼────┐                   ┌────▼────┐
-   │Review B'│                   │Review A'│    RE-REVIEW
-   │→APPROVE │                   │→APPROVE │    (fresh context)
+   │Review B'│                   │Review A'│    RE-REVIEW → APPROVE
    └─────────┘                   └─────────┘
 ```
 
-**Key principles:**
-- Fresh agents for each phase — no context pollution across rounds
-- Reviewers are read-only (cannot edit files) with whitelisted Bash commands
-- Tasks need reviewer APPROVED verdict before they can be marked complete (enforced by hook)
-- Iterative convergence: fix-review cycles until APPROVED or budget exhausted
-- Cross-provider judge eliminates single-model bias (optional, degrades gracefully)
-
-## Codex as Advisor & Cross-Provider Judge
-
-Insistir integrates OpenAI's Codex CLI (GPT-5) as an independent second opinion via the bundled `.mcp.json` MCP server configuration.
-
-### `/insistir:advisor`
-
-Get an independent perspective from a different-provider model on your plan, diff, or a specific question:
-
-```
-/insistir:advisor Should we use a queue here or is polling sufficient?
-/insistir:advisor          (defaults to reviewing the current plan/diff)
-```
-
-The advisor gathers relevant context (plan, diff, recent errors), sends it to Codex with a read-only sandbox, and returns a dual-perspective summary (Codex opinion + Claude synthesis). Follow-up questions reuse the same Codex thread for continuity.
-
-### Cross-Provider Judge in the Review Loop
-
-During Phase 4 (adversarial review), the lead can invoke a Codex judge to score the reviewer's verdict on a 1-5 rubric (Correctness 40%, Spec compliance 20%, Security 20%, Maintainability 20%). Decision matrix:
-
-| Score | Critical issues? | Action |
-|-------|-----------------|--------|
-| >= 4  | No              | Auto-approve |
-| <= 2  | Any             | Auto-revise with judge remediation items |
-| 3     | —               | Lead judgment, reviewer as tiebreaker |
-
-The judge never sees implementer reasoning — only the code diff and review verdict — preventing anchoring bias.
-
-### Requirements and Degradation
-
-- **Requires**: OpenAI Codex CLI installed and authenticated (`codex` command available in PATH)
-- **Graceful degradation**: If Codex is unavailable (not installed, auth expired, 2 consecutive errors), the pipeline skips the judge step and the reviewer's verdict stands alone. The advisor command falls back to a Claude subagent.
-
-## Goal Loop (Loop Engineering)
-
-Gradient descent for goals: an agent factory generates goal-specialized agents, then the loop runs forward → loss → backward → update until the goal is provably met. Grounded in TextGrad/ProTeGi (textual gradients), SkillGrad (diagnoser/momentum/patcher, contrastive diagnosis, early stopping), ADAS (meta-agent + design archive), and SpecBench (visible/held-out evidence split against reward hacking).
-
-### `/insistir:goal`
-
-```
-/insistir:goal Reduce p95 latency below 200ms on the /search endpoint --max-epochs 6 --patience 2
-```
-
-**Goal Contract (guided intake)** — Objective and end state, a loss function of observable evidence **partitioned into visible validation** (the implementer's optimization target) **and held-out compositional checks** (judge-only — never shown to the implementer), constraints, epoch budget, and an initial edit scope (the learning rate). Unverifiable goals are rejected upfront.
-
-**Agent Factory** — Before looping, a meta-step generates four goal-specialized agent prompts into `loops/<slug>/agents/` (implementer, verifier, diagnoser, judge), seeded by `loops/archive.md` and `docs/solutions/` — designs compound across goals, ADAS-style.
-
-**Descent Loop** — Each epoch: a fresh implementer (forward pass) acts on the gradient log and momentum; evidence commands compute the loss; a diagnoser converts failures into textual gradients and newly-passing checks into contrastive "preserve this" signal; momentum accumulates recurring patterns; plateau shrinks the edit scope and eventually early-stops (textual optimization is non-monotonic).
-
-**Anti-Reward-Hacking Judge** — When visible evidence is green, the judge (Codex by default, Claude fallback) runs the held-out checks and reports the **hacking gap** (visible minus held-out pass rate). A positive gap with green visible evidence is presumptive gaming — deleted tests, hardcoded values, lookup-table memorization, feature isolation — and yields NOT MET.
-
-## Knowledge Compounding
-
-Solved problems are captured as searchable documentation in `docs/solutions/`. When planning new work, a learnings-researcher agent searches past solutions so workers benefit from prior experience.
-
-- `/insistir:compound` — Document a solved problem with parallel sub-agents (context analyzer, solution extractor, prevention strategist)
-- Solution files use YAML frontmatter with category, tags, severity, and status for searchable filtering
-
-## File-based TODO Lifecycle
-
-Review findings are tracked as standalone markdown files in `todos/` with a file-name-driven lifecycle:
-
-```
-{id}-pending-{priority}-{description}.md  →  {id}-ready-...  →  {id}-complete-...
-         (from review)                        (triaged)           (resolved)
-```
-
-- `/insistir:triage` — Present pending TODOs one by one for user decision (approve, skip, modify). Uses haiku model for cost efficiency.
-- `/insistir:resolve-todos` — Spawn parallel worker agents (one per ready TODO) to fix and commit
-
-## Plan Deepening
-
-Enrich plans with external research before execution. Parallel researcher agents look up framework documentation, best practices, and edge cases.
-
-- `/insistir:deepen-plan <plan-file>` — Parse plan sections, spawn researchers per section, enhance with Research Insights, Implementation Details, Edge Cases, and References
-
-## Components
-
-| Component | Type | Description |
-|-----------|------|-------------|
-| `insistir` | Skill | Main orchestration pipeline (intake, plan, execute, cross-review, judge, cleanup) |
-| `codex-judge` | Skill | Cross-provider LLM judge — scores review verdicts via Codex/GPT-5, dual-threshold gating |
-| `goal-loop` | Skill | Loop engineering as gradient descent: agent factory, textual gradients, momentum, held-out evidence, anti-reward-hacking judge |
-| `compound-knowledge` | Skill | Orchestrates parallel sub-agents to capture solved problems as documentation |
-| `file-todos` | Skill | Defines TODO format, lifecycle, and management operations |
-| `insistir-worker` | Agent | Implements tasks or applies review fixes, commits, reports to lead |
-| `insistir-reviewer` | Agent | Cross-reviews work with structured APPROVED/REVISE verdicts (read-only) |
-| `insistir-learnings-researcher` | Agent | Searches `docs/solutions/` for relevant past solutions (read-only, opus) |
-| `insistir-researcher` | Agent | Researches best practices, framework docs, and codebase patterns (read-only, opus) |
-| `compound` | Command | Trigger compound-knowledge skill to document a solved problem |
-| `advisor` | Command | Get a second opinion from Codex/GPT-5 on plan, diff, or a question |
-| `goal` | Command | Loop-engineering goal loop: implement, verify, judge, iterate |
-| `triage` | Command | Present pending TODOs one by one for user triage decisions |
-| `resolve-todos` | Command | Spawn parallel agents to fix ready TODOs |
-| `deepen-plan` | Command | Enrich a plan file with external research via parallel researchers |
-| `TaskCompleted` | Hook | Blocks task completion without review approval marker |
-| `PreToolUse(Bash)` | Hook | Whitelists read-only commands for reviewer agents (generalized, team-configurable) |
-| `.mcp.json` | Config | Bundles Codex MCP server into the plugin for advisor/judge features |
-| `insistir.py` | Script | Plan validator CLI (validate, waves, status) |
-
-## remoto — Remote Agent Orchestration over SSH
-
-Orchestrate headless Claude Code and Codex agents on a remote SSH host (e.g. a Jetson) from your Mac. The local session is the lead: it spawns `claude -p` / `codex exec` jobs over SSH, polls file-based job state, collects results, and cross-reviews across providers. Jobs survive disconnects (`nohup setsid`, state under `~/.remoto/jobs/<id>/` on the host).
-
-```
-/plugin install remoto@jaiskills
-
-/remoto:run Migrate the sensor pipeline to async — implement with claude, cross-review with codex
-/remoto:status
-```
-
-| Component | Type | Description |
-|-----------|------|-------------|
-| `remote-agents` | Skill | Orchestration playbook: probe, prepare workspace, spawn, wait, collect, cross-review |
-| `prompt-templates` | Reference | Metaprompt-engineered worker/reviewer/fixer templates per model family |
-| `remoto.sh` | Script | SSH job runner: hosts, spawn, ls, status, wait, logs, result, kill, push, pull, clean |
-| `run` / `status` | Commands | `/remoto:run <task>`, `/remoto:status [job ...]` |
-
-Requires: SSH key auth to the host (`Host jetson` in `~/.ssh/config`), `claude` and `codex` logged in on the remote, `rsync` for push/pull.
+Fresh agents per phase, read-only reviewers, iterative convergence until APPROVED or budget exhausted.
 
 ## Requirements
 
 - Claude Code 1.0.33+
-- Python 3.10+ (for hook scripts)
-- Optional: [OpenAI Codex CLI](https://github.com/openai/codex) — enables `/insistir:advisor` and cross-provider judge features
+- Python 3.10+ (hook scripts)
+- Optional: [OpenAI Codex CLI](https://github.com/openai/codex) — enables `/advisor`, the cross-provider judge, and the askcodex-backed skills
+- Optional: the [constatar](https://github.com/JairoTorregrosa/constatar) engine — for the constatar skills
 
 ## License
 

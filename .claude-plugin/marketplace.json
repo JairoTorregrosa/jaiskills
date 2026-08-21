@@ -1,49 +1,24 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "jaiskills",
-  "description": "Jairo's collection of Claude Code agent skills and plugins",
+  "description": "Jairo's agent skills for Claude Code — orchestration, verification, prompting, and OpenAI tooling in one plugin",
   "owner": {
     "name": "Jairo Torregrosa"
   },
   "plugins": [
     {
-      "name": "insistir",
-      "source": "./plugins/insistir",
-      "description": "Insistir Sin Desistir — multi-agent orchestration with cross-validation using Claude Code Agent Teams",
-      "version": "0.3.1",
-      "category": "development",
-      "tags": [
-        "multi-agent",
-        "orchestration",
-        "cross-review",
-        "quality-gates"
-      ]
-    },
-    {
-      "name": "metaprompt",
-      "source": "./plugins/metaprompt",
-      "description": "Metaprompt — generate complete, ready-to-use prompts engineered for a specific model and harness",
-      "version": "0.2.0",
-      "category": "prompt-engineering",
-      "tags": [
-        "metaprompt",
-        "prompt-engineering",
-        "prompt-optimization",
-        "model-specific"
-      ]
-    },
-    {
-      "name": "remoto",
-      "source": "./plugins/remoto",
-      "description": "Remoto — orchestrate headless Claude Code and Codex agents on a remote SSH host (Jetson) from your Mac",
+      "name": "jaiskills",
+      "source": ".",
+      "description": "All of Jairo's skills in one plugin: insistir (agents checking agents), constatar (verification-first orchestration), remoto (remote SSH agents), metaprompt, compound-knowledge, file-todos, askcodex, image-to-frontend",
       "version": "0.1.0",
       "category": "development",
       "tags": [
-        "remote-agents",
-        "ssh",
+        "skills",
+        "multi-agent",
         "orchestration",
-        "headless",
-        "fleet"
+        "verification",
+        "prompt-engineering",
+        "openai"
       ]
     }
   ]
