@@ -6,9 +6,19 @@ These skills exist to fix failure modes I kept hitting with coding agents. Each 
 
 ## Install (30 seconds)
 
+Two ways in, two philosophies — pick one (installing both duplicates every skill).
+
+**Claude Code plugin** — a managed bundle that updates when I ship, so you subscribe rather than fork:
+
 ```
 /plugin marketplace add JairoTorregrosa/jaiskills
 /plugin install jaiskills@jaiskills
+```
+
+**[skills.sh](https://skills.sh)** — copies editable skill files into your project (works with Claude Code, Codex, and other agents), so you can hack on them and make them your own:
+
+```bash
+npx skills@latest add JairoTorregrosa/jaiskills
 ```
 
 Or load locally for development:
