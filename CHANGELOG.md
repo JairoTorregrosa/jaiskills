@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.2.0 (2026-08-29) — new skill `agent-sdk-wizard` (agents)
+
+- **New category `agents/`** — skills for building agents. First tenant:
+  `skills/agents/agent-sdk-wizard`.
+- **`agent-sdk-wizard`** asks **nine questions, one `AskUserQuestion` per step**, in this order:
+  language → goal → model → instructions → tools/MCP → skills → subagents → permissions → hooks.
+  Every option carries an **ASCII diagram in its `preview`** showing how the agent changes if you
+  pick it, in plain language for someone who has never seen an agent. The recommended option
+  comes first, so accepting all nine defaults yields a working agent in about two minutes.
+- **What it generates**: a directory with `agente.py` (uv) or `agente.ts` (tsx) whose whole
+  configuration is one visible block, every line annotated `# paso N: …`; the manifest; a stream
+  reader that prints text, `🔧 tool(arg)`, tool errors and the `result` with turns and cost; a
+  plain-language `README.md` with the loop drawn from the actual nine decisions and a
+  step → line-of-code table; and a `decisiones.md` linking each answer to the public docs.
+  `max_turns` and `max_budget_usd` are **always** set — no generated agent ships without both.
+- **It is not done until the agent runs.** The wizard installs, runs once with the archetype's
+  test prompt, shows the `result`, and repairs failures against `references/errores.md` before
+  reporting done.
+- **Verified against** TypeScript SDK 0.3.251, Python SDK 0.2.148 (bundling Claude Code 2.1.251),
+  and the model prices published 2026-08-29. Every API name in the skill comes from
+  `references/opciones-sdk.md`, including the traps that bite silently: `AgentDefinition` and hook
+  return values are camelCase **in Python too**, `Stop` ignores matchers, `allowed_tools` approves
+  but does not restrict, and Python's `can_use_tool` needs streaming input plus an empty
+  `PreToolUse` hook.
+- **New command `/agent-wizard [what the agent should do]`** — runs the wizard, using the
+  argument as the proposal for step 2.
+- Self-contained: five reference files (`previews`, `arquetipos`, `opciones-sdk`, `errores`,
+  `glosario`) and ten templates ship inside the skill. No machine-specific paths, no runtime
+  dependency on anything outside the plugin.
+
 ## 0.1.0 (2026-08-21) — single-plugin reset
 
 - **BREAKING: one plugin instead of four.** The marketplace no longer publishes `insistir`, `metaprompt`, `constatar`, and `remoto` separately — everything ships as the single `jaiskills` plugin. Migration: uninstall the old plugins and `/plugin install jaiskills@jaiskills`. Command names are now flat and prefixed where they collided: `/constatar-run`, `/constatar-verify`, `/constatar-audit`, `/remoto-run`, `/remoto-status`; insistir's commands (`/advisor`, `/compound`, `/goal`, `/triage`, `/resolve-todos`, `/deepen-plan`) and `/metaprompt` keep their names.

@@ -67,10 +67,23 @@ Same-model review inherits the same blind spots.
 - **`askcodex`** — use GPT-5.x and image models from the CLI with the [askcodex](https://github.com/JairoTorregrosa/askcodex) binary: one-shot text, image create/edit, models, quota. No API key; it reuses `codex login` credentials. (Canonical copy lives in the askcodex repo; this one tracks it.)
 - **`image-to-frontend`** — brief → 4 visual variants → build spec → real React/HTML page, iterated to pixel-close. Image generation runs through askcodex.
 
+### #8: You know what you want the agent to do, not which of the 65 SDK options does it
+
+The Claude Agent SDK has 65 options in TypeScript and 48 in Python. A beginner does not need a
+tour of them; they need the four that matter for their agent.
+
+- **`agent-sdk-wizard`** (`/agent-wizard [what it should do]`) — nine questions, one at a time,
+  each option illustrated with an ASCII diagram of how the agent changes if you pick it: language
+  → goal → model → instructions → tools → skills → subagents → permissions → hooks. Out comes a
+  directory with a commented agent, its manifest, a README, a `decisiones.md`, and a real test
+  run with turns and cost. `max_turns` and `max_budget_usd` are always set. Verified against
+  TypeScript SDK 0.3.251 and Python SDK 0.2.148.
+
 ## Skills
 
 | Category | Skill | One line |
 |---|---|---|
+| agents | `agent-sdk-wizard` | 9 illustrated questions → a runnable Claude Agent SDK agent |
 | orchestration | `insistir` | Cross-validated multi-agent pipeline; APPROVED-gated completion |
 | orchestration | `constatar-plan` / `constatar-verify` | Verification-first plans and grounded verdicts via the constatar engine |
 | orchestration | `goal-loop` | Goal descent with agent factory, textual gradients, anti-reward-hacking judge |
@@ -82,7 +95,7 @@ Same-model review inherits the same blind spots.
 | openai | `askcodex` | OpenAI models as a CLI (text, images, quota) |
 | openai | `image-to-frontend` | Reference image or brief → working frontend |
 
-Agents (`insistir-worker`, `insistir-reviewer`, `insistir-researcher`, `insistir-learnings-researcher`), hooks (completion gate, reviewer Bash whitelist), the bundled Codex MCP config, and the `remoto.sh` / `insistir.py` scripts ship in the same plugin. Full inventory in [docs/skills.md](docs/skills.md).
+The wizard's `/agent-wizard` command, agents (`insistir-worker`, `insistir-reviewer`, `insistir-researcher`, `insistir-learnings-researcher`), hooks (completion gate, reviewer Bash whitelist), the bundled Codex MCP config, and the `remoto.sh` / `insistir.py` scripts ship in the same plugin. Full inventory in [docs/skills.md](docs/skills.md).
 
 ## How insistir works
 

@@ -6,6 +6,7 @@ One plugin. Skills live under `skills/<category>/<skill>/SKILL.md`; commands, ag
 
 | Path | What it does |
 |---|---|
+| `skills/agents/agent-sdk-wizard` | Nine illustrated questions (ASCII diagram per option) → a runnable, commented Claude Agent SDK agent with README, decisiones.md and a real test run |
 | `skills/orchestration/insistir` | Main orchestration pipeline: intake, plan, execute, cross-review, judge, cleanup |
 | `skills/orchestration/constatar-plan` | Author verification-first plans for the constatar engine |
 | `skills/orchestration/constatar-verify` | Grounded verdicts through constatar's 6-rung evidence ladder |
@@ -22,6 +23,7 @@ One plugin. Skills live under `skills/<category>/<skill>/SKILL.md`; commands, ag
 
 | Command | Does |
 |---|---|
+| `/agent-wizard` | Build a Claude Agent SDK agent in 9 illustrated questions, then run it |
 | `/insistir` (skill trigger) | Run the full insistir pipeline |
 | `/advisor` | Second opinion from Codex/GPT-5 on plan, diff, or a question |
 | `/goal` | Goal-loop descent: implement, verify, judge, iterate |

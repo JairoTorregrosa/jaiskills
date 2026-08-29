@@ -9,8 +9,8 @@
     {
       "name": "jaiskills",
       "source": ".",
-      "description": "All of Jairo's skills in one plugin: insistir (agents checking agents), constatar (verification-first orchestration), remoto (remote SSH agents), metaprompt, compound-knowledge, file-todos, askcodex, image-to-frontend",
-      "version": "0.1.0",
+      "description": "All of Jairo's skills in one plugin: agent-sdk-wizard (9 illustrated questions → a runnable Claude Agent SDK agent), insistir (agents checking agents), constatar (verification-first orchestration), remoto (remote SSH agents), metaprompt, compound-knowledge, file-todos, askcodex, image-to-frontend",
+      "version": "0.2.0",
       "category": "development",
       "tags": [
         "skills",
@@ -18,7 +18,8 @@
         "orchestration",
         "verification",
         "prompt-engineering",
-        "openai"
+        "openai",
+        "agent-sdk"
       ]
     }
   ]
