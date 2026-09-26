@@ -1,0 +1,3 @@
+interface:
+  display_name: "Remote agents"
+  short_description: "Run headless claude/codex workers on an SSH host and collect results"

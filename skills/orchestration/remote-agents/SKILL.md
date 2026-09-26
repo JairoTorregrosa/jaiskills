@@ -1,67 +1,100 @@
 ---
 name: remote-agents
-description: "Orchestrate headless Claude Code and Codex agents on a remote SSH host (Jetson) from this Mac. Use when: (1) user says /jaiskills:remoto-run or /jaiskills:remoto-status, (2) 'remote agents', 'spawn on the jetson', 'run this on the jetson', 'remote swarm', (3) work should execute on the remote box (its GPU, its files, its environment) while this session coordinates. Do NOT use for local-only tasks or when the remote host is unreachable."
+description: "Orchestrate headless Claude Code (`claude -p`) and Codex (`codex exec`) workers on a remote Linux SSH host (default `jetson`, override with REMOTO_HOST) from the local session: probe hosts, spawn jobs, wait, collect results, cross-review across providers, report fleet status. Use when work should run on a remote box (its GPU, files, environment) while this session coordinates: 'run this on the jetson', 'spawn remote agents', 'remote swarm', 'status of the remote jobs', 'córrelo en el jetson', 'lanza agentes remotos', 'cómo van los jobs remotos'. Also for checking or collecting jobs spawned earlier. NOT for local-only work or local subagents, and NOT usable without an SSH host that has key auth and a logged-in claude or codex."
+argument-hint: "<task> [--host <ssh-host>] [--engine codex|claude|both] [--dir <remote workdir>] | status [job-id ...]"
 ---
 
-You are the **orchestrator** on macOS. Workers are headless `claude -p` / `codex exec` processes on a remote SSH host (default `jetson`; Tailscale fallback `jetson-ts`). Both CLIs are already logged in on the remote. You never implement remotely yourself — you spawn jobs, poll, collect results, and synthesize.
+You are the **orchestrator** in the local session. Workers are headless `claude -p` / `codex exec` processes on a remote SSH host. Never implement remotely yourself: spawn jobs, poll, collect, synthesize.
 
-## Engines and roles (harness-agnostic)
+Request: $ARGUMENTS
 
-Both engines are invoked the same way: headless CLI, prompt on stdin, answer as final message — **never** via the Codex MCP server or any other harness-specific channel. Role is orthogonal to engine: any engine can be implementer, reviewer, or judge; only the prompt changes. Model policy:
+## Runner and host
 
-| Role | Engine / model | Spawn flags |
-|---|---|---|
-| Orchestrator | Fable 5 — this session, always. Never delegated. | — |
-| Implementer (default) | Codex `gpt-5.6-sol` at high reasoning | `-e codex -m gpt-5.6-sol -r high` |
-| Implementer (alt, when the user asks for claude) | Claude Code headless | `-e claude [-m opus]` |
-| Reviewer | The engine that did NOT write the work | per engine above |
-| Judge (final verdict on a review loop) | Codex `gpt-5.6-sol -r high` — cross-provider bias-free | `-e codex -m gpt-5.6-sol -r high` |
-
-`-r/--effort` maps to Codex `model_reasoning_effort`; it is codex-only (claude headless has no effort flag — the script rejects it).
-
-All mechanics go through one script:
+Every mechanic goes through one script in this skill's directory:
 
 ```bash
-REMOTO="${CLAUDE_PLUGIN_ROOT}/scripts/remoto.sh"
+REMOTO="${CLAUDE_SKILL_DIR}/scripts/remoto.sh"   # other harnesses: absolute path of scripts/remoto.sh beside this SKILL.md
 ```
+
+Host selection (environment; prefix any call, e.g. `REMOTO_HOST=gpu-box $REMOTO ls`):
+
+| Variable | Effect | Default |
+|---|---|---|
+| `REMOTO_HOST` | Host every command targets | `jetson` (Jairo's Jetson) |
+| `REMOTO_FALLBACK_HOST` | Second host `hosts` probes; retarget to it with `REMOTO_HOST=<it>` when the primary is DOWN | `jetson-ts` (Tailscale route) when `REMOTO_HOST` is unset, none otherwise |
+| `REMOTO_HOSTS` | Explicit list for `hosts` | `$REMOTO_HOST $REMOTO_FALLBACK_HOST` |
+
+A host is anything `ssh <host>` resolves (ssh config alias, `user@ip`, Tailscale name). The host must be Linux with key-based SSH (BatchMode, no prompts), bash, `setsid`, python3, and `claude` and/or `codex` logged in on PATH. Local side needs only ssh and rsync. Job state lives on the host in `~/.remoto/jobs/<id>/`, so jobs survive disconnects and are visible to every session.
+
+## Arguments
+
+Parse `$ARGUMENTS`; when empty (model-invoked), read the same fields from the user's latest message:
+
+- `status [job-id ...]`, or a question about existing jobs → **Status mode** below. Do not spawn.
+- `--host <h>` → prefix every call with `REMOTO_HOST=<h>`.
+- `--engine codex|claude|both` → implementer engine (default `codex`). `both`: one implementer per engine on separate clones/worktrees, compare the two REPORTs, pick one, cross-review it with the other engine.
+- `--dir <path>` → remote workdir. Quote tildes (`'~/code/x'`) so they expand on the host; the script refuses local-home paths.
+- The rest is the task. No task and no status question → ask for the task.
+
+## Engines and roles
+
+Both engines are driven the same way: headless CLI, prompt on stdin, answer as final message, never through an MCP server. Role is orthogonal to engine; only the prompt changes.
+
+| Role | Who | Spawn flags |
+|---|---|---|
+| Orchestrator | This session. Never delegated. | — |
+| Implementer (default) | Codex at high reasoning | `-e codex -r high` |
+| Implementer (alt: user asks for Claude, or `--engine claude`) | Claude Code headless | `-e claude` |
+| Reviewer | The engine that did NOT write the work | per engine above |
+| Judge (final verdict on a review loop) | The engine that did NOT write the work, so the author's provider never grades itself (default Codex implementer → Claude judge) | `-e claude`, or `-e codex -r high` when Claude implemented |
+
+Models: omit `-m` and the host CLI uses its own configured default (`model` in the host's `~/.codex/config.toml`; Claude Code's model setting on the host). That config is the single place the current defaults live; change it there, not in prompts. Pass `-m <name>` only when the user names a model or the task needs a specific one. `hosts` prints each CLI's version.
+
+`-r/--effort low|medium|high|xhigh` maps to Codex `model_reasoning_effort`; it is codex-only (headless claude has no effort flag; the script rejects it).
 
 ## CLI quick reference
 
 | Command | Purpose |
 |---|---|
-| `$REMOTO hosts` | Probe hosts (up/down, CLI versions, load) |
-| `$REMOTO spawn -e claude\|codex -d <remote-dir> [-m model] [-r effort] [-n name] [--safe] -` | Launch worker, prompt on stdin. Prints job id |
-| `$REMOTO ls` / `status <id>...` | Fleet / job state: RUNNING, DONE, FAILED(rc), DEAD |
-| `$REMOTO wait [-t secs] <id>...` | Block until all finish (poll 15s). Exit 0 all DONE, 1 any failed, 124 timeout |
+| `$REMOTO hosts` | Probe hosts: UP/DOWN, CLI versions, load; first line names the target |
+| `$REMOTO spawn -e claude\|codex -d <remote-dir> [-m model] [-r effort] [-n name] [--safe] -` | Launch a worker, prompt on stdin. Prints the job id |
+| `$REMOTO ls` / `status <id>...` | Fleet / job state: RUNNING, DONE, FAILED(rc), DEAD, MISSING |
+| `$REMOTO wait [-t secs] <id>...` | Block until all finish (poll 15 s, default timeout 7200). Exit 0 all DONE, 1 any failed, 124 timeout |
 | `$REMOTO logs [-f] <id>` | Tail stderr + stdout |
 | `$REMOTO result <id>` | Final answer (claude: parsed from stream-json; codex: last message) |
-| `$REMOTO kill <id>` / `clean` | Kill process group / delete finished job dirs |
-| `$REMOTO push <local> <remote>` / `pull <remote> <local>` | rsync payloads and artifacts |
+| `$REMOTO kill <id>` / `clean` | Kill the process group / delete finished job dirs |
+| `$REMOTO push <local> <remote>` / `pull <remote> <local>` | rsync payloads and artifacts (mind trailing slashes) |
+| `$REMOTO help` | Usage |
 
-Target a different host per invocation with `REMOTO_HOST=jetson-ts $REMOTO ...`.
+## Status mode
+
+1. `$REMOTO hosts`.
+2. Job ids given: `$REMOTO status <ids>`, then `$REMOTO result <id>` for each DONE. No ids: `$REMOTO ls` for the whole fleet.
+3. For each FAILED or DEAD job, `$REMOTO logs <id>`.
+4. Report: running, finished (with the REPORT status line of each result), failed (with the log tail that explains it).
 
 ## Orchestration workflow
 
-1. **Probe.** `$REMOTO hosts`. If the primary is DOWN, try `REMOTO_HOST=jetson-ts`; if both are down, stop and tell the user.
-2. **Prepare the remote workspace.** Every job needs an existing remote directory: verify with `ssh jetson 'ls <dir>'`, clone a repo remotely, or `$REMOTO push`. Give parallel workers that touch the same repo **separate clones or worktrees** — remote workers cannot coordinate with each other.
-3. **Write worker prompts.** Remote workers have zero context from this conversation — each prompt must be fully self-contained. Build it from `references/prompt-templates.md` (model-specific templates; read it before writing your first prompt). Always keep the template's REPORT contract so results are machine-collectable.
-4. **Spawn.** Pipe the prompt via stdin (never inline-quote a multi-line prompt):
+1. **Probe.** `$REMOTO hosts`. Primary DOWN → retarget with `REMOTO_HOST=<fallback>`. All DOWN → stop and tell the user which hosts were tried.
+2. **Prepare the remote workspace.** Every job needs an existing remote directory: check with `ssh <host> 'ls <dir>'`, clone the repo on the host, or `$REMOTO push`. Parallel workers on the same repo get **separate clones or worktrees**; remote workers cannot coordinate with each other.
+3. **Write worker prompts.** Workers have zero context from this conversation; every prompt is self-contained. Read [references/prompt-templates.md](references/prompt-templates.md) before writing the first prompt and build from its engine-specific template. Keep its REPORT contract so results are machine-collectable.
+4. **Spawn.** Pipe the prompt on stdin (never inline-quote a multi-line prompt):
    ```bash
-   $REMOTO spawn -e claude -d ~/code/proyecto -n api-worker - <<'PROMPT'
+   $REMOTO spawn -e codex -r high -d '~/code/project' -n api-worker - <<'PROMPT'
    ...full self-contained prompt...
    PROMPT
    ```
-   Spawn independent jobs back-to-back in one Bash call; capture each printed job id. Default implementer is `codex -m gpt-5.6-sol -r high`; reviewers always the other engine; judge codex (see role matrix above).
-5. **Wait without blocking the user.** Run `$REMOTO wait <ids>` via Bash with `run_in_background: true`, then continue any local work. Remote jobs can take many minutes. Spot-check long jobs with `logs`.
-6. **Collect.** For each job: `status`, then `result <id>`, and read the REPORT block. If FAILED or DEAD, get `logs <id>` before deciding to respawn — never silently retry.
-7. **Cross-review (recommended for nontrivial work).** Spawn a fresh reviewer on the *other* engine over the worker's diff (`git -C <dir> diff` output embedded in the reviewer prompt, or the reviewer runs it itself in the same workdir). Reviewer template is in the references. Iterate: findings → fixer job → re-review, max 2 rounds. For high-stakes changes, close with a **judge** job (codex `gpt-5.6-sol -r high`, judge template) that scores the final review verdict instead of re-reviewing the code.
-8. **Verify and deliver.** Pull artifacts with `$REMOTO pull` if needed, run/inspect what came back, then report to the user: what ran where, results, failures, and remote paths. `$REMOTO clean` when the user is done with the batch.
+   Spawn independent jobs back to back in one shell call; capture every printed job id.
+5. **Wait without blocking the user.** Run `$REMOTO wait <ids>` in the background (Claude Code: Bash with `run_in_background: true`) and keep doing local work. Jobs can take many minutes; spot-check long ones with `logs`.
+6. **Collect.** Per job: `status`, then `result <id>`, then read the REPORT block. FAILED or DEAD → read `logs <id>` before deciding to respawn. Never retry silently.
+7. **Cross-review (nontrivial work).** Spawn a fresh reviewer on the *other* engine over the worker's uncommitted diff in the same workdir (reviewer template). Findings → fixer job → re-review, max 2 rounds. High-stakes changes: close with a **judge** job (judge template) that scores the review loop instead of re-reviewing the code.
+8. **Verify and deliver.** `$REMOTO pull` artifacts if needed, run or inspect what came back, then report: what ran on which host, results, failures, remote paths. `$REMOTO clean` once the user is done with the batch.
 
 ## Rules
 
-- **Self-contained prompts.** The #1 failure mode is a prompt that references context the remote model can't see. Include: repo path, task, constraints, verification commands, and the REPORT contract.
-- **One job = one task.** Don't pack multiple deliverables into a single worker; spawn parallel jobs instead.
-- **Permissions default.** Jobs run with permissions bypassed (it's Jairo's own Jetson). Use `--safe` when the task only edits files and shouldn't run arbitrary commands.
-- **Don't kill what you didn't spawn.** `ls` shows all jobs on the host, including ones from other sessions.
-- **Ground your report.** Only claim a job succeeded after seeing its DONE status *and* its result/REPORT — a DONE exit with an error-shaped result is a failure.
-- **No background remnants.** Headless processes die with their background children: every worker prompt must say "do all polling/waiting synchronously; do not leave background tasks running; your final message must contain all evidence." A worker whose final message says "waiting for background tasks" produced an incomplete result — verify its work directly or respawn.
+- **Self-contained prompts.** The top failure mode is a prompt that references context the worker cannot see. Include repo path, task, constraints, verification commands, and the REPORT contract.
+- **One job = one task.** Split multiple deliverables into parallel jobs.
+- **Permissions.** Default is full bypass (claude `--dangerously-skip-permissions`, codex `--dangerously-bypass-approvals-and-sandbox`): use only on a host you own that holds nothing you cannot lose. Pass `--safe` when the task only edits files (claude `acceptEdits`, codex `--sandbox workspace-write`).
+- **Do not kill what you did not spawn.** `ls` shows every job on the host, including other sessions'.
+- **Ground the report.** A job succeeded only after DONE status *and* a result whose REPORT says success; DONE with an error-shaped result is a failure.
+- **No background remnants.** Headless processes die with their background children. Every worker prompt says: "Do all polling/waiting synchronously; do not leave background tasks running; your final message must contain all evidence." A result that says "waiting for background tasks" is incomplete: verify the work directly or respawn.

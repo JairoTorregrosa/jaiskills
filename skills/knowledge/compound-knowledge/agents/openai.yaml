@@ -1,0 +1,3 @@
+interface:
+  display_name: "Compound knowledge"
+  short_description: "Write a solved problem up as a searchable docs/solutions/ entry"

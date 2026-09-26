@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """
 insistir.py — CLI helper for Insistir multi-agent orchestration plans.
 

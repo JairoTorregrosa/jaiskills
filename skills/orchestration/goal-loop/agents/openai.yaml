@@ -1,0 +1,5 @@
+interface:
+  display_name: "Goal loop"
+  short_description: "Iterate a goal until visible and held-out evidence prove it met"
+policy:
+  allow_implicit_invocation: false
