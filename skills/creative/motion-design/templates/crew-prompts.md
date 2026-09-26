@@ -3,8 +3,8 @@
 Skeletons for the subagents of a production. Fill the `{{…}}` slots, keep the first and last
 paragraphs as they are: they are what keeps a parallel crew coherent. Launch agents of the same
 phase in one message so they run concurrently. Every agent gets the path of `ORCHESTRATION.md`,
-never a paraphrase of it, and the absolute path of this skill's directory: subagents don't know
-where the skill is installed, and `scripts/…` in these prompts is relative to it.
+never a paraphrase of it, and `{{skill}}`, the absolute path of this skill's directory:
+subagents start in the project folder and don't know where the skill is installed.
 
 Shared opening (prepend to every prompt):
 
@@ -13,8 +13,8 @@ You are the {{role}} on a small motion studio's production of "{{title}}".
 Read {{project}}/ORCHESTRATION.md first, all of it. It holds the brief, the definition of
 done (the human must be proud to share this video), the locked direction, and the anti-list.
 Write only to {{output path / section}}. Do not edit any other section or file.
-The skill's scripts and references are at {{absolute path of the motion-design skill}}/scripts
-and /references; run the scripts from there.
+The motion-design skill lives at {{skill}} (absolute path, from the "Skill dir" line of
+ORCHESTRATION.md); its scripts, references and templates are under it.
 If something in the brief blocks you, make the most reasonable call, write it under
 "Assumptions" in your output, and keep going. Never ask the human; the director decides.
 ```
@@ -22,8 +22,9 @@ If something in the brief blocks you, make the most reasonable call, write it un
 Shared closing (append to every prompt):
 
 ```
-When done, append one line to the Log in ORCHESTRATION.md: "HH:MM {{role}} — what you
-produced and where". Reply with at most {{N}} lines: what you made, the path, and the one
+Do not edit the Log in ORCHESTRATION.md yourself: parallel agents writing one file overwrite
+each other. End your reply with one line "HH:MM {{role}} — what you produced and where" for
+the director to append. Reply with at most {{N}} lines: what you made, the path, and the one
 thing the director should look at first. Never paste API keys or tokens anywhere.
 ```
 
@@ -71,7 +72,7 @@ Quote the exact lines you praise or cut. End with a ranking and a merge recommen
 Design 3 distinct style frames for "{{title}}" at {{resolution}}: palette (4–6 named hex),
 type pairing with roles and minimum sizes, texture, and one hero composition each. Ground
 every choice in the subject's world (research/). Check each frame against the anti-list in
-ORCHESTRATION.md §3 and against references/craft.md's calibration list; replace any default.
+ORCHESTRATION.md §3 and against {{skill}}/references/craft.md's calibration list; replace any default.
 Render the frames with the project's stack (or {{image generator}} for painted plates) to
 frames/sf-{{n}}.png, view each one, and write frames/direction.md with a recommendation.
 ```
@@ -83,7 +84,7 @@ Produce the soundtrack for "{{title}}": {{music brief — genre, BPM, key, struc
 to the beat sheet}}. Generate {{2–4}} takes, listen by analysis (tempo, sections, loudness,
 intelligibility of sung words), and pick one with reasons. Export: audio/music-final.wav,
 a beat grid (BPM, first downbeat offset, bar times), and cues.json with every section start,
-hit and word timestamp the animators need (schema in references/audio.md). Log credits
+hit and word timestamp the animators need (schema in {{skill}}/references/audio.md). Log credits
 spent in ORCHESTRATION.md §6.
 ```
 
@@ -94,7 +95,7 @@ Build scene {{n}} ({{in}}–{{out}} s): {{beat, picture and sound from §5}}. Us
 engine in {{src/core}} and the tokens in §3; do not fork them — if you need a new helper,
 add it to your scene file and mention it in your reply. Every visual is a pure function of
 time; no wall clock, no unseeded randomness. Sync keys to cues.json. Render your range, then
-make a contact sheet and a motion strip of it (scripts/contact_sheet.py), look at both, and
+make a contact sheet and a motion strip of it ({{skill}}/scripts/contact_sheet.py), look at both, and
 fix what you would not be proud of before replying. Attach both image paths.
 ```
 
@@ -112,8 +113,8 @@ must be honest and stated. Write qa/factcheck.md.
 ```
 Critique {{out/vNN.mp4}} through the {{visual | motion | sound | story & wording |
 truth | prod-ready}} lens. Inputs: the contact sheet, strips of {{ranges}}, stills, the audio
-report (scripts/audio_check.py), the gate report (scripts/video_gates.py), and the rubric in
-templates/critique-rubric.md. Measure where you can instead of eyeballing (frame differencing,
+report ({{skill}}/scripts/audio_check.py), the gate report ({{skill}}/scripts/video_gates.py), and the rubric in
+{{skill}}/templates/critique-rubric.md. Measure where you can instead of eyeballing (frame differencing,
 bounding boxes, cue offsets). Each finding: ID, severity (P0 blocks shipping · P1 visibly
 amateur · P2 polish · P3 taste), timestamp or frame, what is wrong, why it matters to the
 viewer, the smallest fix, and a still or strip path. Separately list the 3 things that already
@@ -134,8 +135,8 @@ piece more generic, and anything that touches the "must not be touched" list.
 
 ```
 From the approved master {{out/final.mp4}}, produce the deliverables in ORCHESTRATION.md §10:
-feed export(s) and a WhatsApp copy under 180 MB (scripts/export_social.py), the .srt
-(scripts/captions.py), covers per aspect, and a poster-frame check (frame 0 must be the
-thumbnail; scripts/poster_frame.py if not). Run scripts/video_gates.py on every file and fix
+feed export(s) and a WhatsApp copy under 180 MB ({{skill}}/scripts/export_social.py), the .srt
+({{skill}}/scripts/captions.py), covers per aspect, and a poster-frame check (frame 0 must be the
+thumbnail; {{skill}}/scripts/poster_frame.py if not). Run {{skill}}/scripts/video_gates.py on every file and fix
 any FAIL. Report sizes, durations, loudness, true peak and paths in §10.
 ```

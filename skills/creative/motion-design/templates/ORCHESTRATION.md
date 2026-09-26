@@ -1,11 +1,13 @@
 # {{Title}} — production orchestration
 
-> Single source of truth for this video. Every agent reads this file first, writes only
-> in the section its task names, and appends one line to the log when it finishes. The
-> lead (director) updates status after every phase and re-reads the whole file after any
+> Single source of truth for this video. Every agent reads this file first and writes only
+> in the section or file its task names. Agents return a one-line log entry in their reply;
+> only the director edits this file's status and Log (parallel writers overwrite each other).
+> The director updates status after every phase and re-reads the whole file after any
 > context compaction before doing anything else.
 
 Status: {{phase}} · Current best cut: `{{out/v00.mp4}}` · Updated: {{YYYY-MM-DD HH:MM}}
+Skill dir: `{{absolute path of the motion-design skill}}` (its scripts/, references/, templates/)
 
 ## 1. Brief
 
@@ -37,7 +39,7 @@ The human would post this under their own name today, without apologizing for an
 
 - **Concept / logline:**
 - **Three tone words:**
-- **Palette (4–6 named hex):**
+- **Palette (3–5 named hex: ground, ink, 1–2 supports, 1 accent):**
 - **Type (families, roles, minimum sizes):**
 - **Motion language:** {{easing set}} · {{tempo / BPM}} · {{transition grammar}} · {{camera rules}}
 - **Texture:** {{grain / dither / brush / paper}}

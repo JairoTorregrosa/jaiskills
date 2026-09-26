@@ -15,8 +15,13 @@ Page contract (see references/stack-html-frames.md; examples/gsap-page.html impl
   render_frames.py scene.html --sheet 0,0.5,1,2 --out sheet.png   # contact sheet of chosen times (a:b = every frame in a:b)
   render_frames.py scene.html --stills 0 --out stills/            # full-res PNGs (t=0 is the thumbnail)
   render_frames.py scene.html --transparent --out overlay.mov     # ProRes 4444 with alpha (.webm = VP9 alpha)
+  render_frames.py scene.html --frames-dir frames/ --out out.mp4  # resumable: existing frames are kept, gaps filled
+A local path may carry a #fragment or ?query for the page (scene.html#alpha).
 First run: uv run --with playwright playwright install chromium
-Pass --gpu for WebGL/WebGPU/canvas-heavy pages (Metal via ANGLE on macOS; the headless default is software).
+Pass --gpu for WebGL/WebGPU/canvas-heavy pages: ANGLE on Metal on macOS. On Linux --gpu only
+unlocks SwiftShader (software); for a real GPU add flags such as --use-angle=vulkan in GPU below.
+Audio: master the mix first (audio_check.py --normalize), then pass it with --audio; it is encoded
+once, with AudioToolbox AAC when available.
 """
 import argparse, base64, math, os, pathlib, subprocess, sys, tempfile
 from concurrent.futures import ProcessPoolExecutor
@@ -37,7 +42,15 @@ class Session:
         self.page = self.browser.new_page(viewport={"width": a.width, "height": a.height}, device_scale_factor=a.scale)
         self.page.on("pageerror", lambda e: print(f"[page error] {e}", file=sys.stderr))
         self.page.add_init_script("window.__RENDER__ = true")
-        src = a.html if "://" in a.html else pathlib.Path(a.html).resolve().as_uri()
+        if "://" in a.html:
+            src = a.html
+        else:  # keep a #fragment or ?query on local paths (e.g. scene.html#alpha)
+            path, suffix = a.html, ""
+            for sep in ("#", "?"):
+                if sep in path:
+                    path, rest = path.split(sep, 1)
+                    suffix = sep + rest + suffix
+            src = pathlib.Path(path).resolve().as_uri() + suffix
         self.page.goto(src, wait_until="load")
         self.meta = self.page.evaluate("""async () => { await (window.__ready || 0); await document.fonts.ready;
             if (typeof window.__seek !== 'function') throw new Error('page has no window.__seek(t)');
@@ -57,7 +70,8 @@ class Session:
         self.browser.close(); self.pw.stop()
 
 
-def encoder(a, out):
+def encoder(a, out, source=None):
+    """ffmpeg process for `out`; frames come from stdin (image2pipe) unless `source` gives input args."""
     ext = pathlib.Path(out).suffix.lower()
     if a.transparent and ext == ".mov":
         enc = ["-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le", "-vendor", "apl0"]
@@ -67,8 +81,34 @@ def encoder(a, out):
         enc = ["-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p,"
                "setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv",
                "-c:v", "libx264", "-preset", a.preset, "-crf", str(a.crf), "-movflags", "+faststart"]
-    return subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", str(a.fps),
-                             "-i", "-", *enc, out], stdin=subprocess.PIPE)
+    src = source or ["-f", "image2pipe", "-framerate", str(a.fps), "-i", "-"]
+    return subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", *src, *enc, out],
+                            stdin=None if source else subprocess.PIPE)
+
+
+def frame_ext(a):
+    return "png" if (a.transparent or a.png) else "jpg"
+
+
+def write_frames(job, s=None):  # --frames-dir: one file per frame, skip existing, atomic rename
+    a, f0, f1, _ = job
+    todo = [f for f in range(f0, f1) if not pathlib.Path(a.frames_dir, f"{f:06d}.{frame_ext(a)}").exists()]
+    if todo:
+        s = s or Session(a)
+        for f in todo:
+            dst = pathlib.Path(a.frames_dir, f"{f:06d}.{frame_ext(a)}")
+            tmp = dst.with_name(dst.name + ".tmp")
+            tmp.write_bytes(s.grab(f / a.fps))
+            tmp.rename(dst)
+    if s:
+        s.close()
+    return 0
+
+
+def aac_args():
+    encoders = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"], capture_output=True, text=True).stdout
+    # ffmpeg's native aac at 192k was measured adding ~2 dB of true-peak overs; AudioToolbox kept the master's peak
+    return ["-c:a", "aac_at", "-b:a", "256k"] if " aac_at " in encoders else ["-c:a", "aac", "-b:a", "320k"]
 
 
 def render_chunk(job, s=None):  # runs in its own process when --workers > 1
@@ -91,6 +131,7 @@ def main():
     p.add_argument("--png", action="store_true", help="lossless PNG capture (slower, cleanest)")
     p.add_argument("--transparent", action="store_true"); p.add_argument("--sheet"); p.add_argument("--stills")
     p.add_argument("--cols", type=int, default=4); p.add_argument("--cell", type=int, default=480)
+    p.add_argument("--frames-dir", help="resumable render: write numbered frames here, then encode")
     a = p.parse_args()
     want = (a.width, a.height); a.width, a.height = a.width or 1920, a.height or 1080
     s = Session(a); m = s.meta  # page metadata fills in what the CLI left out; reopen if the viewport was wrong
@@ -126,7 +167,20 @@ def main():
         s.close(); print(a.out); return
 
     video = a.out if not a.audio else a.out + ".noaudio" + pathlib.Path(a.out).suffix
-    if a.workers <= 1:
+    if a.frames_dir:
+        os.makedirs(a.frames_dir, exist_ok=True)
+        if a.workers <= 1:
+            write_frames((a, f0, f1, None), s)
+        else:
+            s.close(); step = math.ceil((f1 - f0) / a.workers)
+            jobs = [(a, f0 + i * step, min(f1, f0 + (i + 1) * step), None) for i in range(a.workers) if f0 + i * step < f1]
+            with ProcessPoolExecutor(len(jobs)) as ex:
+                list(ex.map(write_frames, jobs))
+        pattern = str(pathlib.Path(a.frames_dir, f"%06d.{frame_ext(a)}"))
+        ff = encoder(a, video, ["-framerate", str(a.fps), "-start_number", str(f0), "-i", pattern,
+                                "-frames:v", str(f1 - f0)])
+        assert ff.wait() == 0, "ffmpeg failed"
+    elif a.workers <= 1:
         assert render_chunk((a, f0, f1, video), s) == 0, "ffmpeg failed"
     else:  # contiguous frame ranges -> one segment per worker -> lossless concat
         s.close(); tmp = tempfile.mkdtemp(prefix="frames-"); n = a.workers; step = math.ceil((f1 - f0) / n)
@@ -139,8 +193,9 @@ def main():
                         "-c", "copy", "-movflags", "+faststart", video], check=True)
     if a.audio:  # audio is cut to the same range as the video
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-ss", str(t0), "-t", str(t1 - t0), "-i", a.audio,
-                        "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "libopus" if a.out.endswith(".webm") else "aac",
-                        "-b:a", "192k", "-shortest",
+                        "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+                        *(["-c:a", "libopus", "-b:a", "192k"] if a.out.endswith(".webm") else aac_args()),
+                        "-ar", "48000", "-ac", "2", "-shortest",
                         "-movflags", "+faststart", a.out], check=True)
         os.remove(video)
     print(f"{a.out}  {f1 - f0} frames @ {a.fps:g} fps  {round(a.width * a.scale)}x{round(a.height * a.scale)}")

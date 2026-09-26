@@ -222,10 +222,10 @@ phone gives 1 pt ≈ 2.5–2.8 px. A 1920-px-wide 16:9 frame letterboxed on a po
 ## 4. Composition and camera
 
 - **Vertical 9:16 safe zones.**
-  - Meta, unified Reels and Stories since March 2026: keep text and logos out of the top 14% (≈270 px),
+  - Numbers per platform are in [delivery.md](delivery.md) §4. In short: Meta Reels/Stories keep text and logos out of the top 14% (≈270 px),
     the bottom 35% (≈670 px) and 6% (≈65 px) on each side [META-SAFE].
-  - TikTok: 108 px top, 320 px bottom, 60 px left, 120 px right [TT-SAFE].
-  - Cross-platform box (derived): x 65–960, y 270–1250. Place hero text in the upper-middle band, not
+  - TikTok publishes only templates; third-party measurements put its action rail at ~140 px on the right [TT-SAFE].
+  - Cross-platform "post anywhere" box (derived): x 65–940, y 270–1248. Place hero text in the upper-middle band, not
     the bottom third.
 - **Vertical composition.** Center-weighted, vertically stacked. Put faces and eyes at about the upper
   third, since UI and captions own the bottom. Treat the rule of thirds as a vertical-axis tool here.
@@ -310,8 +310,8 @@ phone gives 1 pt ≈ 2.5–2.8 px. A 1920-px-wide 16:9 frame letterboxed on a po
   - MrBeast's production guide calls the first minute "the most important" because it proves the
     title and thumbnail promise [MRBEAST].
   - 3Blue1Brown gives 30 s to motivate [SOME].
-  - Scale the principle to your length: **promise in ≤2 s, proof by 20% of runtime.**
-- **Hook patterns for 0–2 s.** Pick one and make it specific to the subject:
+  - Scale the principle to your length: **premise in the first 1.5 s, best material in the first 5 s, proof by 20% of runtime.**
+- **Hook patterns for the first 1.5 s.** Pick one and make it specific to the subject:
   1. Payoff first, then "here's how".
   2. An impossible or contrast image.
   3. A claim with a specific number.
@@ -387,8 +387,9 @@ brief explicitly asks otherwise.
   verdict stamps that tell the viewer what to think. Replace text with a widget that *shows* the
   number, or delete it. "Widgets over text" was the note that turned one explainer around.
 - **Transition menus.** Circle reveals, wipes, slides and noise dissolves chosen per cut read as a
-  slideshow template. Hard cuts on the beat or on action, plus one signature match cut, is the house
-  default.
+  slideshow template. The house default is hard cuts on the beat or on action; true crossfades or
+  fades through black when time passes; match, whip or iris cuts only where the content motivates
+  them (a painted world can own a brush wipe).
 - **The default "dark tech" stack.** Near-black ground + grid + glow + dust particles + vignette,
   all at once. Any one of these can be right; all five together are the stock AI look. Pick the
   ground from the subject.

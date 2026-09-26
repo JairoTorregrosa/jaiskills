@@ -250,7 +250,7 @@ the options explicitly there.
   `from`/`<Sequence from>` wrapper places a clip; `trimBefore` skips into the file (in frames).
 - **Volume curves**: pass a function, `volume={(f) => interpolate(f, [0, fps, dur-1.5*fps, dur], [0, 1, 1, 0], CLAMP)}`.
   `f` is **frames since this audio started**, not the composition frame. Negative values are illegal, so clamp. Keep values
-  in 0–1 and fix loudness in the file (`ffmpeg -af loudnorm=I=-16:TP=-1.5`). The callback form draws a curve in Studio and is
+  in 0–1 and fix loudness in the files (stems near -18 LUFS; master the final mix with `scripts/audio_check.py --normalize`). The callback form draws a curve in Studio and is
   faster than re-rendering a numeric prop.
 - **Ducking under VO**: precompute a per-frame gain array once in `useMemo` from VO word timings (merge words into phrases,
   bridging pauses <1 s; attack ≈0.35 s before speech, release ≈0.9 s; duck by a dB factor such as `gain = base *
@@ -258,7 +258,7 @@ the options explicitly there.
   about 9–10 dB under the voice (the data documentary's soundtrack component).
 - **VO alignment → animation cues**: store word timings as JSON (`{words:[{text,start,end,line}]}` from WhisperX/ElevenLabs
   timestamps/whisper.cpp tokens). Expose `cue(line, word) → frame = Math.round(start*fps)` and **throw** if the word is
-  missing, so a re-voiced take fails loudly instead of desyncing. Land key visual changes within ±2 frames of the word.
+  missing, so a re-voiced take fails loudly instead of desyncing. Land key visual changes 0–2 frames before the word, never after.
 - **Beats**: detect beats offline (aubio, librosa, or a known BPM grid: `i*60/bpm + offset`) into `beats.json`. Drive
   accents with a decaying pulse `exp(-(t - lastBeat)*k)` computed from the **global** frame, with the reactive layer
   outside scene Sequences, or pass the global frame down. Snap scene lengths to beat multiples
@@ -347,8 +347,10 @@ Diverges from current official guidance:
 fonts named (`Inter`, `JetBrains Mono`) but never loaded (silent fallback on other machines), hard cuts via plain
 `<Sequence>`, no premount, `transform` strings, no audio.
 
-## 10. Minimal working example (tested)
-Kinetic title with staggered spring words, a spring-timed slide transition, a dot pulsing on a 120 BPM beat grid from
+## 10. Minimal working example (tested plumbing, not a design reference)
+It proves the mechanics (fonts, springs, transitions, a beat grid, audio curves); its frame 0 is
+not a poster and its slide transition is the kind of default the house taste avoids. Kinetic title
+with staggered spring words, a spring-timed slide transition, a dot pulsing on a 120 BPM beat grid from
 `beats.json`, and music with a fade curve. Setup: `npx remotion add @remotion/transitions @remotion/media
 @remotion/google-fonts`, `public/beat.wav`, `src/beats.json` = `{"bpm":120,"beats":[0,0.5,1,1.5,2,2.5]}`.
 ```tsx

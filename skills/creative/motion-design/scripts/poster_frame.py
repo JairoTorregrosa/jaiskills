@@ -61,13 +61,18 @@ def main() -> None:
                 check=True,
             )
         graph = (
-            f"[1:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},setsar=1[p];"
-            f"[0:v][p]overlay=0:0:enable='lt(n,{args.frames})',format=yuv420p[v]"
+            # Convert the RGB poster with the BT.709 matrix before overlaying; overlay's own
+            # RGB->YUV conversion assumes BT.601 and would shift the poster's colors.
+            f"[1:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},setsar=1,"
+            f"scale=out_color_matrix=bt709:out_range=tv,format=yuv420p[p];"
+            f"[0:v][p]overlay=0:0:enable='lt(n,{args.frames})':format=yuv420,format=yuv420p,"
+            f"setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=tv[v]"
         )
         subprocess.run(
             ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(args.video),
              "-i", str(poster), "-filter_complex", graph, "-map", "[v]", "-map", "0:a?",
              "-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf), "-pix_fmt", "yuv420p",
+             "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
              "-c:a", "copy", "-movflags", "+faststart", str(args.out)],
             check=True,
         )

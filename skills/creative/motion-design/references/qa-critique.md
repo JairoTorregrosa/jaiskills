@@ -41,7 +41,7 @@ previous render. Check that the sheet matches the current build (timestamp, cont
   neighbours is a glitch; a huge spike is a cut. Compare to the beat sheet: holds are fine where the
   script says "breathe", not on the conceptual crux.
 - **Late beats:** the same difference on a crop around the element; the first frame above the
-  floor vs `round(word_time × fps)`. Target: visual onset within ±2 frames of the word, motion
+  floor vs `round(word_time × fps)`. Target: visual onset 0–2 frames before the word (never after), motion
   starting 3–9 frames before it.
 - **Cuts vs beats:** detected cuts vs the beat grid (`video_gates.py --cues`, which accepts the
   `scripts/beats.py` output); every cut within 1 frame of a beat unless the script says otherwise.

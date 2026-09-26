@@ -29,7 +29,7 @@ ap.add_argument("--out", default="mg_out")
 ap.add_argument("--gn", action="store_true", help="add a Geometry Nodes wave grid")
 ap.add_argument("--gp", action="store_true", help="add a Grease Pencil v3 ring")
 ap.add_argument("--alpha", action="store_true", help="transparent film (RGBA PNG)")
-ap.add_argument("--view", default="AgX", help="'AgX' | 'Khronos PBR Neutral' | 'Standard' | 'ACES 2.0'")
+ap.add_argument("--view", default="Khronos PBR Neutral", help="'Khronos PBR Neutral' (keeps brand colors) | 'AgX' | 'Standard' | 'ACES 2.0'")
 ap.add_argument("--only", type=int, default=0, help="render just this frame (look tests)")
 args = ap.parse_args(argv)
 W, H = map(int, args.res.lower().split("x"))
@@ -194,11 +194,21 @@ if args.engine == "eevee":
 else:
     r.engine = "CYCLES"
     prefs = bpy.context.preferences.addons["cycles"].preferences
-    prefs.compute_device_type = "METAL"; prefs.get_devices()
+    for backend in ("METAL", "OPTIX", "CUDA", "HIP", "ONEAPI"):  # first GPU backend this build offers
+        try:
+            prefs.compute_device_type = backend
+        except TypeError:
+            continue
+        prefs.get_devices()
+        if any(d.type == backend for d in prefs.devices):
+            break
+    else:
+        prefs.compute_device_type = "NONE"
+    gpu = prefs.compute_device_type
     for d in prefs.devices:
-        d.use = d.type == "METAL"                       # GPU only; mixing CPU usually slows Apple Silicon
+        d.use = d.type == gpu                           # GPU only; mixing CPU usually slows Apple Silicon
     c = sc.cycles
-    c.device = "GPU"
+    c.device = "GPU" if gpu != "NONE" else "CPU"
     c.samples = args.samples
     c.use_adaptive_sampling = True; c.adaptive_threshold = 0.03
     c.use_denoising = True; c.denoiser = "OPENIMAGEDENOISE"; c.denoising_use_gpu = True

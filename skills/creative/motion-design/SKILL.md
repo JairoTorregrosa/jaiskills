@@ -6,10 +6,11 @@ description: >
   end to end as a studio crew of parallel subagents coordinated through an ORCHESTRATION.md file:
   brief, writers' room, style frames, music/VO/SFX, deterministic render, critique loop, social
   exports. Use when the user says "make a video", "motion graphics", "animate this", "an opening
-  for my series", "intro animada", "hazme un video", "video musical", "lyric video", "explainer
-  de 60 s", "video para LinkedIn / Reels / TikTok", "kinetic typography", "render an MP4",
-  "anima este paper / estos datos", or wants an existing video to look less generic. Not for
-  static images or slide decks.
+  for my series", "trailer", "title sequence", "explainer video", "Remotion video", "intro
+  animada", "hazme un video", "opening de mi serie", "tráiler", "preséntame en 15 segundos",
+  "video musical", "lyric video", "explainer de 60 s", "video para LinkedIn / Reels / TikTok",
+  "kinetic typography", "render an MP4", "anima este paper / estos datos", or says a video "se ve
+  genérico" or needs "más sabor". Not for static images or slide decks.
 version: 0.1.0
 ---
 
@@ -68,18 +69,18 @@ OP) and fills it with true details. Build with real content from the first frame
 
 ## The production
 
-| Phase | What happens | Gate |
-|---|---|---|
-| 0 Intake | Fill §1–2; pick format, aspect, duration, language, stack | Brief fits on one screen |
-| 1 Research | Facts with sources, reference pieces and the device each uses, the subject's vernacular | `research/` written |
-| 2 Writers' room | 3–5 divergent drafts in parallel → 3 blind critics with the rubric → merge | One script, every line illustratable |
-| 3 Direction | 3 style frames, tokens, motion language, anti-list — reviewed against the calibration list below | §3 locked |
-| 4 Sound | Music/VO first when they lead; beat grid (`scripts/beats.py`) and word timings into `cues.json` | Take chosen, cues exported |
-| 5 Animatic | Beat sheet timed to audio, rough render | Contact sheet reads as a story |
-| 6 Build | One animator agent per scene on a shared engine and tokens | Each scene ships a sheet + strip |
-| 7 Assemble | Full render, mix, master (`scripts/audio_check.py --normalize`) | `out/vNN.mp4` plays end to end; `video_gates.py` passes |
-| 8 Critique loop | 3–5 lenses in parallel → skeptical verifier per finding → fix → re-render | No open P0/P1; pride test passes |
-| 9 Deliver | Exports, captions, poster, post copy | §10 complete |
+| Phase | What happens | Gate | Read |
+|---|---|---|---|
+| 0 Intake | Fill §1–2; pick format, aspect, duration, language, stack | Brief fits on one screen | orchestration, case-studies, stack-selection |
+| 1 Research | Facts with sources, reference pieces and the device each uses, the subject's vernacular | `research/` written | story |
+| 2 Writers' room | 3–5 divergent drafts in parallel → 3 blind critics with [the rubric](templates/critique-rubric.md) → merge | One script, every line illustratable | story, prompting |
+| 3 Direction | 3 style frames, tokens, motion language, anti-list — reviewed against the calibration list below | §3 locked | craft |
+| 4 Sound | Music/VO first when they lead; beat grid (`scripts/beats.py`) and word timings into `cues.json` | Take chosen, cues exported | audio |
+| 5 Animatic | Beat sheet timed to audio, rough render | Contact sheet reads as a story | the stack reference |
+| 6 Build | One animator agent per scene on a shared engine and tokens | Each scene ships a sheet + strip | the stack reference, craft |
+| 7 Assemble | Mix mastered as WAV (`scripts/audio_check.py mix.wav --normalize master.wav`), then the full render with it | `out/vNN.mp4` plays end to end; `video_gates.py` passes | audio, delivery |
+| 8 Critique loop | 3–5 lenses in parallel → skeptical verifier per finding → fix → re-render | No open P0/P1; pride test passes | qa-critique |
+| 9 Deliver | Exports, captions, poster, post copy, provenance | §10 complete | delivery |
 
 Keep a shippable cut at all times: once phase 7 produces `v01`, every later change must leave a
 better playable file, so a deadline never finds you with nothing.
@@ -147,8 +148,9 @@ piece they read as defaults, not choices. Where the brief leaves an axis free, d
 9. Robotic, evenly paced VO; copy full of "revolucionar", "el futuro es hoy", "unlock", "seamless".
 10. Everything moving at once; nothing ever holds still long enough to be read.
 
-The longer list, with fixes, is in [references/craft.md](references/craft.md). Write the piece's own anti-list in
-§3 of the orchestration file.
+This is the short version; the canonical list, with fixes and the notes humans gave on past
+productions, is [references/craft.md](references/craft.md) §8. Write the piece's own anti-list in §3 of the
+orchestration file.
 
 ## Push for taste
 
@@ -181,15 +183,16 @@ Whatever the stack, every frame is a pure function of time (`render(t)`): no wal
 unseeded randomness, no free-running animation loops. That is what makes renders reproducible,
 parallelizable by frame range, and fixable one shot at a time.
 
-For newer and experimental libraries — and how to re-scan the awesome lists for what shipped
-this month — see [references/awesome-libs.md](references/awesome-libs.md). Allow one experiment per piece, where it
+For newer and experimental libraries see [references/awesome-libs.md](references/awesome-libs.md), and for the
+2026 radar and how to re-scan the awesome lists for what shipped this month,
+[references/awesome-radar.md](references/awesome-radar.md). Allow one experiment per piece, where it
 serves the idea, and keep a proven fallback for that shot.
 
 ## Scripts
 
 | Script | Does |
 |---|---|
-| `scripts/render_frames.py` | Deterministic HTML → MP4: seeks `window.__seek(t)` per frame in headless Chromium (`--gpu` for Metal), BT.709-tagged encode; ranges, supersampling, workers, sheets, stills, alpha |
+| `scripts/render_frames.py` | Deterministic HTML → MP4: seeks `window.__seek(t)` per frame in headless Chromium (`--gpu` for Metal), BT.709-tagged encode; ranges, supersampling, workers, resumable `--frames-dir`, sheets, stills, alpha |
 | `scripts/contact_sheet.py` | Contact sheet of any video (frame-0 and flat-frame checks), motion strips for a time range, full-res stills |
 | `scripts/video_gates.py` | Mechanical gates: format, faststart, decode, loudness, poster frame, frozen runs, periodic audio wobble, cuts vs the beat grid |
 | `scripts/audio_check.py` | Integrated LUFS, range and true peak against targets; `--normalize` masters to −14 LUFS / −1.5 dBTP with an oversampled limiter |
@@ -222,6 +225,7 @@ WebGPU scene).
 | [audio.md](references/audio.md) | Music, VO, SFX, alignment, cue sheets, mixing |
 | [delivery.md](references/delivery.md) | Platform specs, safe zones, captions, exports |
 | [qa-critique.md](references/qa-critique.md) | Running the critique loop and the fact-check |
-| [awesome-libs.md](references/awesome-libs.md) | Newest libraries, experimental radar, how to refresh the list |
+| [awesome-libs.md](references/awesome-libs.md) | Library catalogue part 1: default picks, frameworks, tweens, type, vector, canvas, 3D, particles |
+| [awesome-radar.md](references/awesome-radar.md) | Part 2: data-viz, audio, capture, post, AI assist, agent skills, 2026 radar, how to refresh |
 | [prompting.md](references/prompting.md) | Asking for better work; community one-liners |
 | [case-studies.md](references/case-studies.md) | Lessons from past productions: what worked, what cost hours |

@@ -358,7 +358,7 @@ timings.
 ```python
 # excerpt: cam, title, OUT come from the full script (scripts/blender_mg_render.py)
 import bpy, os, sys; from bpy_extras import anim_utils
-args = sys.argv[sys.argv.index("--")+1:]
+engine = (sys.argv[sys.argv.index("--")+1:] or ["eevee"])[0]   # simplified; the full script uses argparse
 sc = bpy.context.scene; r = sc.render
 def ease_keys(obj, interp="BEZIER", easing="AUTO"):          # 5.x-safe easing
     ad = obj.animation_data
@@ -372,9 +372,9 @@ cam.data.dof.use_dof = True; cam.data.dof.focus_object = title; cam.data.dof.ape
 r.use_motion_blur = True; r.motion_blur_shutter = 0.5                      # 180 degrees
 sc.view_settings.view_transform = "Khronos PBR Neutral"                     # or "AgX" + look
 r.image_settings.file_format, r.image_settings.color_depth = "PNG", "16"
-if args[0] == "cycles":
+if engine == "cycles":
     p = bpy.context.preferences.addons["cycles"].preferences
-    p.compute_device_type = "METAL"; p.get_devices()
+    p.compute_device_type = "METAL"; p.get_devices()          # OPTIX/CUDA/HIP off Apple (the full script probes)
     for d in p.devices: d.use = d.type == "METAL"
     c = sc.cycles; r.engine = "CYCLES"; c.device = "GPU"; c.samples = 128
     c.use_adaptive_sampling, c.adaptive_threshold = True, 0.03
@@ -421,7 +421,7 @@ for f in range(sc.frame_start, sc.frame_end + 1):                          # res
   `-c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le` (or VP9 `yuva420p`) for the Remotion overlay. Render the
   **exact frame count** the edit needs, plus transition handles. Never retime with `setpts`/`fps` (drops and duplicates
   frames = judder).
-- **Blender MCP** (Blender Lab v1.0.0, configured locally as `blender`): `execute_blender_code_for_cli(blend_file, code)`
+- **Blender MCP** (Blender Lab v1.0.0, when configured as an MCP server): `execute_blender_code_for_cli(blend_file, code)`
   runs Python in `blender --background` on a .blend and returns whatever you assign to `result` (verified on the test
   scene). The interactive tools (`execute_blender_code`, `get_objects_summary`, `render_viewport_to_path`,
   `render_thumbnail_to_path`, screenshots) need the GUI running with the add-on. `search_api_docs` and

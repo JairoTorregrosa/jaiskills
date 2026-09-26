@@ -2,6 +2,8 @@
 // bloom and IGN dither, every value driven from useCurrentFrame() (never TSL `time`, which reads the wall clock).
 // Tested with Remotion 4.0.529 + R3F 9.8 + three r186: `npx remotion render <id> --gl=angle`; a still and a
 // 4-tab render of the same frame were byte-identical. Walkthrough in references/stack-3d-shaders.md.
+// Plumbing, not a design reference: the neon-particle look is a test pattern, and the corner label
+// (WebGPU vs WebGL2-fallback) is burned in on purpose to verify the backend. Remove it for real work.
 
 import React, {useLayoutEffect, useMemo} from 'react';
 import {useFrame, useThree} from '@react-three/fiber';

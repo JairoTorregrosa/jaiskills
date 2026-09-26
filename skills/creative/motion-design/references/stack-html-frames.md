@@ -132,7 +132,7 @@ scripts/render_frames.py scene.html --range 12:15 --audio mix.wav --out qa/scene
 - Tagged BT.709 output.
 - DPR supersampling done correctly.
 
-For multi-minute or seconds-per-frame renders (p5.brush watercolour), keep a resumable frames directory (skip existing frames, atomic rename) over segments: a crash then loses one frame, not a segment.
+For multi-minute or seconds-per-frame renders (p5.brush watercolour), use `--frames-dir DIR` instead of segments: frames are written one file each with an atomic rename, existing frames are skipped on the next run, and a crash loses one frame, not a segment.
 
 ## 5. GSAP recipes for motion graphics (all seek-safe; plugins are in the npm `gsap` package, `dist/*.min.js`)
 

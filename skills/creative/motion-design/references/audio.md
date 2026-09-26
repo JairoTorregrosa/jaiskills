@@ -12,7 +12,7 @@ Verified 2026-09-26 against the live ElevenLabs docs + changelog (through `music
 | Data-art / generative | tempo grid of the track | data events quantized to the grid; SFX per event, quiet | value -> pitch/pan; cap density (~8 events/s); keep it loopable |
 | Product demo / screen | VO or captions | UI clicks and cursor whooshes at -20 dB relative | quiet instrumental bed, never lyrics under speech |
 
-- Sound on frame 0. No silent lead-in, no 8-bar intro; the hook lands within 1 s. Ask generators for "one bar pickup then vocals" and trim anything longer.
+- Sound on frame 0. No silent lead-in, no 8-bar intro; the hook lands within 1.5 s. Ask generators for "one bar pickup then vocals" and trim anything longer.
 - Design for muted autoplay first (story readable without sound; captions per the policy in craft.md section 10), then make the sound reward unmuting (a groove, a sting, a VO with character). The famous "85% watch muted" is publishers quoted by Digiday in 2016, not a measurement (https://digiday.com/media/silent-world-facebook-video/); Verizon/Publicis 2019 found 69% watch sound-off in public, while TikTok/Kantar 2021 reports 88% of users call sound essential. Both are true: captions carry the story, sound carries the share.
 - End with a button (hit + short tail) for shares; for loops make the last bar lead into the first.
 - Lock the leader: hash the audio file or its word timings; any re-voice or re-generation means re-timing the picture (see `vo_mix-<hash>` trick, section 7).
@@ -153,7 +153,7 @@ Other local TTS worth knowing: Kokoro-82M (Apache-2.0, tiny, Spanish `lang_code=
 
 `scripts/sfx.py OUT_DIR` writes ten deterministic (seeded), 48 kHz, 24-bit WAV accents in ~0.3 s: `whoosh`, `hit`, `riser`, `tadum` (two-hit logo sting), `glitch`, `click`, `blip`, `pop`, `swell` (reversed cymbal), `braam`. `--only whoosh,hit` picks some, `--seed` gives a variation, and `from sfx import whoosh, hit, mix, write` builds a cue bed in code: `write("bed.wav", mix([(t, signal, gain_db), ...], duration))`. Use it for accents and scratch timing; for a finished piece, generated or recorded SFX usually sound richer (section 2), and continuous ambience should never be synthesized (periodic pads made viewers nauseous).
 
-Tested 2026-09-26 (`scripts/sfx.py sfx`, ffprobe: all `pcm_s24le, 48000 Hz`, correct durations; spectrogram checked: whoosh arc, hit sub + transient, riser sweep, reversed-cymbal swell). Placement rules: a whoosh's loudest point is at `peak*d`, so start it at `cut - 0.65*d` to peak on the cut; put the `hit` at the exact impact frame; layer `swell` ending on the hit for reveals; `drone(2.5, 41, .05, 1.8)` is a braam. Normalize SFX by peak, not LUFS: files under 0.4 s measure -70 LUFS (no gating block) and sample-peak -1 dBFS still read +0.5 dBTP on the square-wave glitch, hence the -3 dBFS default.
+Tested 2026-09-26 (`scripts/sfx.py sfx`, ffprobe: all `pcm_s24le, 48000 Hz`, correct durations; spectrogram checked: whoosh arc, hit sub + transient, riser sweep, reversed-cymbal swell). Placement rules: a whoosh's loudest point is at `peak*d`, so start it at `cut - 0.65*d` to peak on the cut; put the `hit` at the exact impact frame; layer `swell` ending on the hit for reveals; `drone(2.5, 41, .05, 1.8)` is a braam. The kit normalizes by peak because files under 0.4 s measure -70 LUFS (no gating block), and a sample peak of -1 dBFS still read +0.5 dBTP on the square-wave glitch, hence the -3 dBFS default. In the mix, level longer SFX by LUFS with a true-peak cap and short ones by peak (section 6, pitfall 18).
 
 ## 5. Sync pipeline: grid, onsets, words -> cue sheet
 
@@ -240,7 +240,7 @@ Rules (Netflix: 42 chars/line, 2 lines, 5/6 s min, 7 s max, 2-frame gap, 20 cps 
 - Break on phrase boundaries: sentence end first, then after commas/colons, before conjunctions and prepositions. Never end a line on an article, preposition or conjunction (`de`, `la`, `y`, `the`, `of`); keep name + surname and number + unit together; balance the two lines.
 - Card in = first word start (0-2 frames early at most); out = last word end + 0.2 s, clipped to 1 frame before the next card; never overlap.
 - Display text may differ from speech (digits for numbers, real brand spelling for a phonetic lyric). Keep `(spoken, display)` pairs and assert token by token against the alignment so a re-voiced take fails loudly instead of drifting (production `make_srt.py`).
-- Social style: 1-3 word "karaoke" pops driven by `words[]`, current word highlighted, inside the platform safe area (commonly quoted for Reels/TikTok: clear top ~14%, bottom ~35%, sides ~6%; Meta asks for the bottom 40% clear on Reels ads with disclaimers; TikTok publishes templates, not numbers). A 4:5 center crop of a 16:9 master must still hold every line.
+- Burned-in style: designed as part of the piece in the project's type system (craft.md section 10), inside the platform safe area (delivery.md section 4). Word-level highlighting driven by `words[]` suits lyric and karaoke pieces; the generic yellow word-pop template is a slop tell (craft.md section 8). Compose captions for each aspect natively rather than trusting a crop.
 
 ```bash
 scripts/captions.py words.json captions.srt --max-chars 32 --max-cps 17   # prints each card with its reading speed

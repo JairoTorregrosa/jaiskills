@@ -35,7 +35,9 @@ message so they run concurrently.
 - **Why a file:** parallel agents need a shared, persistent brief; chat context gets compacted but
   files survive; the human can open it at any moment and see status, decisions and findings.
 - **Every agent reads all of it first** and gets its path, never a paraphrase.
-- **Every agent writes only its section or output path**, then appends one line to the Log.
+- **Every agent writes only its own output path** and returns a one-line log entry in its reply;
+  the director appends those lines and edits the ledger. Parallel agents editing one file overwrite
+  each other's changes.
 - **The director updates Status and the phase table at each gate**, and re-reads the whole file
   after any context compaction before touching anything.
 - **§7 Decisions** records every non-obvious call with the alternative considered — that is what
@@ -137,8 +139,9 @@ in `ORCHESTRATION.md` lists the evidence for each.
   stand in for any scene that fails, and a hard stop time after which you render what exists.
 - Relay new client feedback to running agents immediately (message them) instead of waiting for
   them to finish on stale instructions.
-- Render finished ranges first while the last agents are still working; the frame renderer should
-  be resumable so a final pass only fills gaps.
+- Render finished ranges first while the last agents are still working; render into a frames
+  directory (`render_frames.py --frames-dir`) so a crash loses one frame and a final pass only
+  fills gaps.
 
 ## Context durability
 

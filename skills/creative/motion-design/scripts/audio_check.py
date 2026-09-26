@@ -3,9 +3,10 @@
 
 Usage:
   audio_check.py FILE [--target -14] [--tp -1]            measure and judge
-  audio_check.py FILE --normalize OUT [--target -14] [--tp -1]
+  audio_check.py FILE --normalize OUT [--target -14] [--norm-tp -1.5]
 
-FILE may be audio or video. Measure prints integrated loudness (LUFS), loudness
+FILE may be audio or video. Master the mix WAV before muxing it into the video: normalizing an
+MP4 decodes and re-encodes its AAC, and every AAC encode adds inter-sample peaks. Measure prints integrated loudness (LUFS), loudness
 range (LU) and true peak (dBTP) and exits 1 when integrated loudness is more
 than 1 LU from the target or the true peak is above the ceiling.
 

@@ -158,7 +158,7 @@ def check_frames(video: Path, fps: float) -> np.ndarray:
         longest = max(longest, run)
     secs = (longest + 1) / fps if longest else 0.0
     report("frozen", "WARN" if secs > 2.0 else "PASS",
-           f"longest identical run {secs:.2f} s" + (" (add grain/boil or a slow drift to holds)" if secs > 2.0 else ""))
+           f"longest identical run {secs:.2f} s" + (" (a deliberate hold needs living texture such as grain or boil; otherwise shorten it)" if secs > 2.0 else ""))
     return diffs
 
 
@@ -207,7 +207,8 @@ def load_beats(path: Path, duration: float) -> np.ndarray:
     cues = json.loads(path.read_text())
     if cues.get("beats"):
         return np.array(cues["beats"], dtype=float)
-    bpm, offset = float(cues["bpm"]), float(cues.get("offset", 0.0))
+    tempo = cues.get("tempo", cues)  # cue-sheet schema nests {bpm, offset} under "tempo"
+    bpm, offset = float(tempo["bpm"]), float(tempo.get("offset", 0.0))
     return np.arange(offset, duration, 60.0 / bpm)
 
 
@@ -238,7 +239,7 @@ def check_cuts(video: Path, cues: Path, fps: float, duration: float) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("video", type=Path)
-    ap.add_argument("--cues", type=Path, help="cues.json with beats[] or bpm + offset")
+    ap.add_argument("--cues", type=Path, help="cue sheet or beats.py JSON: beats[], or bpm + offset (top level or under tempo)")
     ap.add_argument("--lufs", type=float, default=-14.0)
     ap.add_argument("--tp", type=float, default=-1.0)
     ap.add_argument("--max-mb", type=float)

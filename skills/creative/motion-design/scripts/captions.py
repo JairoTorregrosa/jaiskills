@@ -9,7 +9,7 @@ output of forced alignment, TTS with-timestamps, or whisper (see
 references/audio.md). Cards break at sentence ends, pauses and full cards; each
 two-line card splits where the lines balance, never after an article,
 preposition or conjunction. A card holds long enough to read (17 chars/s is the
-Spanish subtitle limit, 20 for English) and stops 40 ms before the next.
+Spanish subtitle limit, 20 for English) and ends at least 2 frames (at 30 fps) before the next.
 
 Line length: 25-32 characters for 9:16, up to 32 for 4:5, up to 42 for 16:9.
 Cards read too fast are printed with a warning. Standard library only.
@@ -24,7 +24,7 @@ GLUE = set("a al de del el la los las lo un una unos y e o u en con por para que
            "the an of to and or in on at for with my your is".split())  # never end a line on these
 
 
-def cards(words, maxc=32, lines=2, min_d=1.0, max_d=6.0, pause=0.5, gap=0.04, max_cps=17):
+def cards(words, maxc=32, lines=2, min_d=1.0, max_d=6.0, pause=0.5, gap=0.07, max_cps=17):
     groups, cur = [], []
     for i, w in enumerate(words):
         cur.append(w)

@@ -35,7 +35,7 @@ order, so anything on a wall clock flickers or drifts.
 
 | Banned during capture | Use instead |
 |---|---|
-| `requestAnimationFrame` loops, p5 `draw()` looping, R3F `useFrame` clocks, `THREE.Clock`/`Timer` deltas, TSL `time` | Derive from `t`: `useCurrentFrame()`, `__seek(t)`, `renderAt(t)` |
+| `requestAnimationFrame` loops, p5 `draw()` looping, R3F `useFrame` clocks, `THREE.Clock`/`Timer` deltas, TSL `time` | Derive from `t`: `useCurrentFrame()` in Remotion, `window.__seek(t)` for `render_frames.py` |
 | CSS transitions/animations, Tailwind `animate-*`, autoplaying GSAP/anime timelines | Paused timelines + `seek(t)`; WAAPI `currentTime` |
 | `Math.random()`, `Date.now()`, `performance.now()` | Seeded PRNG keyed by element and time (`hash(i)`, `boilSeed(key, t)`) |
 | Integrating state frame to frame (`x += v`) | Closed form `pos = f(seed, t)`, or bake the simulation offline to per-frame data |

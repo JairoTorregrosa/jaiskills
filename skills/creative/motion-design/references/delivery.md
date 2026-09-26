@@ -108,7 +108,7 @@ Decide per piece and log it in `ORCHESTRATION.md` §7 (policy in craft.md §10):
 
 - The story must read with the sound off, whatever the caption decision.
 - VO-led social pieces: designed burned-in captions by default, rendered in the scene (the local
-  Homebrew ffmpeg has no `drawtext`/`subtitles`/`ass`; audio.md §7 has a static-ffmpeg fallback).
+  common Homebrew ffmpeg build has no `drawtext`/`subtitles`/`ass`; audio.md §7 has a static-ffmpeg fallback).
 - Always write an `.srt` (`scripts/captions.py words.json out/clip.srt`) for platform CC and search
   (LinkedIn desktop, X web, YouTube). If captions are burned in, tell the human that enabling CC shows
   the words twice, so the sidecar is mainly for YouTube and accessibility.
@@ -117,7 +117,8 @@ Decide per piece and log it in `ORCHESTRATION.md` §7 (policy in craft.md §10):
 ## 8. WhatsApp: the review channel
 
 Humans often review on their phone through WhatsApp before posting. Always ship a review copy **under
-180 MB** (`export_social.py --targets whatsapp`, two-pass, sized to 175 MB by default; a 60 s piece at
+180 MB** (the house rule for sending in HD or as a document; WhatsApp Web/Desktop's standard-quality
+limit is 100 MB at 720p, so pass `--whatsapp-mb 95` when the recipient uses those) (`export_social.py --targets whatsapp`, two-pass, sized to 175 MB by default; a 60 s piece at
 ~17 Mbit/s is ≈ 130 MB). For Status (≤ 90 s, always recompressed) a 720×1280 copy at ~4 Mbit/s survives
 better than a 1080p file. When quality matters more than inline preview, send the master as a document.
 

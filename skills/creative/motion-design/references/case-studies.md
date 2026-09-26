@@ -32,9 +32,10 @@ subagents. Render: 1536 frames at 24 fps in ~5 min on an M1 Pro using 2 processe
   autoplays muted. Contrast ratios computed; all type kept inside the 4:5 center crop.
 - One literal, paintable gag per lyric line; the mascot never lip-syncs (it has no mouth; the song
   jokes about it).
-- A different, motivated transition on each of six seams (cut on action, paint wipe, match cut,
-  iris onto a face, whip smear, cut on the beat), with the half each scene owns written in the
-  storyboard.
+- Each of six seams got the transition its content motivated (cut on action, paint wipe in a
+  painted world, match cut, iris onto the face the next scene is about, whip smear led by a thrown
+  prop, cut on the beat), with the half each scene owns written in the storyboard. Motivation,
+  not variety, is what made them work; a later explainer's decorative wipe menu was rejected.
 - A fallback shot and a hard stop time guaranteed a complete video.
 
 **What cost hours**
@@ -119,7 +120,7 @@ its slots; synthesized SFX (ta-dum, whoosh leading the cut, riser into impact, b
 kinetic mask-rise type, a title slam with RGB split, a glint clipped to the glyphs; a hit system
 (white flash ≤0.12 s + seeded shake with 3% overscan) on downbeats.
 
-**What cost time:** a cedilla clipped by a mask band; two words drawn at hard-coded x ("jetsononline");
+**What cost time:** a cedilla clipped by a mask band; two words drawn at hard-coded x positions ran into each other;
 a line overflowing the frame; a glint bleeding over the whole frame; a patch that silently didn't
 apply so the contact sheet showed the previous video; reading an image while ffmpeg was still
 writing it; a JS syntax error surfacing as "renderAt is not defined"; generated music dying at
@@ -134,7 +135,7 @@ duration and a viewer outcome. See [prompting.md](prompting.md).
 ## 4. Model-race videos for LinkedIn (28 s, shipped in 4:5)
 
 Screen recordings of AI models painting the same portrait, sped 32×, composited per frame in
-Pillow (this ffmpeg build has no `drawtext`) and piped to ffmpeg with a music bed.
+Pillow (the ffmpeg build at hand had no `drawtext`) and piped to ffmpeg with a music bed.
 
 **The human said:** "no hagas narrative UI… deja que el video se explique solo" · "sin esa parte
 inicial, solo y siempre real el video" · "recuerda less wording" · "busca una mejor música con más
