@@ -1,13 +1,13 @@
 # Remote worker prompt templates
 
-Metaprompt-engineered templates for headless remote agents. Both engines are driven identically — headless CLI, prompt in, final message out (never the Codex MCP server) — so role (implementer/reviewer/judge) is just a prompt choice, harness-agnostic. Model policy: orchestrator is always Fable 5 (the local session); default implementer and judge are codex `gpt-5.6-sol` at `-r high`.
+Templates for headless remote workers. Both engines are driven identically (headless CLI, prompt in, final message out, never an MCP server), so role (implementer/reviewer/judge) is only a prompt choice. Role policy lives in SKILL.md: the local session orchestrates; default implementer and judge are Codex at `-r high`; the reviewer is the other engine. Model choice is a spawn flag (`-m`), never prompt text; omit it to use the host CLI's configured default.
 
 - **claude** jobs run `claude -p` (Claude Code headless) — techniques: XML tag structuring, `<default_to_action>`, explicit boundaries, grounded progress claims. Omit anything Claude Code injects itself (tool definitions, git context).
-- **codex** jobs run `codex exec` (GPT-5.x) — techniques: zero contradictions (they waste reasoning tokens), hard requirements over vague guidance, bias-to-action persistence, strict output format.
+- **codex** jobs run `codex exec` (OpenAI GPT models) — techniques: zero contradictions (they waste reasoning tokens), hard requirements over vague guidance, bias-to-action persistence, strict output format.
 
 Universal rule for every template: headless processes die with their background children, so include "Do all polling/waiting synchronously; do not leave background tasks running when you finish; your final message must contain all evidence."
 
-Every template ends with the same REPORT contract so `remoto.sh result` output is machine-collectable by the orchestrator. Replace `{{...}}` slots; delete sections that don't apply rather than leaving them vague.
+Every template ends with the same REPORT contract so `scripts/remoto.sh result` output is machine-collectable by the orchestrator. Replace `{{...}}` slots; delete sections that don't apply rather than leaving them vague.
 
 ## REPORT contract (shared — append to every prompt)
 
@@ -28,7 +28,7 @@ blockers: <what stopped you, or "none">
 
 ```
 <role>
-You are a headless autonomous engineer on a Jetson (aarch64 Linux). No human is watching; you cannot ask questions. Resolve ambiguity with the most reasonable reading of the task and note the assumption in your report.
+You are a headless autonomous engineer on {{host: OS/arch, GPU if relevant, e.g. "a Jetson (aarch64 Linux, CUDA)"}}. No human is watching; you cannot ask questions. Resolve ambiguity with the most reasonable reading of the task and note the assumption in your report.
 </role>
 
 <task>
@@ -61,7 +61,7 @@ When you have enough information to act, act. Do not produce a plan and stop.
 ## Codex worker (implementation)
 
 ```
-You are an autonomous engineer running non-interactively on a Jetson (aarch64 Linux). Keep going until the task is completely resolved; you cannot ask questions — make the most reasonable assumption and record it in the report.
+You are an autonomous engineer running non-interactively on {{host: OS/arch, GPU if relevant}}. Keep going until the task is completely resolved; you cannot ask questions — make the most reasonable assumption and record it in the report.
 
 # Task
 {{imperative task statement}}
@@ -122,7 +122,7 @@ A reviewer found these issues in the uncommitted changes in this directory. Fix 
 </findings>
 ```
 
-## Judge (final verdict on a review loop — codex `gpt-5.6-sol -r high`)
+## Judge (final verdict on a review loop: the engine that did not write the work)
 
 Use after the fix/re-review loop closes (or stalls) on high-stakes work. The judge does not re-review the code line by line; it scores whether the review loop itself was sound and whether the final state meets the original goal.
 
@@ -153,6 +153,6 @@ Then `JUDGMENT: PASS` (all dimensions >= 7) or `JUDGMENT: FAIL` with the single 
 
 ## Parameter notes
 
-- **Role → flags**: implementer/judge default `-e codex -m gpt-5.6-sol -r high`; claude implementer (when requested) `-e claude` (optionally `-m opus`); reviewer = whichever engine did not author the work.
+- **Role → flags**: implementer default `-e codex -r high`; claude implementer (when requested) `-e claude`; reviewer and judge = whichever engine did not author the work (`-e claude`, or `-e codex -r high` when Claude implemented). Add `-m <model>` only when the user names a model.
 - **claude**: `-r` is not supported (no headless effort flag; the script rejects it). Long tasks are normal — rely on `wait`, not short timeouts.
 - **codex**: `-r low|medium|high|xhigh` maps to `model_reasoning_effort`. Use `high` for implementation and judging; `medium` is fine for mechanical fix rounds.

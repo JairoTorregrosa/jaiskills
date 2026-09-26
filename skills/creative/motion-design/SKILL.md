@@ -11,7 +11,6 @@ description: >
   "video musical", "lyric video", "explainer de 60 s", "video para LinkedIn / Reels / TikTok",
   "kinetic typography", "render an MP4", "anima este paper / estos datos", or says a video "se ve
   genérico" or needs "más sabor". Not for static images or slide decks.
-version: 0.1.0
 ---
 
 # Motion Design

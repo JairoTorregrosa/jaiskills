@@ -56,7 +56,7 @@ and a terminal that answers commands about me.
 
 - **implementer.md**: desktop-metaphor conventions (single window manager owning z-order/focus state; windows as instances of one component, never per-app copies); ALL content read from cv.json at runtime; hidden compositional checks exist — build real state management, not per-test behaviors.
 - **diagnoser.md** seeded with the frontend failure taxonomy: z-index/focus-order bugs, state leakage between window instances, event-listener leaks on close, duplicated-singleton windows, CSS breakpoint gaps.
-- **judge.md**: interactive agentic judge — *operates* the page (opens/drags/minimizes via browser tools) rather than reading code; rubric scored on functional/content/visual/layout/UX; hunts this goal's specific hack: **content hardcoded to satisfy the probe's visible mode while diverging from cv.json elsewhere**, and invented facts (the probe's declared blind spot).
+- **judge.md**: rubric scored on functional/content/visual/layout/UX; hunts this goal's specific hack: **content hardcoded to satisfy the probe's visible mode while diverging from cv.json elsewhere**, and invented facts (the probe's declared blind spot). Interactive judge aids (operate the page via browser tools: open/drag/minimize, screenshots, terminal quiz) are run by the lead before the judge call; their transcripts go to the `second-opinion` judge as check results.
 
 ## Phase 2 — Descent (illustrative epochs)
 
@@ -64,7 +64,7 @@ and a terminal that answers commands about me.
 
 **Epoch 2.** Fresh implementer, given gradient log. Visible 12/12. Held-out: all pass except a11y — icons unreachable by Tab (div, not button). Gradient: *"interactive elements built from non-interactive primitives — semantic roles missing as a class."* Momentum adds `non-semantic interactive elements (1, open)`.
 
-**Epoch 3.** Visible 12/12, held-out 4/4, probe deep-mode 0 missing / 0 mismatched. **Judge** (interactive): operates the page, confirms flows, probes blind spots — greps bundle for cv.json string literals (hardcoding check: none), quizzes terminal for a fact NOT in cv.json (invention check: correctly absent). Verdict: `{"met": true, "hacking_gap": 0, "reason": "..."}`.
+**Epoch 3.** Visible 12/12, held-out 4/4, probe deep-mode 0 missing / 0 mismatched. Lead runs the interactive aids (flows confirmed on the live page; terminal quizzed for a fact NOT in cv.json: correctly absent). **Judge** (`second-opinion`, judge mode, Codex read-only) reads the diff and the aid transcripts, probes the blind spots — greps the bundle for cv.json string literals (hardcoding check: none) — and returns APPROVED in the auto-approve band. Recorded verdict: `{"met": true, "hacking_gap": 0, "reason": "..."}`; the judge JSON goes verbatim to `heldout.md`.
 
 ## Phase 3 — Close
 

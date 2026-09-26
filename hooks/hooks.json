@@ -1,5 +1,5 @@
 {
-  "description": "Insistir quality gates — review-before-complete",
+  "description": "insistir quality gates: reviewer Bash whitelist and review-before-complete. Both no-op outside an insistir run.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/reviewer_bash_filter.py\"",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/orchestration/insistir/hooks/reviewer_bash_filter.py\"",
             "timeout": 10
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task_completed.py\"",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/orchestration/insistir/hooks/task_completed.py\"",
             "timeout": 15
           }
         ]

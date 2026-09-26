@@ -1,6 +1,11 @@
-# Plan Template
+# Plan template
 
-Use this template for `<topic>-plan.md` files.
+Read when writing `<topic>-plan.md` (Phase 1; `<topic>` is `[a-z0-9-]` only). `scripts/insistir.py validate` requires, per task:
+`depends_on`, `location`, `description`, `acceptance_criteria`, `validation`, `status`
+(`pending|in_progress|completed|failed`). Task headings are `### T<N>: <name>`; the shared task
+subject must match (`T<N>: <name>`) or the completion gate will not apply. Optional per task:
+`model` (`sonnet` for single-component or copy edits, `opus` for state machines, cross-file
+refactors, complex logic) and `max_review_rounds`.
 
 ```markdown
 # [Topic] Plan
@@ -47,4 +52,19 @@ T1 → T2 → T3
 | 1    | T1    | -          |
 | 2    | T2, T3| T1         |
 | 3    | T4    | T2, T3     |
+```
+
+## Render for the user
+
+Show waves and dependencies with box-drawing characters before asking for confirmation:
+
+```
+Wave 1 (parallel)              Wave 2 (parallel)              Wave 3
+┌────────────┐ ┌────────────┐  ┌────────────┐ ┌────────────┐  ┌────────────┐
+│ T1: Create │ │ T2: Install│  │ T3: Repo   │ │ T4: Service│  │ T5: API    │
+│ DB Schema  │ │ Packages   │──│ Layer      │ │ Layer      │──│ Endpoints  │
+└────────────┘ └────────────┘  └────────────┘ └────────────┘  └────────────┘
+       │              │               ▲              ▲               ▲
+       └──────────────┴───────────────┘              │               │
+                                      └──────────────┴───────────────┘
 ```

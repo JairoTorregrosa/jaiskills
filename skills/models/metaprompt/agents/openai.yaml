@@ -1,0 +1,3 @@
+interface:
+  display_name: "Metaprompt"
+  short_description: "Ready-to-paste prompt tuned for a target model and harness"

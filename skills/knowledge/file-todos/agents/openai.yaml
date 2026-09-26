@@ -1,0 +1,3 @@
+interface:
+  display_name: "File todos"
+  short_description: "File-based TODOs for review findings: create, triage, resolve"

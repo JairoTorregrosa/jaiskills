@@ -1,0 +1,73 @@
+{
+  "title": "second-opinion judge verdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "score", "criteria", "findings", "reviewer_agreement", "rationale"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["APPROVED", "NEEDS_REVISION"],
+      "description": "APPROVED only if every acceptance criterion is met and no critical or major finding exists."
+    },
+    "score": {
+      "type": "number",
+      "description": "Weighted mean, one decimal: 0.4*correctness + 0.2*spec_compliance + 0.2*security + 0.2*maintainability."
+    },
+    "criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correctness", "spec_compliance", "security", "maintainability"],
+      "properties": {
+        "correctness": { "$ref": "#/$defs/criterion" },
+        "spec_compliance": { "$ref": "#/$defs/criterion" },
+        "security": { "$ref": "#/$defs/criterion" },
+        "maintainability": { "$ref": "#/$defs/criterion" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "reviewer_agreement": {
+      "type": "string",
+      "enum": ["agree", "partial", "disagree"],
+      "description": "How the judge's own conclusion compares with the reviewer verdict it was given."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "2-3 sentences. Name where and why the judge disagrees with the reviewer."
+    }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "evidence"],
+      "properties": {
+        "score": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+        "evidence": { "type": "string", "description": "file:line citations backing the score." }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "criterion", "file", "line", "claim", "evidence", "suggestion", "verified"],
+      "properties": {
+        "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+        "criterion": {
+          "type": "string",
+          "enum": ["correctness", "spec_compliance", "security", "maintainability"]
+        },
+        "file": { "type": "string" },
+        "line": { "type": ["integer", "null"] },
+        "claim": { "type": "string", "description": "What goes wrong, for which input or sequence." },
+        "evidence": { "type": "string", "description": "Quoted code, command output, or a concrete input and its wrong result." },
+        "suggestion": { "type": "string" },
+        "verified": {
+          "type": "boolean",
+          "description": "true only if the judge confirmed it by reading the code or running a read-only command."
+        }
+      }
+    }
+  }
+}

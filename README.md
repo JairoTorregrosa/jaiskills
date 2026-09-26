@@ -1,155 +1,146 @@
 # jaiskills
 
-My agent skills for Claude Code, shipped as **one plugin**: agents checking agents, verification-first orchestration, model-aware prompting, motion design, and OpenAI tooling from the terminal.
+My personal agent skills, and what I actually use each one for.
 
-These skills exist to fix failure modes I kept hitting with coding agents. Each one is small, composable, and earns its place by closing a specific gap.
+Every skill here earned its place in real work: videos I posted, workshops I taught, skills I built
+with other skills. They run in Claude Code, and most also run in Codex, pi and any other agent that
+reads a `SKILL.md`. Take the whole set or a single skill, then make it yours.
 
-## Install (30 seconds)
+## Install
 
-Two ways in, two philosophies — pick one (installing both duplicates every skill).
-
-**Claude Code plugin** — a managed bundle that updates when I ship, so you subscribe rather than fork:
+**The whole set, as a Claude Code plugin.** It updates when I ship.
 
 ```
 /plugin marketplace add JairoTorregrosa/jaiskills
 /plugin install jaiskills@jaiskills
 ```
 
-**[skills.sh](https://skills.sh)** — copies editable skill files into your project (works with Claude Code, Codex, and other agents), so you can hack on them and make them your own:
+Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:insistir`, and so on.
+
+**One skill, or another agent**, through [skills.sh](https://skills.sh). It copies the files into
+your project so you can edit them.
 
 ```bash
-npx skills@latest add JairoTorregrosa/jaiskills
+npx skills@latest add JairoTorregrosa/jaiskills                         # choose from the list
+npx skills@latest add JairoTorregrosa/jaiskills --skill motion-design   # just one
 ```
 
-Or load locally for development:
+Pick one route. With both, every skill shows up twice. Through skills.sh the commands are
+`/<skill>`, and insistir's reviewer agents and completion hook stay behind: those come only with
+the plugin.
 
-```bash
-claude --plugin-dir /path/to/jaiskills
-```
+## The catalog
 
-> **Migrating from ≤0.4.x?** This repo used to publish four separate plugins (`insistir`, `metaprompt`, `constatar`, `remoto`). They are now one plugin, `jaiskills`. Uninstall the old ones and install `jaiskills@jaiskills`; every skill and command came along.
+### Making things people look at
 
-## Why these skills exist
+**[motion-design](skills/creative/motion-design/SKILL.md)**: directs a code-made video like a small
+studio would. Brief, writers' room, style frames, music and sound on a beat grid, one animator per
+scene working in parallel, critique rounds, and exports for every platform. It's done when I'd post
+it under my own name.
+<br>*I use it for* every video I make with agents. It distills six of them: a 64-second community
+cumbia music video, a 60-second paper explainer, 15-second openers for my series, model-race clips
+for LinkedIn, a Blender trailer for a metro line and a security explainer that took four rounds.
 
-### #1: The agent says it's done — and it isn't
+**[image-to-frontend](skills/creative/image-to-frontend/SKILL.md)**: turns a brief or a reference
+image into four visual directions, a build spec and a working React or HTML page, iterated until it
+matches.
+<br>*I use it for* turning a screenshot I like, or a paragraph about a product, into a real first
+page instead of a mockup.
 
-Self-reported success is the most expensive lie in agentic coding.
+### Getting agents to actually finish
 
-- **`insistir`** (`/insistir <task>`) — multi-agent orchestration where every worker's output is cross-reviewed by a *different* agent in an adversarial loop. Tasks cannot be marked complete without a reviewer's APPROVED verdict (enforced by hook). The name is the point: fix, review, judge — insist until verified.
-- **`constatar-plan`** / **`constatar-verify`** (`/constatar-run`, `/constatar-verify`, `/constatar-audit`) — verification-first orchestration through the [constatar](https://github.com/JairoTorregrosa/constatar) Rust engine: plans with a 6-rung evidence ladder, grounded verdicts, resumable journals.
+**[insistir](skills/orchestration/insistir/SKILL.md)** (you start it: `/jaiskills:insistir <task>`):
+splits a big task across parallel workers and has every worker's output reviewed by a different
+agent. Nothing is marked done without an APPROVED verdict, and a hook enforces it.
+<br>*I use it for* changes too big for one agent, where the reviewer must never be the author. It
+built the reference guides of my metaprompt skill, and its cross-provider judge caught source
+citations that the Claude reviewers had approved.
 
-### #2: One model grades its own homework
+**[goal-loop](skills/orchestration/goal-loop/SKILL.md)** (you start it: `/jaiskills:goal-loop <goal>`):
+loops toward a goal with a checkable finish line, the way gradient descent does: specialized agents,
+a loss, textual gradients, early stopping. Some checks are hidden from the implementer, so gaming
+the visible ones shows up as a gap and the iteration doesn't count.
+<br>*I use it for* work with a hard finish line. The metaprompt skill came out of it, done in 2 of
+its 5 allowed iterations.
 
-Same-model review inherits the same blind spots.
+**[second-opinion](skills/orchestration/second-opinion/SKILL.md)**: asks a model from another
+provider (GPT-5 through the Codex CLI, read-only) to critique a plan, a diff or a review. You get
+its view next to Claude's, disagreements first. In judge mode it scores a reviewer's verdict for
+insistir and goal-loop.
+<br>*I use it for* the minute before I commit to a plan, and as the last judge of every insistir
+run. A model reviewing its own family's work shares its blind spots.
 
-- **`codex-judge`** — a cross-provider judge (Codex/GPT-5) scores each review verdict on a weighted rubric and gates auto-approve/auto-revise. The judge never sees implementer reasoning — only diff and verdict — preventing anchoring. Degrades gracefully when Codex is unavailable.
-- **`/advisor`** — an independent second opinion from a different-provider model on your plan, diff, or question.
+**[remote-agents](skills/orchestration/remote-agents/SKILL.md)**: runs headless Claude Code and
+Codex workers on another machine over SSH. Jobs survive disconnects; results come back
+cross-reviewed by the other provider.
+<br>*I use it for* long jobs on the Jetson at home while my laptop sleeps.
 
-### #3: The loop plateaus, or worse, games the test
+### Building on models
 
-- **`goal-loop`** (`/goal <goal>`) — loop engineering as gradient descent: an agent factory generates goal-specialized agents, then forward → loss → textual gradient → update, with momentum and early stopping. Evidence is split into visible checks (the implementer's target) and **held-out checks the implementer never sees**; a positive gap between them is treated as reward hacking and yields NOT MET.
+**[agent-sdk-wizard](skills/models/agent-sdk-wizard/SKILL.md)**: nine questions, one at a time,
+each option drawn as a small diagram of how your agent changes if you pick it. Out comes a runnable
+Claude Agent SDK agent in Python or TypeScript, with a README, the decisions behind it and a real
+test run. It talks in your language, Spanish by default.
+<br>*I use it for* people building their first agent. It was born from my Claude Agent SDK workshop
+at Platzi Conf 2026.
 
-### #4: Lessons evaporate between sessions
+**[metaprompt](skills/models/metaprompt/SKILL.md)**: takes a goal, a target model and a target
+harness, and writes the complete prompt for that combination, from researched guides per model
+(Claude, GPT-5.x) and per harness (Claude Code, Codex, pi, Amp and more).
+<br>*I use it for* system prompts and subagent briefs in pi, Codex and Claude Code.
 
-- **`compound-knowledge`** (`/compound`) — captures solved problems as searchable docs in `docs/solutions/`; a learnings-researcher agent feeds them into future planning.
-- **`file-todos`** (`/triage`, `/resolve-todos`) — review findings become markdown files with a file-name-driven lifecycle (`pending → ready → complete`), triaged one by one, then fixed by parallel workers.
+**[askcodex](skills/models/askcodex/SKILL.md)**: OpenAI's models from the terminal on a ChatGPT
+subscription, no API key: text, image generation and editing, transcription, quota. Drives my
+[askcodex](https://github.com/JairoTorregrosa/askcodex) CLI.
+<br>*I use it for* images for my talks and videos, and a quick GPT answer without leaving the
+terminal.
 
-### #5: The prompt wasn't built for the model that runs it
+### Keeping what worked
 
-- **`metaprompt`** (`/metaprompt`) — takes a goal, a target model, and a target harness, and produces a complete prompt engineered for that combination, from researched per-model/per-harness guides (Claude, GPT-5.x/Codex; Claude Code, Codex CLI, pi, Amp, and more).
+**[compound-knowledge](skills/knowledge/compound-knowledge/SKILL.md)**: when a hard problem is
+solved, parallel agents write it up as a searchable solution doc in `docs/solutions/`. insistir
+reads those docs before it plans the next task.
+<br>*I use it for* not solving the same problem twice. One entry it wrote: why reviewers from the
+same model family approve citation drift that a cross-provider judge catches.
 
-### #6: Your laptop is the bottleneck
+**[file-todos](skills/knowledge/file-todos/SKILL.md)**: review findings become markdown files that
+move from pending to ready to complete. You triage them one by one, then parallel workers fix the
+approved ones.
+<br>*I use it for* findings I won't fix today. In the metaprompt build, the judge's findings became
+five todos, all closed.
 
-- **`remote-agents`** (`/remoto-run`, `/remoto-status`) — orchestrate headless `claude -p` / `codex exec` workers on a remote SSH host. File-based job state, jobs survive disconnects, results collected and cross-reviewed across providers. Requires SSH key auth to the host and `claude`/`codex` logged in there.
+file-todos, compound-knowledge and insistir's plan deepening are adapted from EveryInc's
+[compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin).
 
-### #7: You want OpenAI's models from the terminal — or an image turned into a real page
+## How they fit together
 
-- **`askcodex`** — use GPT-5.x and image models from the CLI with the [askcodex](https://github.com/JairoTorregrosa/askcodex) binary: one-shot text, image create/edit, models, quota. No API key; it reuses `codex login` credentials. (Canonical copy lives in the askcodex repo; this one tracks it.)
-- **`image-to-frontend`** — brief → 4 visual variants → build spec → real React/HTML page, iterated to pixel-close. Image generation runs through askcodex.
+- **A big change:** insistir or goal-loop does the work, second-opinion judges it, file-todos
+  keeps what's left, and compound-knowledge writes down the lesson. That's how the metaprompt skill
+  was built.
+- **A video:** motion-design directs it end to end; askcodex makes image plates when a scene needs
+  one.
 
-### #8: You know what you want the agent to do, not which of the 65 SDK options does it
+## What you need
 
-The Claude Agent SDK has 65 options in TypeScript and 48 in Python. A beginner does not need a
-tour of them; they need the four that matter for their agent.
+- Claude Code for the plugin, or any agent that reads `SKILL.md` files.
+- [uv](https://docs.astral.sh/uv/) for the Python scripts, and `ffmpeg` for motion-design.
+- insistir is built for Claude Code's agent teams, which are experimental: set
+  `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and run it in an interactive session. Without them it
+  runs the same crew as plain subagents, and the completion hook may not apply.
+- agent-sdk-wizard's test run needs an `ANTHROPIC_API_KEY` (and Node for a TypeScript agent).
+- Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion and the
+  judges in insistir and goal-loop (without it they fall back to a Claude judge); the
+  [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI for askcodex and image-to-frontend;
+  for remote-agents, a Linux host you reach over SSH with a key, with `python3`, `setsid` and
+  `claude` or `codex` logged in, plus `rsync` on your machine.
 
-- **`agent-sdk-wizard`** (`/agent-wizard [what it should do]`) — nine questions, one at a time,
-  each option illustrated with an ASCII diagram of how the agent changes if you pick it: language
-  → goal → model → instructions → tools → skills → subagents → permissions → hooks. Out comes a
-  directory with a commented agent, its manifest, a README, a `decisiones.md`, and a real test
-  run with turns and cost. `max_turns` and `max_budget_usd` are always set. Verified against
-  TypeScript SDK 0.3.251 and Python SDK 0.2.148.
+## Upgrading from 0.x
 
-### #9: The video renders, but nobody would share it
-
-Code-made video defaults to the template: fade-up titles, stock whooshes, a logo at the end.
-
-- **`motion-design`** — the video counterpart of `frontend-design`. It directs a code-driven
-  production (motion graphics, series openers, lyric and music videos, paper and data explainers)
-  as a crew of parallel subagents coordinated through an `ORCHESTRATION.md` ledger: writers' room
-  with blind critics, style frames, music/VO/SFX timed to a beat grid, one animator per scene,
-  deterministic renders, critique lenses with a verifier, and a delivery package (exports per
-  aspect, WhatsApp copy under 180 MB, captions, poster, post copy). Done means the person is
-  proud to post it. Ships tested scripts for rendering, contact sheets, loudness, beat grids,
-  captions, SFX and mechanical QA gates.
-
-## Skills
-
-| Category | Skill | One line |
-|---|---|---|
-| agents | `agent-sdk-wizard` | 9 illustrated questions → a runnable Claude Agent SDK agent |
-| creative | `motion-design` | Code-driven videos people are proud to share, made by a parallel crew |
-| orchestration | `insistir` | Cross-validated multi-agent pipeline; APPROVED-gated completion |
-| orchestration | `constatar-plan` / `constatar-verify` | Verification-first plans and grounded verdicts via the constatar engine |
-| orchestration | `goal-loop` | Goal descent with agent factory, textual gradients, anti-reward-hacking judge |
-| orchestration | `codex-judge` | Cross-provider review scoring with dual-threshold gating |
-| orchestration | `remote-agents` | Headless agent fleets over SSH |
-| prompting | `metaprompt` | Model- and harness-specific prompt generation |
-| knowledge | `compound-knowledge` | Solved problems → searchable solution docs |
-| knowledge | `file-todos` | File-based TODO lifecycle for review findings |
-| openai | `askcodex` | OpenAI models as a CLI (text, images, quota) |
-| openai | `image-to-frontend` | Reference image or brief → working frontend |
-
-The wizard's `/agent-wizard` command, agents (`insistir-worker`, `insistir-reviewer`, `insistir-researcher`, `insistir-learnings-researcher`), hooks (completion gate, reviewer Bash whitelist), the bundled Codex MCP config, and the `remoto.sh` / `insistir.py` scripts ship in the same plugin. Full inventory in [docs/skills.md](docs/skills.md).
-
-## How insistir works
-
-```
-      ┌──────────────────────────────────────────────┐
-      │         TECH LEAD (delegate mode only)        │
-      │   Coordinates, delegates, synthesizes.        │
-      │   NEVER implements, edits files, or builds.   │
-      └───┬──────────────┬──────────────┬────────────┘
-          │              │              │
-   ┌──────▼──┐    ┌──────▼──┐    ┌──────▼──┐
-   │Worker A │    │Worker B │    │Worker C │    IMPLEMENT
-   └────┬────┘    └────┬────┘    └────┬────┘
-        │              │              │
-   ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
-   │Review B │    │Review C │    │Review A │    CROSS-REVIEW
-   │→ REVISE │    │→APPROVE │    │→ REVISE │    (read-only reviewers)
-   └────┬────┘    └─────────┘    └────┬────┘
-        │                             │
-   ┌────▼─────────────────────────────▼────┐
-   │        CODEX JUDGE (optional)         │    CROSS-PROVIDER VERDICT
-   └────┬─────────────────────────────┬────┘
-        │                             │
-   ┌────▼────┐                   ┌────▼────┐
-   │Fixer A  │                   │Fixer C  │    FIX (fresh agents)
-   └────┬────┘                   └────┬────┘
-   ┌────▼────┐                   ┌────▼────┐
-   │Review B'│                   │Review A'│    RE-REVIEW → APPROVE
-   └─────────┘                   └─────────┘
-```
-
-Fresh agents per phase, read-only reviewers, iterative convergence until APPROVED or budget exhausted.
-
-## Requirements
-
-- Claude Code 1.0.33+
-- Python 3.10+ (hook scripts)
-- Optional: [OpenAI Codex CLI](https://github.com/openai/codex) — enables `/advisor`, the cross-provider judge, and the askcodex-backed skills
-- Optional: the [constatar](https://github.com/JairoTorregrosa/constatar) engine — for the constatar skills
+Commands are now the skills themselves (`/jaiskills:<skill>`). The constatar skills are gone: their
+engine is private. The last 0.x layout is tagged
+[`v0.3.0`](https://github.com/JairoTorregrosa/jaiskills/tree/v0.3.0). Details in the
+[changelog](CHANGELOG.md).
 
 ## License
 
-MIT
+MIT. These skills follow my taste and my workflow: issues are welcome, and forking is encouraged.

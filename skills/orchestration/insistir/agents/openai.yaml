@@ -1,0 +1,5 @@
+interface:
+  display_name: "insistir"
+  short_description: "Agent team with cross-review, cross-provider judge and fixes until APPROVED"
+policy:
+  allow_implicit_invocation: false
