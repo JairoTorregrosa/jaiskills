@@ -7,6 +7,7 @@ One plugin. Skills live under `skills/<category>/<skill>/SKILL.md`; commands, ag
 | Path | What it does |
 |---|---|
 | `skills/agents/agent-sdk-wizard` | Nine illustrated questions (ASCII diagram per option) → a runnable, commented Claude Agent SDK agent with README, decisiones.md and a real test run |
+| `skills/creative/motion-design` | Direct and produce code-driven videos (motion graphics, openers, lyric videos, explainers) as a parallel crew coordinated through `ORCHESTRATION.md`; craft, story, stack, audio, QA and delivery references; tested render/QA/export scripts |
 | `skills/orchestration/insistir` | Main orchestration pipeline: intake, plan, execute, cross-review, judge, cleanup |
 | `skills/orchestration/constatar-plan` | Author verification-first plans for the constatar engine |
 | `skills/orchestration/constatar-verify` | Grounded verdicts through constatar's 6-rung evidence ladder |

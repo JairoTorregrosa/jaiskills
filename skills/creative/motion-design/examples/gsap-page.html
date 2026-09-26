@@ -1,0 +1,108 @@
+<!doctype html>
+<!--
+  Technical example of the page contract that scripts/render_frames.py expects (window.__ready,
+  window.__seek(t), window.__meta, window.__RENDER__). It exercises SplitText, DrawSVG, MorphSVG,
+  MotionPath, a variable-font tween and a seek-safe scramble. It is a plumbing test, not a design
+  reference: the swatch checks color conversion and the timecode proves no frame is stale.
+
+  Setup next to this file: `npm i gsap` (3.15+, every plugin free) and a fonts/ folder with
+  InterTight-var-latin.woff2 and JetBrainsMono-500-latin.woff2 (both OFL, from Google Fonts).
+  Render: scripts/render_frames.py gsap-page.html --out demo.mp4   (open it in a browser for live preview)
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: "Inter Tight"; src: url(fonts/InterTight-var-latin.woff2) format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "JBM"; src: url(fonts/JetBrainsMono-500-latin.woff2) format("woff2"); font-weight: 500; font-display: block; }
+:root { --ink: #141413; --cream: #F0EEE6; --clay: #D97757; --muted: #8A8780; }
+html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: var(--ink); }
+#stage { position: relative; width: 1280px; height: 720px; overflow: hidden;
+  background: radial-gradient(900px 600px at 35% 40%, #2b221e, var(--ink)); }
+svg { position: absolute; inset: 0; }
+h1 { position: absolute; inset: 214px 0 auto; margin: 0; text-align: center; color: var(--cream);
+  font: 800 172px/1 "Inter Tight"; letter-spacing: -0.045em; }
+#sub { position: absolute; inset: 452px 0 auto; text-align: center; color: var(--clay); font: 500 30px "JBM"; letter-spacing: .06em; }
+#tc { position: absolute; right: 24px; bottom: 16px; color: var(--muted); font: 500 20px "JBM"; }
+.alpha, .alpha body, .alpha #stage { background: transparent !important; }  /* render_frames.py "gsap-page.html#alpha" --transparent */
+.alpha #grain-rect, .alpha #swatch, .alpha #tc { display: none; }
+#swatch { position: absolute; left: 24px; bottom: 18px; width: 96px; height: 40px; background: #D97757; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg viewBox="0 0 1280 720">
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7"/></filter>
+    <rect id="grain-rect" width="1280" height="720" filter="url(#grain)" opacity=".07"/>
+    <path id="route" d="M140 610 C 420 470, 860 730, 1140 560" fill="none" stroke="#F0EEE6" stroke-opacity=".18" stroke-width="2" stroke-dasharray="4 10"/>
+    <path id="underline" d="M400 420 L880 420" stroke="#D97757" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <path id="logo" d="M600 88 L680 88 L680 168 L600 168 Z" fill="#D97757"/>
+    <circle id="dot" r="11" fill="#F0EEE6"/>
+  </svg>
+  <h1 id="title">MOTION</h1>
+  <div id="sub">frame-perfect html</div>
+  <div id="swatch"></div>
+  <div id="tc"></div>
+</div>
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script src="node_modules/gsap/dist/SplitText.min.js"></script>
+<script src="node_modules/gsap/dist/DrawSVGPlugin.min.js"></script>
+<script src="node_modules/gsap/dist/MorphSVGPlugin.min.js"></script>
+<script src="node_modules/gsap/dist/CustomEase.min.js"></script>
+<script src="node_modules/gsap/dist/MotionPathPlugin.min.js"></script>
+<script>
+if (location.hash === "#alpha") document.documentElement.classList.add("alpha");
+// Determinism: every random draw (ours and the plugins') comes from a PRNG re-seeded on each seek.
+const mulberry32 = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+Math.random = mulberry32(42);
+gsap.registerPlugin(SplitText, DrawSVGPlugin, MorphSVGPlugin, CustomEase, MotionPathPlugin);
+gsap.ticker.lagSmoothing(0);
+
+const FPS = 30, DUR = 3;
+const STAR = "M640.0,70.0 L654.1,108.6 L695.2,110.1 L662.8,135.4 L674.1,174.9 L640.0,152.0 L605.9,174.9 L617.2,135.4 L584.8,110.1 L625.9,108.6 Z";
+window.__meta = { width: 1280, height: 720, fps: FPS, duration: DUR };
+let tl;
+
+async function build() {
+  // Ask for each face explicitly: document.fonts.ready alone can resolve before an unused face starts loading.
+  await Promise.all([document.fonts.load('800 172px "Inter Tight"'), document.fonts.load('300 172px "Inter Tight"'),
+                     document.fonts.load('500 30px JBM')]);
+  await document.fonts.ready;
+  const split = SplitText.create("#title", { type: "chars", mask: "chars" });
+  CustomEase.create("snap", "M0,0 C0.12,0 0.2,1.12 0.46,1.04 0.7,0.97 0.82,1 1,1");
+  gsap.set("#dot", { x: 140, y: 610 });   // park the dot at the path start: frame 0 is the poster
+
+  tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } })
+    // Frame 0 = poster: everything is already composed; motion starts at 0.15 s.
+    .to(split.chars, { yPercent: -110, duration: .3, ease: "power2.in", stagger: { each: .03, from: "center" } }, .15)
+    .to(split.chars, { yPercent: 0, startAt: { yPercent: 110 }, duration: .6, ease: "snap", stagger: { each: .04, from: "edges" } }, .55)
+    .to("#underline", { drawSVG: "50% 50%", duration: .25, ease: "power2.in" }, .2)
+    .to("#underline", { drawSVG: "0% 100%", duration: .7 }, .5)
+    .to("#logo", { morphSVG: STAR, rotation: 144, svgOrigin: "640 128", duration: .8, ease: "back.out(1.6)" }, .5)
+    .to("#dot", { motionPath: { path: "#route", autoRotate: false }, duration: 1.4, ease: "power1.inOut" }, 1.2)
+    .to("#title", { fontWeight: 300, duration: .45, ease: "sine.inOut", yoyo: true, repeat: 1 }, 1.9);
+  tl.progress(1).progress(0);   // prime: every tween records its start values now, so any seek order gives identical pixels
+}
+
+// Seek-safe scramble (GSAP's ScrambleText keeps state between renders, so it is not a pure function of t).
+const hash = (a, b) => { let h = Math.imul(a ^ 0x9E3779B9, 0x85EBCA6B) ^ Math.imul(b + 0x632BE5AB, 0xC2B2AE35); h ^= h >>> 15; return h >>> 0; };
+function scrambleAt(el, from, to, t, t0, dur, pool = "01/#*+=", hz = 24) {
+  if (t < t0) return void (el.textContent = from);
+  const n = Math.round(Math.min((t - t0) / dur, 1) * to.length), k = Math.floor(t * hz);
+  el.textContent = to.slice(0, n) + [...to.slice(n)].map((c, i) => c === " " ? " " : pool[hash(i, k) % pool.length]).join("");
+}
+
+window.__ready = build();
+window.__seek = t => {
+  Math.random = mulberry32(1e6 + Math.round(t * 1000));   // randomness becomes a function of t
+  tl.seek(t);
+  scrambleAt(document.getElementById("sub"), "frame-perfect html", "seek(t) \u2192 pixels", t, .9, .9);
+  document.getElementById("tc").textContent = `t=${t.toFixed(3)}  f=${Math.round(t * FPS)}`;
+};
+// Live preview only when a human opens the file; the renderer sets __RENDER__ before any script runs.
+if (!window.__RENDER__) __ready.then(() => { let t0 = null;
+  gsap.ticker.add(time => { t0 ??= time; __seek((time - t0) % DUR); }); });
+</script>
+</body>
+</html>

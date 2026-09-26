@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "jaiskills",
-  "description": "Jairo's agent skills for Claude Code — orchestration, verification, prompting, and OpenAI tooling in one plugin",
+  "description": "Jairo's agent skills for Claude Code — orchestration, verification, prompting, motion design, and OpenAI tooling in one plugin",
   "owner": {
     "name": "Jairo Torregrosa"
   },
@@ -9,8 +9,8 @@
     {
       "name": "jaiskills",
       "source": ".",
-      "description": "All of Jairo's skills in one plugin: agent-sdk-wizard (9 illustrated questions → a runnable Claude Agent SDK agent), insistir (agents checking agents), constatar (verification-first orchestration), remoto (remote SSH agents), metaprompt, compound-knowledge, file-todos, askcodex, image-to-frontend",
-      "version": "0.2.0",
+      "description": "All of Jairo's skills in one plugin: agent-sdk-wizard (9 illustrated questions → a runnable Claude Agent SDK agent), motion-design (code-driven videos people are proud to share, made by a parallel crew), insistir (agents checking agents), constatar (verification-first orchestration), remoto (remote SSH agents), metaprompt, compound-knowledge, file-todos, askcodex, image-to-frontend",
+      "version": "0.3.0",
       "category": "development",
       "tags": [
         "skills",
@@ -19,7 +19,9 @@
         "verification",
         "prompt-engineering",
         "openai",
-        "agent-sdk"
+        "agent-sdk",
+        "motion-design",
+        "video"
       ]
     }
   ]
