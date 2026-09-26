@@ -48,7 +48,7 @@ factory_seeds: [{{archive entries that seeded the agent designs}}]
 - **Gradients:** {{diagnoser output — per-failure cause + direction}}
 - **Contrastive:** {{what changed on newly-passing checks; behaviors to preserve}}
 - **Held-out direction (abstracted):** {{directional guidance only — no commands/expected values}}
-- **Judge verdict:** {{MET / NOT MET / not run (visible loss > 0)}} — {{reason}}
+- **Judge verdict:** {{MET / NOT MET / not run (visible loss > 0)}} — {{reason, abstracted: no held-out commands, expected outputs or assertion text; verbatim JSON lives in heldout.md}}
 ```
 
 ## `loops/<slug>/heldout.md`
@@ -70,6 +70,12 @@ visibility: judge-only   # NEVER include any part of this file in an implementer
 | Epoch | Visible pass rate | Held-out pass rate | Gap |
 |-------|-------------------|--------------------|-----|
 | 1 | — | — | — |
+
+## Judge Verdicts (verbatim)
+
+### Epoch {{N}} — {{provider label, e.g. codex <model> | same-provider fallback}} — band {{auto-approve|middle|auto-revise}}
+
+{{second-opinion judge JSON, unedited}}
 ```
 
 ## `loops/archive.md` (cross-goal, append one entry per finished loop)

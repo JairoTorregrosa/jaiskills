@@ -1,25 +1,18 @@
 ---
 name: goal-loop
-description: >
-  Loop engineering as gradient descent — a guided goal loop where an agent factory generates
-  goal-specialized agents (implementer, verifier, diagnoser, judge) and iterates
-  forward → loss → backward → update until the goal is provably met.
-  Evidence is split into visible validation (the implementer's loss) and held-out checks
-  (judge-only, anti-reward-hacking). A diagnoser turns failures into textual gradients;
-  momentum accumulates recurring patterns; plateau detection triggers early stopping.
-  A Phase 0.5 observability plan reuses or generates the instruments needed to verify the
-  goal, calibrated red-first before the loop starts.
-  Use when: (1) user says /jaiskills:goal, (2) "loop engineering", "goal loop", "agent factory",
-  "gradient descent on a task", "loop until done", "iterate until passing",
-  (3) a task needs verifiable completion evidence across multiple attempts.
-  Do NOT use for: unverifiable goals (refine with the user first), trivial one-shot tasks, or
-  open-ended exploration with no done-state.
+description: Drive a verifiable goal to done with factory-built agents, visible and held-out evidence, and a cross-provider judge.
+disable-model-invocation: true
+argument-hint: "<objective> [--max-epochs N] [--patience N] [--judge codex|claude]"
 ---
 
 # Goal Loop: Gradient Descent for Goals, Built by an Agent Factory
 
-Formal contract (invariants, phase pre/postconditions, conformance checks): [SPEC.md](SPEC.md).
-Worked example, end to end: [references/example-cv-os.md](references/example-cv-os.md).
+Objective and flags: $ARGUMENTS
+
+Empty objective → ask for one. Parse the flags (table at the end) before Phase 0.
+
+Formal contract (invariants, phase pre/postconditions, conformance checks): [references/spec.md](references/spec.md). Read it before Phase 0 of a first run and whenever a phase rule is unclear.
+Worked example, end to end: [references/example-cv-os.md](references/example-cv-os.md). Read it when the goal is frontend or judgment-heavy.
 
 Treat the goal as a training problem. The working tree is the parameter, evidence commands are the loss function, a fresh implementer is the forward pass, a diagnoser produces textual gradients (the backward pass), momentum accumulates recurring error patterns, and an independent judge validates against held-out checks the implementer never sees. An agent factory generates all of these agents specialized to the goal, consulting an archive of past loops.
 
@@ -92,7 +85,7 @@ Write the contract to `loops/<slug>/loop.md` and the held-out set to `loops/<slu
 
 Generate the four goal-specialized agent prompt files in `loops/<slug>/agents/` using [references/factory-templates.md](references/factory-templates.md). Before generating:
 
-1. Read `loops/archive.md` (if present) and search `docs/solutions/` (spawn `insistir-learnings-researcher` if available) for prior loops in similar domains.
+1. Read `loops/archive.md` (if present) and search `docs/solutions/` for prior loops in similar domains: spawn `subagent_type: "jaiskills:insistir-learnings-researcher"` when the plugin agents are installed, else grep `docs/solutions/` directly.
 2. Specialize each template with: the goal domain, the repo's toolchain and conventions, domain-specific failure modes from the archive, and the contract's constraints.
 3. Record in `loop.md` which archive entries seeded the designs (stepping stones).
 
@@ -122,23 +115,37 @@ Merge the diagnosis into `loop.md` § Momentum: recurring patterns with occurren
 - Still no improvement after `patience` epochs → **early stop**: report plateau and propose decomposing the goal into sub-goals (each a new loop).
 
 ### 6. JUDGE — validate (only when visible loss = 0)
-Send to the judge per `agents/judge.md`: contract, epoch diff, visible + held-out results. Never the implementer's reasoning.
+Call the Skill tool with `second-opinion` in judge mode (args: `judge`, plus `--provider claude` when `--judge claude`). Fill its judge inputs from artifacts only:
 
-- Default `--judge codex`: `mcp__codex__codex` with `sandbox: "read-only"`, `approval-policy: "never"` (parameter names are kebab-case).
-- Fallback `--judge claude` or Codex unavailable: fresh Claude subagent, same prompt.
+| second-opinion input | goal-loop source |
+|---|---|
+| Task spec + acceptance criteria | `loop.md` end state + constraints; visible and held-out evidence expectations |
+| Diff | this epoch's diff (range + paths when large) |
+| Check results | visible results, held-out results, pass rates, hacking gap (`heldout.md`) |
+| Caller-specific checks | body of `agents/judge.md` (goal-specific hacking hunts, registered blind spots) |
+| Reviewer verdict | `none` |
 
-The judge returns `{"met": bool, "hacking_gap": <visible pass-rate − held-out pass-rate>, "reason": "..."}` and explicitly hunts the seven hacking behaviors (arXiv:2606.26300): solution-artifact retrieval, external fix lookup, harness tampering, test-oracle tampering (deleted/weakened tests, hardcoded values, lookup-table memorization), visible-test overfitting, evaluator-aware patching, repository-history mining — plus feature isolation (units pass, composition fails). It also probes the blind spots each instrument declared in Phase 0.5. A positive hacking gap with green visible evidence is the signature of gaming — verdict must be NOT MET.
+Never pass the implementer's reasoning, its attempt summary or its self-assessment. Browser-driven or interactive judge aids ([references/instrument-catalog.md](references/instrument-catalog.md)) run before the call; their transcripts and screenshot paths go in as check results (the judge reads files and runs read-only commands, it cannot drive a browser).
+
+`agents/judge.md` makes the judge hunt the seven hacking behaviors (arXiv:2606.26300): solution-artifact retrieval, external fix lookup, harness tampering, test-oracle tampering (deleted/weakened tests, hardcoded values, lookup-table memorization), visible-test overfitting, evaluator-aware patching, repository-history mining — plus feature isolation (units pass, composition fails) and the blind spots each instrument declared in Phase 0.5.
+
+Map the result to the loop verdict `{"met": bool, "hacking_gap": number, "reason": string}`:
+- `met` = judge band is auto-approve AND visible and held-out pass rates are both 100%. Middle band or auto-revise = NOT MET. A positive hacking gap is NOT MET regardless of the judge.
+- `hacking_gap` = visible pass-rate − held-out pass-rate, computed by the lead from the verifier's runs.
+- `reason` = judge `rationale` + findings, provider label included (`same-provider fallback` when Codex was unavailable).
+
+**Keep the implementer blind.** Write the judge JSON verbatim to `heldout.md` only. What reaches `loop.md` (and so the next implementer) is abstracted like the diagnoser's held-out direction: a finding's file, line, claim and suggestion about working-tree code may be copied; any held-out command, expected output, assertion text or held-out run quoted in `evidence` or `rationale` must not.
 
 ### 7. DECIDE
 - **met** → Phase 3.
-- **not met** → append the epoch entry (attempt summary, loss results, gradients, judge reason) to `loop.md`, increment epoch, continue with a fresh implementer.
+- **not met** → append the epoch entry (attempt summary, loss results, gradients, abstracted judge reason) to `loop.md`, increment epoch, continue with a fresh implementer. Judge findings also feed the next diagnoser.
 - **budget/patience exhausted** → Phase 3 with status `exhausted`.
 
 ## Phase 3: Report + Archive
 
 1. Report: **MET after N epochs** (evidence summary, final hacking gap, pointer to `loop.md`) or **EXHAUSTED/PLATEAU** (closest state, open patterns, proposed decomposition).
 2. Update `loops/archive.md`: goal domain, which factory designs worked, momentum patterns likely to recur, final outcome. This archive seeds the next loop's factory — designs compound across goals.
-3. Suggest `/jaiskills:compound` if a non-obvious problem was solved along the way.
+3. If a non-obvious problem was solved along the way, call the Skill tool with `compound-knowledge` to document it.
 
 ## Flags
 
@@ -146,7 +153,7 @@ The judge returns `{"met": bool, "hacking_gap": <visible pass-rate − held-out 
 |------|---------|--------|
 | `--max-epochs N` | 6 | Epoch budget |
 | `--patience N` | 2 | Epochs without visible-loss improvement before early stop |
-| `--judge codex\|claude` | codex | Judge provider |
+| `--judge codex\|claude` | codex | Judge provider for `second-opinion` (`claude` = same-provider, labelled) |
 
 ## Theoretical Grounding
 

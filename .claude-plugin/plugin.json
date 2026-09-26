@@ -1,8 +1,8 @@
 {
   "name": "jaiskills",
-  "version": "0.3.0",
-  "displayName": "jaiskills — Jairo's agent skills",
-  "description": "Orchestration (insistir, constatar, remoto), prompting (metaprompt), knowledge compounding, file-based TODOs, an illustrated Claude Agent SDK wizard, motion design (videos people are proud to share), and OpenAI tooling (askcodex, image-to-frontend) as one Claude Code plugin.",
+  "version": "1.0.0",
+  "displayName": "jaiskills — Jairo's personal agent skills",
+  "description": "Jairo Torregrosa's personal skill catalog: code-driven videos people are proud to share, image-to-frontend, cross-validated multi-agent work (insistir, goal-loop, second-opinion, remote agents over SSH), a Claude Agent SDK wizard, model- and harness-specific prompts, OpenAI from the terminal (askcodex), solution docs and file-based TODOs.",
   "author": {
     "name": "Jairo Torregrosa",
     "url": "https://github.com/JairoTorregrosa"
@@ -11,31 +11,29 @@
   "license": "MIT",
   "keywords": [
     "skills",
+    "catalog",
+    "motion-design",
+    "video",
+    "remotion",
     "multi-agent",
     "orchestration",
     "verification",
-    "prompt-engineering",
+    "cross-provider",
     "codex",
-    "openai",
     "agent-sdk",
-    "wizard",
-    "motion-design",
-    "video",
-    "remotion"
+    "prompt-engineering"
   ],
   "skills": [
-    "./skills/agents/agent-sdk-wizard",
     "./skills/creative/motion-design",
+    "./skills/creative/image-to-frontend",
     "./skills/orchestration/insistir",
-    "./skills/orchestration/constatar-plan",
-    "./skills/orchestration/constatar-verify",
     "./skills/orchestration/goal-loop",
-    "./skills/orchestration/codex-judge",
+    "./skills/orchestration/second-opinion",
     "./skills/orchestration/remote-agents",
-    "./skills/prompting/metaprompt",
+    "./skills/models/agent-sdk-wizard",
+    "./skills/models/metaprompt",
+    "./skills/models/askcodex",
     "./skills/knowledge/compound-knowledge",
-    "./skills/knowledge/file-todos",
-    "./skills/openai/askcodex",
-    "./skills/openai/image-to-frontend"
+    "./skills/knowledge/file-todos"
   ]
 }

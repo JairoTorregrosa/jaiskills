@@ -1,0 +1,3 @@
+interface:
+  display_name: "askcodex"
+  short_description: "OpenAI text, images and transcription via the askcodex CLI"

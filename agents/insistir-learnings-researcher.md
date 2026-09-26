@@ -55,11 +55,12 @@ Rank by relevance. Discard files with low relevance.
 
 ### Step 4: Return Findings
 
-Send findings to the lead via SendMessage with this format:
+Report findings in this format:
 
 ```
 {
   "query": "<original query>",
+  "search_terms": ["<every term and synonym you grepped>"],
   "candidates_scanned": <number of files matched by grep>,
   "results": [
     {
@@ -77,13 +78,14 @@ Send findings to the lead via SendMessage with this format:
 ## Rules
 
 - NEVER write or edit files — you are read-only
-- Return findings as structured text via SendMessage only
+- Return findings as structured text only (see Reporting)
 - If `docs/solutions/` does not exist or is empty, report that immediately — do not fabricate results
 - Limit full file reads to 10 candidates max to stay efficient
-- Always include the search terms you used so the lead can verify coverage
+- Always fill `search_terms` so the lead can verify coverage
 
-## Shutdown
+## Reporting
 
-After sending your findings to the lead, the lead will send a `shutdown_request`.
-Approve it immediately with `shutdown_response(approve: true)`.
-Do not reject shutdown after your findings are sent.
+Follow the `Report:` line at the end of your prompt (Phase 1 uses `final message`):
+- `final message`: reply with only the JSON; no SendMessage.
+- `SendMessage to team-lead`: SendMessage with `to: "team-lead"` and the JSON as `message`, then
+  approve the lead's `shutdown_request` immediately (`approve: true`).

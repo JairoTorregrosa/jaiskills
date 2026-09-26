@@ -1,0 +1,3 @@
+interface:
+  display_name: "Second opinion"
+  short_description: "Cross-provider critique of a plan, diff or review verdict"
