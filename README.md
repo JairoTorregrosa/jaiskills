@@ -1,6 +1,6 @@
 # jaiskills
 
-My agent skills for Claude Code, shipped as **one plugin**: agents checking agents, verification-first orchestration, model-aware prompting, and OpenAI tooling from the terminal.
+My agent skills for Claude Code, shipped as **one plugin**: agents checking agents, verification-first orchestration, model-aware prompting, motion design, and OpenAI tooling from the terminal.
 
 These skills exist to fix failure modes I kept hitting with coding agents. Each one is small, composable, and earns its place by closing a specific gap.
 
@@ -79,11 +79,25 @@ tour of them; they need the four that matter for their agent.
   run with turns and cost. `max_turns` and `max_budget_usd` are always set. Verified against
   TypeScript SDK 0.3.251 and Python SDK 0.2.148.
 
+### #9: The video renders, but nobody would share it
+
+Code-made video defaults to the template: fade-up titles, stock whooshes, a logo at the end.
+
+- **`motion-design`** — the video counterpart of `frontend-design`. It directs a code-driven
+  production (motion graphics, series openers, lyric and music videos, paper and data explainers)
+  as a crew of parallel subagents coordinated through an `ORCHESTRATION.md` ledger: writers' room
+  with blind critics, style frames, music/VO/SFX timed to a beat grid, one animator per scene,
+  deterministic renders, critique lenses with a verifier, and a delivery package (exports per
+  aspect, WhatsApp copy under 180 MB, captions, poster, post copy). Done means the person is
+  proud to post it. Ships tested scripts for rendering, contact sheets, loudness, beat grids,
+  captions, SFX and mechanical QA gates.
+
 ## Skills
 
 | Category | Skill | One line |
 |---|---|---|
 | agents | `agent-sdk-wizard` | 9 illustrated questions → a runnable Claude Agent SDK agent |
+| creative | `motion-design` | Code-driven videos people are proud to share, made by a parallel crew |
 | orchestration | `insistir` | Cross-validated multi-agent pipeline; APPROVED-gated completion |
 | orchestration | `constatar-plan` / `constatar-verify` | Verification-first plans and grounded verdicts via the constatar engine |
 | orchestration | `goal-loop` | Goal descent with agent factory, textual gradients, anti-reward-hacking judge |

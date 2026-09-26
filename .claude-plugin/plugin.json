@@ -1,8 +1,8 @@
 {
   "name": "jaiskills",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "jaiskills — Jairo's agent skills",
-  "description": "Orchestration (insistir, constatar, remoto), prompting (metaprompt), knowledge compounding, file-based TODOs, an illustrated Claude Agent SDK wizard, and OpenAI tooling (askcodex, image-to-frontend) as one Claude Code plugin.",
+  "description": "Orchestration (insistir, constatar, remoto), prompting (metaprompt), knowledge compounding, file-based TODOs, an illustrated Claude Agent SDK wizard, motion design (videos people are proud to share), and OpenAI tooling (askcodex, image-to-frontend) as one Claude Code plugin.",
   "author": {
     "name": "Jairo Torregrosa",
     "url": "https://github.com/JairoTorregrosa"
@@ -18,10 +18,14 @@
     "codex",
     "openai",
     "agent-sdk",
-    "wizard"
+    "wizard",
+    "motion-design",
+    "video",
+    "remotion"
   ],
   "skills": [
     "./skills/agents/agent-sdk-wizard",
+    "./skills/creative/motion-design",
     "./skills/orchestration/insistir",
     "./skills/orchestration/constatar-plan",
     "./skills/orchestration/constatar-verify",

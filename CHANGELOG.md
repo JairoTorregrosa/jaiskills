@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.3.0 (2026-09-26) — new skill `motion-design` (creative)
+
+- **New category `creative/`**. First tenant: `skills/creative/motion-design`, the video
+  counterpart of Anthropic's `frontend-design` skill. Its Definition of Done is the **pride test**:
+  a video the person would post under their own name today, not one that merely renders.
+- **Runs a production as a studio crew.** Every piece opens an `ORCHESTRATION.md` ledger (brief,
+  definition of done, locked direction, crew and phase gates, beat sheet, sources, decisions,
+  findings, render log, delivery) and fans divergent work out to parallel subagents: a writers'
+  room with blind critics, style frames, music takes, one animator per scene on a frozen engine,
+  and critique lenses checked by a skeptical verifier. Crew prompts and a scoring rubric ship as
+  templates. It decides and reports instead of parking a run on a question.
+- **Taste, written down.** Craft rules in frames and numbers (easing tokens, spring conversions,
+  reading time, type floors at phone size, safe zones, beat math), a calibrated list of AI-slop
+  tells in motion, the notes humans actually gave on past productions (no narrative UI, no
+  transition menus, no fabricated ambience beds, native copy never translated), director's notes
+  for pushing a cut, and tested one-line prompts that got people to share.
+- **Stack references verified 2026-09-26**: HTML/GSAP/HyperFrames with a seek-and-screenshot
+  renderer, Remotion 4.0.529 (license, official agent skills, determinism, rendering flags),
+  p5.js 2 + p5.brush for the hand-drawn look, three.js r186 / WebGPU + TSL / Blender 5.2 headless,
+  audio (ElevenLabs music plans in whole bars, TTS with timestamps, local ACE-Step and Qwen3-TTS,
+  alignment, mixing), delivery specs per platform, and a radar of newer libraries with the
+  commands to re-scan the awesome lists.
+- **Ten tested scripts**: `render_frames.py` (deterministic HTML → MP4, BT.709-tagged),
+  `contact_sheet.py`, `video_gates.py` (format, faststart, loudness, poster frame, frozen runs,
+  periodic audio wobble, cuts vs the beat grid), `audio_check.py` (meter-driven −14 LUFS / −1.5 dBTP
+  master), `beats.py`, `captions.py`, `sfx.py`, `poster_frame.py`, `export_social.py` (feed export,
+  WhatsApp review copy under 180 MB, ProRes) and `blender_mg_render.py`. The gates were validated
+  against past productions and caught real defects in them (true peak over −1 dBTP after AAC,
+  full-range BT.601 tags, 4:4:4 exports, black first frames).
+- Self-contained and portable: no machine paths, no keys, dependencies declared inline for `uv run`.
+
 ## 0.2.0 (2026-08-29) — new skill `agent-sdk-wizard` (agents)
 
 - **New category `agents/`** — skills for building agents. First tenant:
