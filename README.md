@@ -63,12 +63,15 @@ the visible ones shows up as a gap and the iteration doesn't count.
 <br>*I use it for* work with a hard finish line. The metaprompt skill came out of it, done in 2 of
 its 5 allowed iterations.
 
-**[second-opinion](skills/orchestration/second-opinion/SKILL.md)**: asks a model from another
-provider (GPT-5 through the Codex CLI, read-only) to critique a plan, a diff or a review. You get
-its view next to Claude's, disagreements first. In judge mode it scores a reviewer's verdict for
-insistir and goal-loop.
-<br>*I use it for* the minute before I commit to a plan, and as the last judge of every insistir
-run. A model reviewing its own family's work shares its blind spots.
+**[second-opinion](skills/orchestration/second-opinion/SKILL.md)**: puts GPT (GPT-6 Astra by
+default, through the Codex CLI, always read-only) next to Claude as an advisor, an adversarial
+reviewer or a judge. Advise gives its view beside Claude's, disagreements first; review runs
+Codex's built-in reviewer; adversarial tries to break a change, optionally with two or three lenses
+in parallel, and Claude checks every finding against the code before showing it; judge scores a
+reviewer's verdict for insistir and goal-loop. GPT never writes the code.
+<br>*I use it for* the minute before I commit to a plan, an adversarial pass before I ship, and
+the last judge of every insistir run. A model reviewing its own family's work shares its blind
+spots.
 
 **[remote-agents](skills/orchestration/remote-agents/SKILL.md)**: runs headless Claude Code and
 Codex workers on another machine over SSH. Jobs survive disconnects; results come back
