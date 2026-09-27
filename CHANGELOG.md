@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0 (2026-09-27): askcodex for GPT-6
+
+- `askcodex` re-synced from askcodex 0.2.0 (JairoTorregrosa/askcodex#3 to #12): the CLI now lists the
+  GPT-6 models (its old `client_version` hid them), defaults to `gpt-6-sol`, and drops the
+  `ultra` effort the backend rejects. New references: one prompting guide per model
+  (`model-gpt-6-astra.md`, `-sol`, `-luna`, `model-gpt-5.6-sol.md`, `-terra`, `-luna`,
+  `model-gpt-daybreak-blue-latest.md`, `model-gpt-5.5.md`, `model-gpt-image-2.md`), sourced to
+  OpenAI docs and live probes dated 2026-09-27. Image guidance corrected: the prompt sets the
+  aspect and can get a transparent background.
+- The mirror's English triggers and background-job wording are now upstream; the only local delta
+  is the not-for clause pointing to second-opinion.
+- AGENTS.md: skills and references are written the way you brief a subagent.
+
 ## 1.1.0 (2026-09-27): GPT as advisor and adversarial reviewer
 
 - `second-opinion` gains two modes. **review** runs Codex's built-in reviewer (`codex exec review`
