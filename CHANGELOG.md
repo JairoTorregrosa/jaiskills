@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.1.0 (2026-09-27): GPT as advisor and adversarial reviewer
+
+- `second-opinion` gains two modes. **review** runs Codex's built-in reviewer (`codex exec review`
+  on `uncommitted`, `base:<ref>` or `commit:<sha>`). **adversarial** tries to break confidence in a
+  change with [references/adversarial-prompt.md](skills/orchestration/second-opinion/references/adversarial-prompt.md)
+  and a forced JSON schema (verdict ship/needs-attention/no-ship, findings with scenario, evidence,
+  file:line range, confidence); one run or 2-3 parallel lenses (correctness and data, security and
+  boundaries, failure and concurrency, design assumptions); Claude verifies every finding
+  (confirmed / plausible / rejected) and recomputes the verdict from confirmed findings only.
+  Procedure in `references/adversarial.md`. Tested on gpt-6-astra: native review 28 s,
+  two parallel adversarial lenses 44-51 s, end-to-end via `/jaiskills:second-opinion adversarial` 142 s.
+- Codex advises, reviews and judges; it never implements. `ask_codex.sh` forces read-only on every
+  path (the user's Codex config may set `danger-full-access`), and closes the ways around the
+  sandbox: `--ignore-rules` (an execpolicy allow rule like `bash -ic` runs unsandboxed),
+  `--disable hooks` + `notify=[]` + `CMUX_CODEX_HOOKS_DISABLED=1` (hooks run outside the sandbox),
+  `review_model` pinned for native review (it outranks `-m`). It disables Codex memories, defaults
+  the model to `gpt-6-astra` when Codex's catalog lists it (`SECOND_OPINION_MODEL`, `-m`) and the
+  effort to `high` (`SECOND_OPINION_EFFORT`, `-e`; configs may default to `low`), adds `--review`,
+  and retries once when parallel runs lose the `~/.codex` SQLite lock race.
+- Follow-ups resume by explicit session id (`--resume last` races with parallel runs).
+- Dogfooded: two adversarial gpt-6-astra passes over this change found the rules, hooks,
+  review-target and review_model gaps above; all fixed and re-tested.
+- AGENTS.md: Codex never implements in second-opinion, insistir or goal-loop; `mcp-server` was
+  removed from codex-cli in 0.154.
+
 ## 1.0.0 (2026-09-26): the catalog
 
 The repo becomes a catalog of Jairo's personal skills: `README.md` is the human catalog (what each

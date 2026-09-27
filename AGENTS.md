@@ -76,8 +76,10 @@ Keep `CLAUDE.md` out of the repo root: strict validation rejects it there, becau
   per call. Never link across skill folders. A user-invoked skill cannot be called by another
   skill; tell the human to run it. Plugin subagents stay namespaced (`jaiskills:insistir-worker`)
   and need a fallback, because skills.sh installs have no plugin agents.
-- **Codex** runs headless through `codex exec` via `skills/orchestration/second-opinion/`, never
-  through the Codex MCP server.
+- **Codex** runs headless through `codex exec` via `skills/orchestration/second-opinion/`
+  (`scripts/ask_codex.sh`), never through an MCP server (codex-cli removed `mcp-server` in 0.154).
+  In second-opinion, insistir and goal-loop, Codex only advises, reviews or judges, always
+  read-only: it never implements. Its model defaults to `gpt-6-astra` (see the script).
 - **Shape.** SKILL.md is the entry point, about 250 lines at most (motion-design is the exception).
   Long procedures go to `references/`, one level deep, each linked from SKILL.md with when to read
   it. Paths inside a skill are relative to the skill directory; tell subagents the absolute skill

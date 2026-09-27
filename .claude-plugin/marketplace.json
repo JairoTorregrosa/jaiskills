@@ -9,8 +9,8 @@
     {
       "name": "jaiskills",
       "source": ".",
-      "description": "11 personal skills: motion-design (videos people are proud to share), image-to-frontend, insistir (agents checking agents), goal-loop, second-opinion (cross-provider critique via codex exec), remote-agents (SSH), agent-sdk-wizard, metaprompt, askcodex, compound-knowledge, file-todos",
-      "version": "1.0.0",
+      "description": "11 personal skills: motion-design (videos people are proud to share), image-to-frontend, insistir (agents checking agents), goal-loop, second-opinion (GPT-6 Astra as advisor, adversarial reviewer or judge, read-only), remote-agents (SSH), agent-sdk-wizard, metaprompt, askcodex, compound-knowledge, file-todos",
+      "version": "1.1.0",
       "category": "development",
       "tags": [
         "skills",
