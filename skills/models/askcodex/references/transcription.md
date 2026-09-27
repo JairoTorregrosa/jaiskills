@@ -1,55 +1,63 @@
 # Audio transcription with askcodex
 
-Use `askcodex transcribe` to turn a WAV recording into text. The command
-transcribes the supplied audio; it does not take an instruction prompt.
+You are about to turn a recording into text with `askcodex transcribe`. The command transcribes
+the audio it is given; it takes no instruction prompt. Prepare a WAV file, transcribe it, check the
+transcript against the recording, and hand it over separately from any later editing.
 
-## Prepare the input
+## Context you must respect
 
-Use a WAV file containing the speech to transcribe. The client accepts a
-RIFF/WAVE signature and enforces a 25 MiB client memory limit, not a claimed
-server limit. Input must be a regular file; symlinks to regular files work,
-while devices and FIFOs are rejected before reading. Convert other formats
-before calling it; renaming an extension does not convert the audio.
+- Input is one WAV file (RIFF/WAVE signature) up to 25 MiB, a client memory limit rather than a
+  known server limit. It must be a regular file; symlinks to regular files work, devices and FIFOs
+  are rejected before reading. Renaming an extension does not convert the audio.
+- There is no model selector, language hint, timestamps, speaker labels, or incremental output.
+  `--events` emits only the final transcript result.
+- The command uses the existing subscription credentials. `--no-refresh` prevents authentication
+  changes.
 
-With FFmpeg installed:
+## Facts already verified (2026-09-08)
 
-```sh
-mkdir -p /tmp/askcodex
-ffmpeg -i recording.m4a -ar 16000 -ac 1 /tmp/askcodex/recording.wav
-```
+- A synthetic WAV returned HTTP 200 with the exact spoken sentence as `text`. WAV is the only
+  format exercised; duration limits and language behavior are unverified (see the repository's
+  `docs/PROTOCOL.md` §3.8).
 
-These conversion settings are a practical starting point, not required
-server settings. Do not overwrite the original recording. For a long file,
-prepare smaller segments with clear names and preserve their order.
+## Do this
 
-## Transcribe and save
+1. Convert other formats to WAV without overwriting the original. With FFmpeg installed:
 
-```sh
-askcodex transcribe /tmp/askcodex/recording.wav --no-refresh > /tmp/askcodex/transcript.txt
-```
+   ```sh
+   mkdir -p /tmp/askcodex
+   ffmpeg -i recording.m4a -ar 16000 -ac 1 /tmp/askcodex/recording.wav
+   ```
 
-For structured output:
+   These settings are a practical starting point, not required server settings. Split a long
+   recording into clearly named segments and keep their order.
+2. Transcribe and save:
 
-```sh
-askcodex transcribe /tmp/askcodex/recording.wav --json --no-refresh > /tmp/askcodex/transcript.json
-jq -r .result.text /tmp/askcodex/transcript.json
-```
+   ```sh
+   askcodex transcribe /tmp/askcodex/recording.wav --no-refresh > /tmp/askcodex/transcript.txt
+   ```
 
-Queue the call or use tmux when the recording may take minutes to process.
-The command uses the existing subscription credentials. `--no-refresh`
-prevents authentication changes; an authentication error must be resolved
-before trying again.
+   For structured output:
 
-## Use the transcript
+   ```sh
+   askcodex transcribe /tmp/askcodex/recording.wav --json --no-refresh > /tmp/askcodex/transcript.json
+   jq -r .result.text /tmp/askcodex/transcript.json
+   ```
 
-Check names, numbers, technical terms, and unclear passages against the
-recording. An empty transcript can be a valid response; inspect the audio
-before treating it as a failure or retrying.
+   Run a call that may take minutes in the background or in tmux.
+3. Check names, numbers, technical terms, and unclear passages against the recording. An empty
+   transcript can be a valid response: listen to the audio before you treat it as a failure or
+   retry.
+4. To summarize, extract decisions, or format notes, give the transcript to `askcodex ask` with a
+   complete brief from [prompting-text.md](prompting-text.md). Keep the original transcript
+   separate from the edited version.
 
-Keep the original transcription separate from subsequent editing. To
-summarize, extract decisions, or format notes, supply the transcript to
-`askcodex ask` with a complete brief from [prompting-text.md](prompting-text.md).
+## Rules
 
-Do not promise a selected speech model, language hint, timestamps, speaker
-labels, or incremental transcript output: this command provides none of those
-controls. `--events` emits the final transcript result when it completes.
+- On an authentication error, resolve it before trying again.
+- Do not promise a speech model, language selection, timestamps, or speaker labels.
+
+## Report
+
+Tell the user where the transcript was saved, what you checked against the recording, and any
+passage you could not confirm.

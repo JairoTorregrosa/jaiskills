@@ -80,6 +80,11 @@ Keep `CLAUDE.md` out of the repo root: strict validation rejects it there, becau
   (`scripts/ask_codex.sh`), never through an MCP server (codex-cli removed `mcp-server` in 0.154).
   In second-opinion, insistir and goal-loop, Codex only advises, reviews or judges, always
   read-only: it never implements. Its model defaults to `gpt-6-astra` (see the script).
+- **Voice.** Write SKILL.md and every reference the way you brief a subagent that has no context:
+  second person; an opening line with the goal; `## Context you must respect` (what the tool is and
+  is not); `## Facts already verified (<date>)` with a source on each; `## Do this` as numbered
+  steps with exact commands; `## Rules`; `## Report` (what to tell the user). Add `## Unverified`
+  and `## Sources` when the content comes from research.
 - **Shape.** SKILL.md is the entry point, about 250 lines at most (motion-design is the exception).
   Long procedures go to `references/`, one level deep, each linked from SKILL.md with when to read
   it. Paths inside a skill are relative to the skill directory; tell subagents the absolute skill
