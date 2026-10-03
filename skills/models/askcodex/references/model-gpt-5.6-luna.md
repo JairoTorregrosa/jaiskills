@@ -1,6 +1,6 @@
 # Prompting GPT-5.6 Luna (`gpt-5.6-luna`) through askcodex
 
-You are about to send one request to `gpt-5.6-luna` with `askcodex ask`. Use it for one bounded job with a checkable answer: a label, a title, a field extraction, a format conversion, or a short snippet review. For long inputs, use [model-gpt-5.6-terra.md](model-gpt-5.6-terra.md). For hard reasoning, use [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) or [model-gpt-6-sol.md](model-gpt-6-sol.md). For the newer small model, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
+You are about to send one request to `gpt-5.6-luna` with `askcodex ask`. Use it for one bounded job with a checkable answer: a label, a title, a field extraction, a format conversion, or a short snippet review. For long inputs, use [model-gpt-5.6-terra.md](model-gpt-5.6-terra.md). For hard reasoning, use [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) or [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). For the newer small model, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
 
 ## Context you must respect
 

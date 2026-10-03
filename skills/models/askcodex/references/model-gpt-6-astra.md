@@ -1,6 +1,6 @@
 # Prompting GPT-6-Astra (`gpt-6-astra`) through askcodex
 
-You are about to send one request to `gpt-6-astra` with `askcodex ask`. Astra is for the hardest single-shot deliverables: consequential reviews, difficult designs, and analysis with exacting requirements. For everyday coding and review, use [model-gpt-6-sol.md](model-gpt-6-sol.md). For extraction or format conversion with a known output shape, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
+You are about to send one request to `gpt-6-astra` with `askcodex ask`. Astra is for the hardest single-shot deliverables: consequential reviews, difficult designs, and analysis with exacting requirements. For everyday coding and review, use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). For extraction or format conversion with a known output shape, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
 
 ## Context you must respect
 

@@ -1,6 +1,6 @@
 # Prompting Daybreak Blue (`gpt-daybreak-blue-latest`) through askcodex
 
-You are about to send one request to `gpt-daybreak-blue-latest` with `askcodex ask`. Use it only for authorized defensive security work: secure code review, vulnerability triage, detection engineering, incident response analysis, or patch validation. For general coding, use [model-gpt-6-sol.md](model-gpt-6-sol.md). Its catalog entry mirrors [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md), the non-alias flagship.
+You are about to send one request to `gpt-daybreak-blue-latest` with `askcodex ask`. Use it only for authorized defensive security work: secure code review, vulnerability triage, detection engineering, incident response analysis, or patch validation. For general coding, use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). Its catalog entry mirrors [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md), the non-alias flagship.
 
 ## Context you must respect
 

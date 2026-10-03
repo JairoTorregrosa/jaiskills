@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 (2026-10-02): askcodex 0.2.0 release and GPT-6.1 Sol
+
+- `askcodex` re-synced from the released askcodex v0.2.0 (JairoTorregrosa/askcodex#13): Codex
+  0.160.0 brought `gpt-6.1-sol`, now the CLI default and the "Most work" row; new
+  `model-gpt-6.1-sol.md` (efforts, `none` rejected, proceed line with the missing-evidence
+  carve-out, Free/Go conflict); `gpt-6-sol` marked previous generation; the GPT-5.5 migration
+  points to `gpt-6.1-sol`. The catalog hides a model below the client version that knows it even
+  when its `minimal_client_version` is lower, so the skill trusts the live catalog over its list.
+
 ## 1.2.0 (2026-09-27): askcodex for GPT-6
 
 - `askcodex` re-synced from askcodex 0.2.0 (JairoTorregrosa/askcodex#3 to #12): the CLI now lists the

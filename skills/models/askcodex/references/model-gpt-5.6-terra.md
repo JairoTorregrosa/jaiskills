@@ -1,6 +1,6 @@
 # Prompting GPT-5.6 Terra (`gpt-5.6-terra`) through askcodex
 
-You are about to send one request to `gpt-5.6-terra` with `askcodex ask`. Use it for routine coding, review, drafting, and summarizing or consolidating long pasted material at close to Sol quality. For hard math, security or novel reasoning, use [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) or [model-gpt-6-sol.md](model-gpt-6-sol.md). For short extraction and classification, use [model-gpt-5.6-luna.md](model-gpt-5.6-luna.md).
+You are about to send one request to `gpt-5.6-terra` with `askcodex ask`. Use it for routine coding, review, drafting, and summarizing or consolidating long pasted material at close to Sol quality. For hard math, security or novel reasoning, use [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) or [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). For short extraction and classification, use [model-gpt-5.6-luna.md](model-gpt-5.6-luna.md).
 
 ## Context you must respect
 

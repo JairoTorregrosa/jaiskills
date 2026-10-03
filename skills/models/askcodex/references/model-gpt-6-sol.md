@@ -1,6 +1,6 @@
 # Prompting GPT-6-Sol (`gpt-6-sol`) through askcodex
 
-You are about to send one request to `gpt-6-sol` with `askcodex ask`. Sol is the GPT-6 workhorse for coding, reviews, debugging, drafting, and analysis of supplied material. For the hardest or most consequential work, use [model-gpt-6-astra.md](model-gpt-6-astra.md). For clear, repeatable extraction or transformation, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
+You are about to send one request to `gpt-6-sol` with `askcodex ask`. Since 2026-10-02 the catalog calls it "Previous generation workhorse model.": for new work use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md), and send GPT-6 Sol only to reproduce or compare an earlier result. It was the GPT-6 workhorse for coding, reviews, debugging, drafting, and analysis of supplied material. For the hardest or most consequential work, use [model-gpt-6-astra.md](model-gpt-6-astra.md). For clear, repeatable extraction or transformation, use [model-gpt-6-luna.md](model-gpt-6-luna.md).
 
 ## Context you must respect
 
@@ -21,6 +21,7 @@ You are about to send one request to `gpt-6-sol` with `askcodex ask`. Sol is the
   - On DeepSWE 1.1, Sol at `max` scored 68.8%.
   - Sol gives "slightly shorter answers overall" with "fewer low-value details" than GPT-5.6 Sol.
 - Sol's factual gains are largest "at very low latency and reasoning settings" ([7]).
+- Update 2026-10-02 (`client_version=0.160.0`): description "Previous generation workhorse model.", catalog default `medium`, Fast tier "1.5x speed", and Codex now sends it an 18,992-character prompt without the "can you..." follow-through paragraph; the two bullets below describe 0.157.1 (observed 2026-10-02).
 - Codex sends Sol exactly the same 21,429-character system prompt as Astra (Codex base instructions, 0.157.1). OpenAI presents its Astra prompts as a starting point "across the GPT-6 model family" ([1]).
 - Codex's GPT-5.6 prompt told the model "Do not implement the fix unless the user asks". GPT-6 Sol's prompt drops that rule and treats "can you..." as a request to do the work (Codex base instructions, 0.157.1). askcodex sends neither prompt.
 - Guidance that helps Sol or Luna "may overconstrain GPT-6 Astra" ([11]). This implies that explicit steps suit Sol.
