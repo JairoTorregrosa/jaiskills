@@ -113,9 +113,12 @@ then tag the merge commit and push the tag (`git tag -a vX.Y.Z <sha> -m … && g
 vX.Y.Z`); the README links to tags.
 
 `skills/models/askcodex` mirrors `skill/` of the askcodex repo; never edit it by hand. Check out the
-released askcodex tag, run `uv run scripts/sync-askcodex.py PATH/TO/askcodex`, and review the diff:
-the only difference from upstream must be the not-for clause and the "Canonical copy" note. When
-the script exits 1 because upstream wording moved, update its patterns in the same commit.
+released askcodex tag (or main, when only `skill/` changed after the tag), run
+`uv run scripts/sync-askcodex.py PATH/TO/askcodex`, and review the diff: the only difference from
+upstream must be the not-for clause and the "Canonical copy" note. The script refuses uncommitted
+or untracked files under `skill/` and prints the synced `commit` and `describe`; when `released`
+is false, name the upstream PRs past the tag in the CHANGELOG. When it exits 1 because upstream
+wording moved, update its patterns in the same commit.
 
 ## Code Review Rules
 

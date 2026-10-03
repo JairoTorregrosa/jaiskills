@@ -18,6 +18,7 @@ summary on success.
 import json
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -61,12 +62,30 @@ def localize(skill_md: str) -> str:
     return front + body
 
 
+def git(repo: Path, *args: str) -> str:
+    done = subprocess.run(
+        ["git", "-C", str(repo), *args], capture_output=True, text=True, check=False
+    )
+    if done.returncode != 0:
+        die(f"git {' '.join(args)} failed in {repo}: {done.stderr.strip()}")
+    return done.stdout.strip()
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         die("usage: sync-askcodex.py PATH/TO/askcodex")
-    source = Path(sys.argv[1]).expanduser().resolve() / "skill"
+    repo = Path(sys.argv[1]).expanduser().resolve()
+    source = repo / "skill"
     if not (source / "SKILL.md").is_file():
         die(f"{source}/SKILL.md not found")
+    # Only committed upstream content may ship: refuse local edits or
+    # untracked files under skill/, and report exactly which commit synced.
+    if git(repo, "status", "--porcelain", "--untracked-files=all", "--", "skill"):
+        die(
+            f"{source} has uncommitted or untracked changes; sync from a clean checkout"
+        )
+    commit = git(repo, "rev-parse", "--short", "HEAD")
+    describe = git(repo, "describe", "--tags", "--always", "HEAD")
     if (source / "agents").exists():
         die(f"{source}/agents exists upstream; decide which copy wins before syncing")
 
@@ -90,6 +109,9 @@ def main() -> None:
         json.dumps(
             {
                 "source": str(source),
+                "commit": commit,
+                "describe": describe,
+                "released": describe.count("-") < 2 and describe.startswith("v"),
                 "mirror": str(MIRROR.relative_to(ROOT)),
                 "files": len(files),
                 "kept": sorted(KEEP),

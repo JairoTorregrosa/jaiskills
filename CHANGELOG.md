@@ -11,8 +11,9 @@
   `cyber_policy`, `incomplete_details`, rate limits). The Luna batch examples use `--schema`.
 - `second-opinion`: `ask_codex.sh -o DIR < DIR/prompt.md` no longer truncates the prompt before
   reading it (stdin is copied first, then moved into place).
-- `scripts/sync-askcodex.py` replaces the manual rsync-and-patch re-sync of the askcodex mirror; it
-  exits 1 before touching anything when the upstream wording its delta replaces has moved.
+- `scripts/sync-askcodex.py` replaces the manual rsync-and-patch re-sync of the askcodex mirror. It
+  refuses a dirty `skill/`, reports the synced commit and `git describe`, and exits 1 before
+  touching anything when the upstream wording its delta replaces has moved.
 
 ## 1.3.0 (2026-10-02): askcodex 0.2.0 release and GPT-6.1 Sol
 
