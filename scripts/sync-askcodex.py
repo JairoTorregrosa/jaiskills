@@ -26,10 +26,13 @@ ROOT = Path(__file__).resolve().parent.parent
 MIRROR = ROOT / "skills" / "models" / "askcodex"
 KEEP = {"agents"}
 
-UPSTREAM_NOT_FOR = re.compile(
-    r"Not for reviewing a repository,\s+plan\s+or\s+diff\s+in\s+place:.*?cannot\s+read\s+files\.",
-    re.DOTALL,
+# The exact upstream sentence, matched word for word across any line wrap: a
+# reworded or extended clause must stop the sync, not vanish into the delta.
+UPSTREAM_SENTENCE = (
+    "Not for reviewing a repository, plan or diff in place: askcodex sends only the text you "
+    "give it and cannot read files."
 )
+UPSTREAM_NOT_FOR = re.compile(r"\s+".join(map(re.escape, UPSTREAM_SENTENCE.split())))
 LOCAL_NOT_FOR = "Not for critiquing repo work, plans or diffs: use second-opinion, which reads the repo."
 NOTE = (
     "Canonical copy: `skill/` in https://github.com/JairoTorregrosa/askcodex (this is a mirror; change\n"
