@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Re-sync skills/models/askcodex from a checkout of the askcodex repo.
 
 Usage: uv run scripts/sync-askcodex.py PATH/TO/askcodex
