@@ -2,8 +2,8 @@
 
 ## 1.4.0 (2026-10-02): askcodex 0.3.0, a tool for the agent calling it
 
-- `askcodex` re-synced from the released askcodex v0.3.0 (JairoTorregrosa/askcodex#14, #15 and
-  #16): `--schema FILE` for answers to parse (strict rules, `.result.json`, re-checked
+- `askcodex` re-synced from askcodex v0.3.0 (JairoTorregrosa/askcodex#14, #15, #16) plus #17,
+  whose extraction example now defines its fields and null policy: `--schema FILE` for answers to parse (strict rules, `.result.json`, re-checked
   locally), `--verbosity`, `image create|edit --background transparent|opaque` with the saved
   file's real `width`, `height` and `alpha_channel`, `models --no-refresh` for a short listing
   (the raw backend response is now opt-in with `--backend`), and a table from `error.backend` to

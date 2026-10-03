@@ -118,14 +118,18 @@ output against the task.
    EOF
    echo "T-17: Checkout page crashes when I apply a coupon on iOS." |
      askcodex ask - --model gpt-6-luna --effort low --verbosity low \
+       --instructions 'Extract the support ticket. id: copy it exactly. product: "app" (mobile or web app), "api" or "billing". severity: 1 = outage, 2 = a feature is broken, 3 = minor; only when the ticket states its impact. summary: at most 12 words. Use null for product or severity when the ticket does not state it; never guess.' \
        --schema /tmp/askcodex/ticket.schema.json --json > /tmp/askcodex/ticket.json
    jq .result.json /tmp/askcodex/ticket.json
    ```
 
-   It returned `{"id":"T-17","product":"app","severity":2,"summary":"Checkout crashes on iOS when
-   applying a coupon."}` (observed 2026-10-02). For several records, make the schema an object
-   whose one property is an array of records. Check what a schema cannot express yourself, such
-   as ids matching the input in order.
+   It returned `{"id":"T-17","product":"app","severity":2,"summary":"Checkout page crashes when
+   applying a coupon on iOS"}` (observed 2026-10-03): iOS maps to the defined "app", and a crash in
+   checkout is the defined 2. The schema fixes the keys and the allowed values; only the
+   instructions say what each value means and when to answer null. Without them, a field the source
+   never states can come back as a plausible guess, and the schema accepts it. For several records,
+   make the schema an object whose one property is an array of records. Check what a schema cannot
+   express yourself, such as ids matching the input in order and each value against its source.
 5. Check the answer against the acceptance criteria. For code, request real code or a diff, review
    it, apply it, and run the project's checks yourself. On a failure, read `error.backend` in the
    JSON diagnostic and follow the table in [SKILL.md](../SKILL.md) before you retry.
