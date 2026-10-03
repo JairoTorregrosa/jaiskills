@@ -5,7 +5,7 @@ You are about to send one request to `gpt-6.1-sol` with `askcodex ask`. GPT-6.1 
 ## Context you must respect
 
 - askcodex sends one text-only request to `/codex/responses`: no tools, files, browsing, memory, image input, or Codex base instructions. Everything the model needs goes in the prompt or `--instructions`.
-- askcodex 0.2.0 defaults `ask` to `gpt-6.1-sol` and reports Codex client 0.160.0. The catalog lists this model only from `client_version` 0.159.0, although its minimum is 0.153.0, so an older askcodex does not show it in `models`; `ask --model gpt-6.1-sol` still works there (observed 2026-10-02). Pin `--model` when you compare outputs.
+- askcodex 0.2.0 and later default `ask` to `gpt-6.1-sol` and report Codex client 0.160.0. The catalog lists this model only from `client_version` 0.159.0, although its minimum is 0.153.0, so an older askcodex does not show it in `models`; `ask --model gpt-6.1-sol` still works there (observed 2026-10-02). Pin `--model` when you compare outputs.
 - Like GPT-6 Sol, it answers an underspecified ask with clarifying questions, and askcodex has no follow-up turn (observed 2026-10-02). Always include the proceed line from step 2.
 - Cost: API prices are $2 input, $0.10 cached input, and $10 output per 1M tokens. Astra's input and output cost 5x as much, and Luna's cost 1/20 as much ([1]). Codex credit rates match GPT-6 Sol for input and output (50 and 250 credits per 1M tokens) and halve cached input (2.5 against 5). Astra costs 250 and 1,250 credits, Luna 2.5 and 12.5 ([7]). OpenAI's Plus estimate is 15–160 local messages per five hours, against 15–150 for GPT-6 Sol, 5–45 for Astra and 350–3,000 for Luna ([7]).
 - OpenAI treats it as Critical in cybersecurity and gives it Astra's safeguard stack ([5]). Its catalog access programs are `standard` only; `gpt-6-sol` also lists `daybreak_blue` (observed 2026-10-02). For authorized defensive security work, use [model-gpt-daybreak-blue-latest.md](model-gpt-daybreak-blue-latest.md).
@@ -29,10 +29,11 @@ You are about to send one request to `gpt-6.1-sol` with `askcodex ask`. GPT-6.1 
   - Astra's writing section: "Write in connected prose. Avoid section headings", main point first, and paragraphs over lists.
   - It drops GPT-6 Sol's rule that a user's correction means "fix the issue".
   - askcodex sends none of this. The tool, channel, approval and skill rules do not apply to a toolless call.
-- Codex sends `text.verbosity: "low"`, the catalog `default_verbosity`. askcodex sends none, so the backend answers at `medium` (observed 2026-10-02).
+- Codex sends `text.verbosity: "low"`, the catalog `default_verbosity`. askcodex sends it only with `--verbosity` (0.3.0); without it the backend answers at `medium`. The same prompt returned 240 output tokens at `low` and 513 at `high` (observed 2026-10-02).
 - Probes (observed 2026-10-02, one sample each, wall time including CLI startup; GPT-6 Sol figures are from [model-gpt-6-sol.md](model-gpt-6-sol.md), 2026-09-27):
   - Bare "Can you write a function that deduplicates customer records?" at `medium`: the answer opened with "Yes.", then asked three questions and gave no code. 315 output tokens (211 reasoning) in 17.0 s. GPT-6 Sol also asked three questions.
   - The same ask with the proceed line in `--instructions`: a one-line default, then a complete Python function with an example. 557 output tokens (137 reasoning) in 20.7 s, with a `###` heading and bold text nobody asked for.
+  - The same again with `--verbosity low` (askcodex 0.3.0): no heading and no bold text, 391 visible answer tokens against 420 at `medium`. Reasoning rose to 235 tokens, so total output was 626, in 24.6 s.
   - Exact-format JSONL from a 3-line log at `low` (prompt rebuilt; the 2026-09-27 text was not saved): exact output, 0 reasoning tokens, 96 output tokens, 7.1 s.
 - Conflict: the Codex docs skill bundled at 0.160.0 does not mention GPT-6.1 Sol, and the 0.159.0 and 0.160.0 release notes do not mention it either ([10]). The live guide lists it ([4]); the live guide wins.
 
@@ -47,7 +48,8 @@ You are about to send one request to `gpt-6.1-sol` with `askcodex ask`. GPT-6.1 
 2. Write the brief. For the general brief shape, follow [prompting-text.md](prompting-text.md). Then add these parts for 6.1 Sol:
    - Put this line in `--instructions`: "If a detail is missing, choose a reasonable default, state it in one line, and deliver the complete result. Do not ask questions." (observed 2026-10-02). Always add the carve-out: "If code or a fact that the diagnosis, fix or conclusion depends on is missing, name it and withhold that part instead of guessing." OpenAI's longer version of the proceed line is the follow-through paragraph that Codex adds for this model ([4]; Codex base instructions, 0.160.0).
    - Say what done looks like and state the scope: diagnosis only, or diagnosis plus patch.
-   - State the format and length, for example "Plain paragraphs, no headings, at most 10 lines." At `medium` verbosity it added headings and bold text (observed 2026-10-02). For prose, paste OpenAI's excerpt: "Default to using clear, concise paragraphs, each developing one main idea" ([4]).
+   - Pass `--verbosity low`: at the default `medium` it added a heading and bold text, at `low` neither (observed 2026-10-02, one sample each). Still state the format and any hard length limit, for example "Plain paragraphs, no headings, at most 10 lines."; verbosity is not a cap. For prose, paste OpenAI's excerpt: "Default to using clear, concise paragraphs, each developing one main idea" ([4]).
+   - When a script will parse the answer, pass `--schema FILE` and read `.result.json`. The worked schema is in [model-gpt-6-luna.md](model-gpt-6-luna.md); it was verified live on the Luna models only (observed 2026-10-02).
    - Supply any fact newer than the 2026-04-30 cutoff ([2]).
 3. Run it:
    ```sh
@@ -61,7 +63,7 @@ You are about to send one request to `gpt-6.1-sol` with `askcodex ask`. GPT-6.1 
    If you find no defect, say so in one line.
    Verification: Quote the diff line each finding comes from.
    EOF
-   askcodex ask - --model gpt-6.1-sol --effort medium \
+   askcodex ask - --model gpt-6.1-sol --effort medium --verbosity low \
      --instructions "If a detail is missing, choose a reasonable default, state it in one line, and deliver the complete result. Do not ask questions. If code or a fact that a finding or fix depends on is missing, name it and withhold that finding instead of guessing." \
      --json < /tmp/askcodex/sol61-brief.txt > /tmp/askcodex/sol61-review.json
    jq -r .result.text /tmp/askcodex/sol61-review.json

@@ -17,6 +17,7 @@ agents/                      plugin subagents (insistir's crew); the plugin form
 hooks/hooks.json             hook wiring only; hook scripts live in the owning skill
 scripts/check.py             catalog lint: every invariant below that a machine can check
 scripts/link-skills.sh       symlink skills into ~/.claude/skills and ~/.agents/skills (instead of the plugin)
+scripts/sync-askcodex.py     re-sync the askcodex mirror from an askcodex checkout and re-apply its one local delta
 .claude-plugin/              plugin.json (the shipped skill list) and marketplace.json (the repo is its own marketplace)
 .claude/CLAUDE.md            imports this file for Claude Code sessions in this repo
 ```
@@ -110,6 +111,14 @@ Bump `version` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.j
 Code uses it to decide when installed users get an update), add a dated `CHANGELOG.md` entry, merge,
 then tag the merge commit and push the tag (`git tag -a vX.Y.Z <sha> -m … && git push origin
 vX.Y.Z`); the README links to tags.
+
+`skills/models/askcodex` mirrors `skill/` of the askcodex repo; never edit it by hand. Check out the
+released askcodex tag (or main, when only `skill/` changed after the tag), run
+`uv run scripts/sync-askcodex.py PATH/TO/askcodex`, and review the diff: the only difference from
+upstream must be the not-for clause and the "Canonical copy" note. The script refuses uncommitted
+or untracked files under `skill/` and prints the synced `commit` and `describe`; when `released`
+is false, name the upstream PRs past the tag in the CHANGELOG. When it exits 1 because upstream
+wording moved, update its patterns in the same commit.
 
 ## Code Review Rules
 

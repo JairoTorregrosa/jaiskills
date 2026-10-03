@@ -93,7 +93,8 @@ harness, and writes the complete prompt for that combination, from researched gu
 <br>*I use it for* system prompts and subagent briefs in pi, Codex and Claude Code.
 
 **[askcodex](skills/models/askcodex/SKILL.md)**: OpenAI's models from the terminal on a ChatGPT
-subscription, no API key: text, image generation and editing, transcription, quota. Drives my
+subscription, no API key: text (or schema-checked JSON to parse), image generation and editing
+(transparent or opaque background on request), transcription, quota. Drives my
 [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI, with a prompting guide for each model
 (GPT-6.1 Sol, GPT-6 Astra, Sol and Luna, the GPT-5.6 family, Daybreak Blue, GPT Image 2).
 <br>*I use it for* images for my talks and videos, and a quick GPT answer without leaving the

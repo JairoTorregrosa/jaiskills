@@ -28,7 +28,7 @@ You are about to send one request to `gpt-5.6-terra` with `askcodex ask`. Use it
 - With more reasoning effort, Terra and Luna "can often perform similar to GPT‑5.4 and 5.5" ([4]).
 - Probe, `--effort none`: exact JSONL from a 3-line log in 3.3 s (observed 2026-09-27).
 - Probe, `--effort medium`, a Python function with 2 planted bugs: the same 5 findings as Sol, with a correct `finally: conn.close()` fix. 33.9 s, 1,745 output tokens (observed 2026-09-27).
-- The backend applied `text.verbosity: "medium"` when askcodex omitted it (observed 2026-09-27).
+- The backend applied `text.verbosity: "medium"` when askcodex omitted it (observed 2026-09-27). askcodex 0.3.0 sends Codex's `low` with `--verbosity low`, which shapes length but is no cap (see step 2 of [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md)).
 
 ## Do this
 

@@ -14,8 +14,8 @@ of output, then the guide for the model you will call. Read only what the call n
 ## Model guides
 
 Each one covers what the model is for, its verified catalog facts, effort choice, model-specific
-prompting rules, a worked example, and what is still unverified. Checked 2026-09-27 (GPT-6.1 Sol and
-the catalog changes: 2026-10-02).
+prompting rules, a worked example, and what is still unverified. Checked 2026-09-27 (GPT-6.1 Sol,
+the catalog changes and the askcodex 0.3.0 flags: 2026-10-02).
 
 | Model | Use it for | Guide |
 |---|---|---|
@@ -28,7 +28,7 @@ the catalog changes: 2026-10-02).
 | `gpt-5.6-terra` | Reproducing an earlier GPT-5.6 balanced result | [model-gpt-5.6-terra.md](model-gpt-5.6-terra.md) |
 | `gpt-5.6-luna` | Reproducing an earlier GPT-5.6 fast result | [model-gpt-5.6-luna.md](model-gpt-5.6-luna.md) |
 | `gpt-5.5` | Nothing new: it retires 2026-10-14; migrate | [model-gpt-5.5.md](model-gpt-5.5.md) |
-| `gpt-image-2` (sent by `image create`/`edit`) | What the image backend controls, aspect, transparency, text, Images 2.5 status | [model-gpt-image-2.md](model-gpt-image-2.md) |
+| `gpt-image-2` (sent by `image create`/`edit`) | What the image backend controls, aspect, `--background`, text, Images 2.5 status | [model-gpt-image-2.md](model-gpt-image-2.md) |
 
 `gpt-reserve` and `codex-auto-review` are hidden in the catalog and have no guide. `gpt-reserve` is
 Codex's "Luna Reserve", a fallback for selected accounts once ordinary usage runs out;

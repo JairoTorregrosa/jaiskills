@@ -28,6 +28,7 @@ You are about to send one request to `gpt-5.6-luna` with `askcodex ask`. Use it 
 - At `xhigh`, Luna scored 84.04% on BrowseComp, against 84.36% for GPT-5.5 at `xhigh` ([6]). OpenAI: with more reasoning effort, Luna and Terra "can often perform similar to GPT‑5.4 and 5.5" ([6]).
 - OpenAI's system card: "larger models tend to perform better than smaller models on factuality" ([7]).
 - Probe, `--effort none`: exact JSONL from a 3-line log in 3.3 s, 107 output tokens (observed 2026-09-27).
+- Probe, `--effort low` with `--schema` (askcodex 0.3.0), the step 3 run on 5 log lines: 5 schema-valid labels, all correct, and the `jq` check printed `true`. 58 output tokens, 0 reasoning, 2.3 s (observed 2026-10-02).
 - Probe, `--effort medium`, a Python function with 2 planted bugs: the same 5 findings as Sol, with a correct `finally: conn.close()` fix. 32.4 s against Sol's 36.8 s, 1,725 output tokens (observed 2026-09-27). Wall time was not clearly shorter than Sol's.
 
 ## Do this
@@ -43,17 +44,27 @@ You are about to send one request to `gpt-5.6-luna` with `askcodex ask`. Use it 
    - Keep the input short. Split a large corpus into separate calls, and merge the results on Terra or in code. Long-input retrieval is Luna's weakest measured area ([1]).
    - Paste the facts the answer depends on, and ask it to answer only from them. Smaller models are less factual ([7]).
    - Name the exact output and nothing else, for example "Reply with the label only." A strict JSONL conversion came back exact at `none` (observed 2026-09-27).
+   - When you will parse the answer, pass `--schema` (askcodex 0.3.0) so the backend enforces the keys and the label set (observed 2026-10-02).
 3. Run it:
    ```sh
    mkdir -p /tmp/askcodex
+   cat > /tmp/askcodex/labels.schema.json <<'EOF'
+   {"type": "object", "additionalProperties": false, "required": ["labels"],
+    "properties": {"labels": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["line", "label"],
+      "properties": {
+        "line": {"type": "integer"},
+        "label": {"type": "string", "enum": ["auth_failure", "timeout", "disk_full", "other"]}}}}}}
+   EOF
    askcodex ask - --model gpt-5.6-luna --effort low \
-     --instructions "Classify each input line. Labels: auth_failure, timeout, disk_full, other. Output JSON Lines {\"line\":n,\"label\":\"...\"} only." \
-     --json < /tmp/askcodex/error-lines.txt > /tmp/askcodex/luna-labels.json
-   jq -r .result.text /tmp/askcodex/luna-labels.json
+     --instructions "Classify each numbered input line, one entry per line, in input order. Labels: auth_failure, timeout, disk_full, other." \
+     --schema /tmp/askcodex/labels.schema.json --json < /tmp/askcodex/error-lines.txt > /tmp/askcodex/luna-labels.json
+   jq -e --argjson n "$(grep -c . /tmp/askcodex/error-lines.txt)" \
+     '.result.json.labels | map(.line) == [range(1; $n + 1)]' /tmp/askcodex/luna-labels.json
    ```
-   `error-lines.txt` holds the numbered log lines, pasted in full with secrets and personal data redacted.
+   `error-lines.txt` holds the log lines numbered from 1, one per line, pasted in full with secrets and personal data redacted. The check prints `false` and exits 1 when a line is dropped, merged, invented or out of order.
 4. Check the answer before you use it:
-   - Labels outside the set, extra keys, dropped lines, or lines merged together. Count the lines against the input.
+   - Dropped or merged lines (the `jq -e` check), and labels that do not fit the line.
    - A fact that the input does not contain.
    - A confident conclusion on a hard reasoning or security question. Rerun that on Terra or Sol.
 

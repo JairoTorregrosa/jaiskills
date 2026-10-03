@@ -6,8 +6,8 @@ description: >-
   usage, or authentication. Trigger for requests such as "ask GPT", "make an image",
   "pregúntale a GPT", "genera una imagen", "edita esta foto", "transcribe este audio",
   "qué modelos tengo", or "cuánta cuota queda", and for bounded one-shot tasks (draft, summarize,
-  classify, generate an asset) worth a second model's answer. Not for critiquing repo work, plans
-  or diffs: use second-opinion, which reads the repo.
+  classify or extract into schema-checked JSON, generate an asset) worth a second model's
+  answer. Not for critiquing repo work, plans or diffs: use second-opinion, which reads the repo.
 ---
 
 # askcodex
@@ -22,12 +22,13 @@ it there, then re-sync). Local delta: the description's not-for clause points to
 
 ## Context you must respect
 
-- This skill describes askcodex 0.2.0 or later. Check `askcodex --version` once per session: 0.1.x
-  hides the GPT-6 models, defaults `ask` to `gpt-5.6-sol`, and accepts an `ultra` effort the
-  backend rejects. If it is older, tell the user to update instead of working around it: in an
-  askcodex checkout, `git pull && ./install.sh`; without one, clone
-  https://github.com/JairoTorregrosa/askcodex and run `./install.sh` (needs Rust 1.88+), or
-  download a release binary of 0.2.0 or later if one is published.
+- This skill describes askcodex 0.3.0 or later. Check `askcodex --version` once per session. 0.2.x
+  has no `--schema`, `--verbosity` or `--background`, prints the ~700 KB raw catalog inside
+  `models --json`, and gives errors without `error.backend`; 0.1.x also hides the GPT-6 models.
+  If it is older, tell the user to update instead of working around it: in an askcodex checkout,
+  `git pull && ./install.sh`; without one, download the latest release binary from
+  https://github.com/JairoTorregrosa/askcodex/releases (verify `SHA256SUMS`), or clone it and run
+  `./install.sh` (needs Rust 1.88+).
 - Every call is one-shot and stateless. `ask` sends only the prompt and optional `--instructions`:
   the model gets no tools, files, browsing, repository, or earlier conversation. A file path in a
   prompt is just text; paste the contents instead.
@@ -44,20 +45,35 @@ it there, then re-sync). Local delta: the description's not-for clause points to
 
 ## Facts already verified (2026-10-02)
 
-- `askcodex models --json --no-refresh` lists what the account can use. On 2026-10-02:
+- `askcodex models --no-refresh` lists what the account can use, with each model's description,
+  Codex's default effort and any retirement date. On 2026-10-02:
   `gpt-6.1-sol`, `gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`,
   `gpt-5.6-luna`, `gpt-daybreak-blue-latest`, `gpt-5.5` (retires 2026-10-14), and the hidden
   `gpt-reserve` and `codex-auto-review`. All take text; `ask` sends text only. OpenAI ships models
   every few days: trust the live catalog over this list.
 - `ask` defaults to `gpt-6.1-sol` at `medium`. The catalog lists it for every plan; if a plan
   refuses it with a model-availability error (OpenAI's Codex docs have offered Free and Go only
-  Luna), pass `--model gpt-6-luna`. askcodex never switches models on its own. `--effort` takes `low`, `medium`, `high`, `xhigh`,
-  `max`, or `none`. The catalog also lists `ultra`, which is Codex's multi-agent mode; the backend
-  rejects it. A level a model does not take fails with HTTP 400 (`none` on `gpt-6-astra` and `gpt-6.1-sol`).
-- `image create` and `image edit` return one PNG per call of about 1.57 megapixels. The prompt sets
-  the aspect ratio and can ask for a transparent background (one successful call on 2026-09-27;
-  check the alpha before you rely on it). There is no model, size, quality,
-  format, or count flag, because the backend ignores those fields.
+  Luna), pass `--model gpt-6-luna`. askcodex never switches models on its own.
+- `--effort` takes `low`, `medium`, `high`, `xhigh`, `max`, or `none`. The catalog also lists
+  `ultra`, which is Codex's multi-agent mode; the backend rejects it. A level a model does not take
+  fails with HTTP 400 (`none` on `gpt-6-astra` and `gpt-6.1-sol`; `gpt-6-sol` and `gpt-6-luna`
+  accept it although the catalog omits it).
+- `--verbosity low|medium|high` sets answer length and detail. Unset, the backend answers at
+  `medium`; Codex itself asks for `low`. On the same prompt `low` used 240 output tokens and `high`
+  513.
+- `--schema FILE` makes the backend enforce a JSON Schema in strict mode, even against a prompt that
+  asks for prose. Strict rules: every property in `required`, `"additionalProperties": false` on
+  every object, and an optional value adds `"null"` to its own type (`["string","null"]`,
+  `["integer","null"]`; an `enum` must list `null` too). A schema that breaks them fails before
+  generation with `error.backend.code: "invalid_json_schema"` and a message naming the key. With
+  `--json`, `.result.json` is the parsed answer. askcodex re-checks its structure against the
+  schema, so an answer that does not parse or does not match is a `response_invalid` failure, never
+  a result.
+- `image create` and `image edit` return one PNG per call of about 1.57 megapixels; the prompt sets
+  the aspect ratio. `--background transparent` or `opaque` forces the background (both honored);
+  unset, the prompt decides. The result reports the file's real `width`, `height` and
+  `alpha_channel`. There is no model, size, quality, format, or count flag, because the backend
+  ignores those fields.
 - `transcribe` takes a WAV file up to 25 MiB and has no model or language selector.
 
 ## Do this
@@ -66,11 +82,13 @@ it there, then re-sync). Local delta: the description's not-for clause points to
 
    | Result | Command | Read first |
    |---|---|---|
-   | Answer, analysis, extraction, writing, code, or review | `askcodex ask "prompt" --model <slug> --effort <level>` | [prompting-text.md](references/prompting-text.md) and the model's guide below |
-   | New image | `askcodex image create "prompt" -o /tmp/askcodex/<name>-v1.png` | [prompting-images.md](references/prompting-images.md) and [model-gpt-image-2.md](references/model-gpt-image-2.md) |
+   | Answer, analysis, writing, code, or review | `askcodex ask "prompt" --model <slug> --effort <level>` (add `--verbosity low` for a concise answer) | [prompting-text.md](references/prompting-text.md) and the model's guide below |
+   | Classification or extraction you will parse | `askcodex ask - --schema /tmp/askcodex/<name>.schema.json --json < brief.txt`, then read `.result.json` | Same as above |
+   | New image | `askcodex image create "prompt" -o /tmp/askcodex/<name>-v1.png` (add `--background transparent` for a cutout) | [prompting-images.md](references/prompting-images.md) and [model-gpt-image-2.md](references/model-gpt-image-2.md) |
    | Image edit from one to five PNG references | `askcodex image edit "prompt" -i ref.png -o /tmp/askcodex/<name>-v2.png` | Same as a new image |
    | Audio transcript | `askcodex transcribe recording.wav` | [transcription.md](references/transcription.md) |
-   | Models, quota, account, auth status | `askcodex models` / `usage` / `whoami` / `auth status`, each with `--json --no-refresh` | Nothing; no prompt is involved |
+   | Which models exist, their default effort, what retires | `askcodex models --no-refresh` (a short list with descriptions) | Nothing; no prompt is involved |
+   | Quota, account, auth status | `askcodex usage` / `whoami` / `auth status`, each with `--json --no-refresh` | Nothing |
 
 2. For `ask`, pick the model and read its guide:
 
@@ -96,16 +114,20 @@ it there, then re-sync). Local delta: the description's not-for clause points to
 
 ## Handle the output
 
-- Images: always pass `-o /tmp/askcodex/<name>-vN.png`. Check the real dimensions and alpha.
+- Images: always pass `-o /tmp/askcodex/<name>-vN.png`. With `--json`, `.result.width`,
+  `.result.height` and `.result.alpha_channel` come from the saved file; `alpha_channel: true`
+  only says transparency is possible, so look at the image before you call it a cutout.
 - Long text answers: `--json > /tmp/askcodex/<name>.json`, then
   `jq -r .result.text /tmp/askcodex/<name>.json`. Keep large JSON and image payloads out of the
   conversation.
 - `--json`, `--events`, and `--no-refresh` are global flags and work after the subcommand.
-- Semantic `--json` success output is `{schema_version:1,command,result,backend?}`. Read `.result`;
-  `.backend` holds the original response and can change independently of the askcodex schema.
-- `ask --json` gives one final envelope with `.result.model`, `.result.effort`, `.result.text`, and
-  `.result.usage` (possibly null). The catalog is at `.result.models`; quota windows are at
-  `.result.rate_limit`.
+- Semantic `--json` success output is `{schema_version:1,command,result}`. Read `.result`. Do not
+  pass `--backend` (it adds the raw backend response, ~700 KB for `models`) unless the user is
+  debugging the protocol.
+- `ask --json` gives one final envelope with `.result.model`, `.result.effort`,
+  `.result.verbosity`, `.result.text`, `.result.usage` (possibly null), and `.result.json` with
+  `--schema`. The catalog is at `.result.models` (slug, description, default_reasoning_level,
+  upgrade); quota windows are at `.result.rate_limit`.
 - `--events` prints newline-delimited JSON: `ask` sends `text_delta` events and one final `result`
   event on success; other commands send their result. Check the exit status: partial text is not
   success. Do not combine `--events` with `--json`.
@@ -123,8 +145,21 @@ it there, then re-sync). Local delta: the description's not-for clause points to
 
 - On a nonzero exit, report the error and fix its cause before another attempt. Do not loop,
   fabricate a result, or silently switch models.
-- With `--json` or `--events`, a failure prints `{schema_version:1,error:{code,message}}` on stderr
-  and no success result. Never turn a partial stream into a completed answer.
+- With `--json` or `--events`, a failure prints `{schema_version:1,error:{code,message,
+  http_status?,backend?}}` on stderr and no success result. Never turn a partial stream into a
+  completed answer. `error.backend` carries the backend's own reason, filtered: only `code`,
+  `type`, `param`, `message`, `detail` and `error` (or `incomplete_details.reason`), each cut to
+  400 bytes. When it is absent or reads as cut off, tell the user the full cause could not be read
+  instead of guessing. Act on it:
+
+  | The diagnostic says | Cause | Next step |
+  |---|---|---|
+  | `backend.code: "unsupported_value"`, `backend.param: "reasoning.effort"` | The model does not take that effort | Pick a level from the model's guide and retry once |
+  | `backend.code: "invalid_json_schema"` | The `--schema` file breaks a strict rule | Fix the key the message names; no answer was generated |
+  | `backend.detail: "... not supported when using Codex with a ChatGPT account."` | Unknown slug, or a model this plan cannot use | Check `askcodex models`; ask the user before using another model |
+  | `backend.code: "cyber_policy"` or another policy code | A safety classifier blocked the request | Report it; do not reword the request to get around it |
+  | `backend.incomplete_details` | The answer was cut short | Report it; narrow the task or ask for less output, then retry once |
+  | `code: "rate_limited"` (HTTP 429) | Quota or rate limit | Check `askcodex usage --json --no-refresh` and tell the user |
 - Use `--no-refresh` for read-only account and auth checks. `askcodex auth refresh` rotates the
   credentials and rewrites the auth file; run it only when the user asks for a refresh.
 - Write into a project directory only when the user asks for that destination.
