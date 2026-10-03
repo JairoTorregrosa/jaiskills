@@ -14,14 +14,16 @@ of output, then the guide for the model you will call. Read only what the call n
 ## Model guides
 
 Each one covers what the model is for, its verified catalog facts, effort choice, model-specific
-prompting rules, a worked example, and what is still unverified. Checked 2026-09-27.
+prompting rules, a worked example, and what is still unverified. Checked 2026-09-27 (GPT-6.1 Sol and
+the catalog changes: 2026-10-02).
 
 | Model | Use it for | Guide |
 |---|---|---|
-| `gpt-6-sol` (the `ask` default) | Most work: coding, review, debugging, analysis, drafting | [model-gpt-6-sol.md](model-gpt-6-sol.md) |
+| `gpt-6.1-sol` (the `ask` default) | Most work: coding, review, debugging, analysis, drafting | [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md) |
 | `gpt-6-astra` | The hardest or most consequential single deliverable | [model-gpt-6-astra.md](model-gpt-6-astra.md) |
 | `gpt-6-luna` | Clear, repeatable extraction, classification, transformation | [model-gpt-6-luna.md](model-gpt-6-luna.md) |
 | `gpt-daybreak-blue-latest` | Authorized defensive security work | [model-gpt-daybreak-blue-latest.md](model-gpt-daybreak-blue-latest.md) |
+| `gpt-6-sol` | Reproducing an earlier GPT-6 Sol result (now "previous generation") | [model-gpt-6-sol.md](model-gpt-6-sol.md) |
 | `gpt-5.6-sol` | Reproducing an earlier GPT-5.6 coding result | [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) |
 | `gpt-5.6-terra` | Reproducing an earlier GPT-5.6 balanced result | [model-gpt-5.6-terra.md](model-gpt-5.6-terra.md) |
 | `gpt-5.6-luna` | Reproducing an earlier GPT-5.6 fast result | [model-gpt-5.6-luna.md](model-gpt-5.6-luna.md) |

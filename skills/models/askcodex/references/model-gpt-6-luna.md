@@ -1,6 +1,6 @@
 # Prompting GPT-6-Luna (`gpt-6-luna`) through askcodex
 
-You are about to send one request to `gpt-6-luna` with `askcodex ask`. Luna is the fastest and cheapest GPT-6 model, for clear, repeatable work whose correct output you can specify exactly: extraction, classification, transformation, and structured summaries. When the task is ambiguous or needs judgment, use [model-gpt-6-sol.md](model-gpt-6-sol.md). For the hardest work, use [model-gpt-6-astra.md](model-gpt-6-astra.md).
+You are about to send one request to `gpt-6-luna` with `askcodex ask`. Luna is the fastest and cheapest GPT-6 model, for clear, repeatable work whose correct output you can specify exactly: extraction, classification, transformation, and structured summaries. When the task is ambiguous or needs judgment, use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). For the hardest work, use [model-gpt-6-astra.md](model-gpt-6-astra.md).
 
 ## Context you must respect
 

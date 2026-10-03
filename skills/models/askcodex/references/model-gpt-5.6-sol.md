@@ -1,6 +1,6 @@
 # Prompting GPT-5.6 Sol (`gpt-5.6-sol`) through askcodex
 
-You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it for hard reviews and analysis when you want a GPT-5.6 answer or a second opinion from a different generation than GPT-6. For new work with no reason to stay on 5.6, use [model-gpt-6-sol.md](model-gpt-6-sol.md). For the hardest problems, use [model-gpt-6-astra.md](model-gpt-6-astra.md).
+You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it for hard reviews and analysis when you want a GPT-5.6 answer or a second opinion from a different generation than GPT-6. For new work with no reason to stay on 5.6, use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md). For the hardest problems, use [model-gpt-6-astra.md](model-gpt-6-astra.md).
 
 ## Context you must respect
 
@@ -11,7 +11,7 @@ You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it f
 
 ## Facts already verified (2026-09-27)
 
-- Catalog (live, `client_version=0.157.1`): "Older coding model for complex work.". Efforts through askcodex: `none`, `low`, `medium`, `high`, `xhigh`, `max`. The catalog default is `low`; askcodex sends `medium` unless you pass `--effort`. `ultra` is rejected with HTTP 400, and `none` works (observed 2026-09-27). Context window 272,000 tokens (catalog max 872,000). Input: text and image, but `ask` sends text only. Minimal Codex client 0.144.0. A "Fast" tier exists, but askcodex sends no `service_tier`, and responses report `default` (observed 2026-09-27).
+- Catalog (live, `client_version=0.157.1`): "Older coding model for complex work." On 2026-10-02 (`client_version=0.160.0`) the description is "Older generation workhorse model.". Efforts through askcodex: `none`, `low`, `medium`, `high`, `xhigh`, `max`. The catalog default is `low`; askcodex sends `medium` unless you pass `--effort`. `ultra` is rejected with HTTP 400, and `none` works (observed 2026-09-27). Context window 272,000 tokens (catalog max 872,000). Input: text and image, but `ask` sends text only. Minimal Codex client 0.144.0. A "Fast" tier exists, but askcodex sends no `service_tier`, and responses report `default` (observed 2026-09-27).
 - Knowledge cutoff: Feb 16, 2026 ([4]).
 - The backend applied `text.verbosity: "medium"` when askcodex omitted it (observed 2026-09-27). Codex asks for `low` (catalog `default_verbosity`).
 - It leads its siblings on hard reasoning ([1]):

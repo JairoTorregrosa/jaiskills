@@ -19,14 +19,14 @@ output against the task.
   still text in `.result.text`; parse and validate it yourself.
 - A model's claim that tests pass is not a test result. It ran nothing.
 
-## Facts already verified (2026-09-27)
+## Facts already verified (2026-10-02)
 
-- `ask` defaults to `gpt-6-sol` at `medium`. Each model's guide lists its efforts and strengths;
+- `ask` defaults to `gpt-6.1-sol` at `medium`. Each model's guide lists its efforts and strengths;
   [prompting.md](prompting.md) indexes them. Check the live catalog with
   `askcodex models --json --no-refresh` (`.result.models`).
 - `--effort` takes `low`, `medium`, `high`, `xhigh`, `max`, or `none`. The catalog also lists
   `ultra`, which is Codex's multi-agent mode; the backend rejects it with HTTP 400. A level a model
-  does not take also fails with HTTP 400 (`none` on `gpt-6-astra`).
+  does not take also fails with HTTP 400 (`none` on `gpt-6-astra` and `gpt-6.1-sol`).
 - askcodex sends no Codex system prompt and no verbosity setting; the backend then answers at its
   default verbosity. State the length you want.
 
@@ -81,14 +81,14 @@ output against the task.
 4. Run it. A short task:
 
    ```sh
-   askcodex ask "Explain the tradeoffs between these two designs: [designs]. Give a recommendation and the assumptions it depends on." --model gpt-6-sol --effort high
+   askcodex ask "Explain the tradeoffs between these two designs: [designs]. Give a recommendation and the assumptions it depends on." --model gpt-6.1-sol --effort high
    ```
 
    A prepared brief with a recoverable answer:
 
    ```sh
    mkdir -p /tmp/askcodex
-   askcodex ask - --model gpt-6-sol --effort high --json < /tmp/askcodex/brief.txt > /tmp/askcodex/answer.json
+   askcodex ask - --model gpt-6.1-sol --effort high --json < /tmp/askcodex/brief.txt > /tmp/askcodex/answer.json
    jq -r .result.text /tmp/askcodex/answer.json
    ```
 

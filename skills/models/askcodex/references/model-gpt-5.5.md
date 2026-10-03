@@ -1,14 +1,15 @@
 # Prompting GPT-5.5 (`gpt-5.5`) through askcodex
 
-You are about to send one request to `gpt-5.5` with `askcodex ask`. Send it only to reproduce or compare an existing GPT-5.5 result before the model retires on 2026-10-14. For any new or ongoing work, use [model-gpt-6-sol.md](model-gpt-6-sol.md), or [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) to stay on the GPT-5.x prompt.
+You are about to send one request to `gpt-5.5` with `askcodex ask`. Send it only to reproduce or compare an existing GPT-5.5 result before the model retires on 2026-10-14. For any new or ongoing work, use [model-gpt-6.1-sol.md](model-gpt-6.1-sol.md), or [model-gpt-5.6-sol.md](model-gpt-5.6-sol.md) to stay on the GPT-5.x prompt.
 
 ## Context you must respect
 
 - askcodex sends one text-only request to `/codex/responses`: no tools, files, browsing, memory, image input, or Codex base instructions. Everything the model needs goes in the prompt or `--instructions`.
 - GPT-5.5 retires from ChatGPT, ChatGPT Work and Codex on October 14, 2026, on all plans ([1]). askcodex uses that subscription backend, so `--model gpt-5.5` stops working then. The API is not affected ([1]).
 - Where to move depends on the source:
-  - The catalog's `upgrade` field says: "GPT-5.5 retires on October 14, 2026. Switch to GPT-5.6 Sol to continue working in Codex." (observed 2026-09-27).
-  - OpenAI's Codex docs name `gpt-6-sol` for Plus, Pro, Business, Enterprise and Edu, and `gpt-6-luna` for Free and Go ([1]).
+  - The catalog's `upgrade` field named `gpt-5.6-sol` on 2026-09-27 and `gpt-6.1-sol` on 2026-10-02: "GPT-5.5 retires on October 14, 2026. Switch to GPT-6.1 Sol to continue working in Codex." (observed 2026-10-02).
+  - OpenAI's Codex docs named `gpt-6-sol` for Plus, Pro, Business, Enterprise and Edu, and `gpt-6-luna` for Free and Go ([1], accessed 2026-09-27).
+  - Move to `gpt-6.1-sol` ([model-gpt-6.1-sol.md](model-gpt-6.1-sol.md)); if the plan refuses it, `gpt-6-luna`.
 - Move pinned scripts, briefs and comparisons off this slug now.
 
 ## Facts already verified (2026-09-27)
