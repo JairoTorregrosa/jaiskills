@@ -24,7 +24,7 @@ You are about to send one request to `gpt-daybreak-blue-latest` with `askcodex a
 - The same account got `daybreak_blue` automatically on `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna` and `gpt-5.5` (observed 2026-09-27).
 - Blue does not unlock offensive work. GPT-5.6 Sol under Daybreak Blue completed 2.0% of requests in OpenAI's "Advanced Cybersecurity Completion Rate" eval, which covers exploit chains, authentication bypass and privilege escalation. GPT-5.6-Cyber, a Daybreak Red model, completed 95.0% ([3]). Red models are not in this catalog.
 - OpenAI's example of a Blue task: "Review the approved lab repository for authentication weaknesses, rank findings by evidence and impact, and propose patches without accessing external systems." ([4])
-- Safeguards still apply. Blocked requests return error code `cyber_policy`, which can arrive mid-stream ([5]). askcodex reports this as `stream_failed`, with the code inside the message.
+- Safeguards still apply. Blocked requests return error code `cyber_policy`, which can arrive mid-stream ([5]). askcodex reports this as `stream_failed`; since 0.3.0 the `--json` and `--events` diagnostic also carries the code from the backend's error object, in `error.backend.code` (a filtered, bounded copy) (askcodex `docs/OUTPUT.md`; not provoked live).
 - Individual Daybreak users must have Advanced Account Security and FIDO2 hardware keys by Oct 1, 2026 to keep access ([1]).
 - Probe, `--effort none`: exact JSONL from a 3-line log in 6.4 s (observed 2026-09-27).
 - Probe, `--effort medium`, a Python function with an SQL injection and an off-by-one bug: it found both plus 3 real defects and closed the connection correctly in its fix. 40.7 s, 1,731 output tokens (observed 2026-09-27).
@@ -62,13 +62,13 @@ You are about to send one request to `gpt-daybreak-blue-latest` with `askcodex a
    - Whether each finding is reachable in the code you pasted.
    - Whether each patch closes the finding without breaking the documented behavior.
    - Any exploit detail beyond what you asked for.
-   - A `stream_failed` exit with `cyber_policy` in the message. That is a block, not an answer.
+   - A failure with `error.backend.code: "cyber_policy"` on stderr (the run above uses `--json`; in human mode the code is only in the message). That is a block, not an answer: report the code as given, and do not present any partial text.
 
 ## Rules
 
 - Do not use it on systems outside the user's ownership or explicit authorization, or for anyone else's traffic ([1]).
 - Do not ask it for exploit development, proof-of-concept weaponization, or production pentesting. Blue refuses most of that ([3]), and that work requires Daybreak Red.
-- Do not reword a blocked request to get around the block. "Changing the wording does not change whether a request is allowed" ([6]). Narrow it to the defensive outcome, or report the block.
+- Do not reword a blocked request to get around the block. "Changing the wording does not change whether a request is allowed" ([6]). Report the block with its `error.backend.code`; if a narrower defensive version still meets the goal, propose it and run it only with the user's agreement.
 - Do not assume the model behind the alias stayed the same between runs. Record the date with the result ([2]).
 
 ## Report
@@ -80,6 +80,7 @@ Tell the user the model and effort used, where the answer was saved, and any lim
 - [UNVERIFIED: which model the alias serves today. The Bedrock ID and the catalog point to GPT-5.6 Sol ([1]), but OpenAI's API example pairs Daybreak Blue with `gpt-6-sol` ([2]), and the response echoed only the alias.]
 - [UNVERIFIED: what this backend returns to an account without Daybreak Blue. The API fails the request ([2]); not probed on this backend.]
 - [UNVERIFIED: this alias's knowledge cutoff. GPT-5.6 Sol's is Feb 16, 2026, if that is the underlying model.]
+- [UNVERIFIED: the exact `error.backend` a `cyber_policy` block produces through askcodex. Never provoked; the code comes from OpenAI's docs ([5]).]
 - Conflict on the hardware-key deadline: OpenAI's August posts say September 1, 2026 ([3]); the current help article says Oct 1, 2026 ([1]). The help article is newer.
 - Conflict on defaults: Codex's app keeps the Daybreak toggle off by default ([1]), but askcodex omits `access_programs`, and the backend then applied `daybreak_blue` on every GPT-5.x model probed (observed 2026-09-27).
 

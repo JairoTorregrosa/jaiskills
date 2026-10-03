@@ -7,8 +7,9 @@ one observed problem at a time.
 
 ## Context you must respect
 
-- One PNG per call. There is no size, quality, transparency, format, count, or model flag, because
-  the backend ignores those fields.
+- One PNG per call. There is no size, quality, format, count, or model flag, because the backend
+  ignores those fields. `--background transparent|opaque` (askcodex 0.3.0) is the one backend
+  setting you can force; unset, the prompt decides.
 - Model-specific rules (aspect, transparency, text limits, what to say about Images 2.5) are in
   [model-gpt-image-2.md](model-gpt-image-2.md). Read it with this file.
 - `-i` takes up to five PNG references totaling 25 MiB (a client memory cap). References must be
@@ -16,13 +17,18 @@ one observed problem at a time.
   devices and FIFOs are rejected.
 - A request in the prompt does not prove the PNG meets it. Inspect every result.
 
-## Facts already verified (2026-09-27)
+## Facts already verified (2026-09-27; `--background`: 2026-10-02)
 
 - The backend returns a fixed budget of about 1.57 megapixels shaped to the aspect you state:
   941×1672 for 9:16, 1672×941 for 16:9, 1254×1254 for square (observed 2026-09-23 to 2026-09-27).
   Exact pixel sizes are not reachable.
-- A prompt that asks for a transparent background has returned a PNG with real alpha; a prompt
-  that does not returns an opaque PNG (observed 2026-09-27, one call each).
+- `--background transparent` returned real alpha with a neutral prompt, and `--background opaque`
+  returned an opaque PNG for a prompt that asked for transparency (observed 2026-10-02, one call
+  each). Without the flag, a prompt that asks for a transparent background has returned real
+  alpha, and a prompt that does not returns an opaque PNG (observed 2026-09-27, one call each).
+- askcodex reports the saved file's real dimensions and whether it has an alpha channel:
+  `  pixels WxH, alpha channel yes|no, backend background <value>` after the save line, or
+  `.result.width`, `.result.height`, `.result.alpha_channel` with `--json`.
 - The model field askcodex sends (`gpt-image-2`) is ignored: a nonsense model name returned the
   same result. OpenAI says ChatGPT Images 2.5 reached Codex users on 2026-09-08, while its Codex
   image page still says `gpt-image-2`; which model serves askcodex is unverified. The API models
@@ -80,10 +86,12 @@ one observed problem at a time.
    - **Illustrations and assets.** Name the medium, silhouette, palette, line treatment, detail
      level, and background, and say how the asset will be used. A small icon needs a clear
      silhouette and few details; a slide illustration needs a stated clear area for the title.
-     For a cutout, ask for the subject isolated on a fully transparent background, with no
-     scenery, solid backdrop, checkerboard, or shadow; then confirm the alpha is real and keep a
-     chroma-key or cutout step ready as the fallback. For exact dimensions, plan a crop or resize
-     after generation.
+     For a cutout, pass `--background transparent` and still ask for the subject isolated on a
+     fully transparent background, with no scenery, solid backdrop, checkerboard, or shadow; repeat
+     both in every edit of the cutout. Then look at the result and keep a chroma-key or cutout step
+     ready as the fallback. For an image that must have no alpha, such as a scene built around a
+     cutout, pass `--background opaque`. For exact dimensions, plan a crop or resize after
+     generation.
    - **Layouts and text.** Describe the hierarchy and relative positions: title above the image,
      product on the right, empty copy area on the left. Put exact text in double quotes with its
      placement, size relationship, and color. Keep copy short.
@@ -113,10 +121,11 @@ one observed problem at a time.
    every call must carry its own context. Run calls that may take minutes in the background or in
    tmux.
 5. Inspect: the subject, composition, every letter and number of the text, reference fidelity,
-   the requested change, and the preserved elements. Check the real dimensions and whether the PNG
-   has an alpha channel with `file <file>` (macOS and Linux) when they matter for delivery; look at
-   the image to confirm the transparency is real. Correct a
-   text error with an edit instead of regenerating a composition that works.
+   the requested change, and the preserved elements. Read the real dimensions and alpha channel
+   from the `pixels` line askcodex prints (or `.result` with `--json`) when they matter for
+   delivery. `alpha channel yes` means the file can carry transparency, not that the background is
+   transparent: look at the image to confirm it. Correct a text error with an edit instead of
+   regenerating a composition that works.
 
 ## Rules
 

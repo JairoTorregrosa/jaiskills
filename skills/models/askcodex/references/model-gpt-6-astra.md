@@ -19,7 +19,7 @@ You are about to send one request to `gpt-6-astra` with `askcodex ask`. Astra is
 - Astra "can be more tentative about how far to take a task". Boundary language written for older models: Astra "could take it too seriously and may stop work". Overly specific guidance "can now hinder results", and guidance that helps Sol or Luna "may overconstrain" Astra ([4]).
 - Astra makes fewer factual errors than GPT-5.6 Sol, and the gain is largest at low reasoning settings ([8]).
 - Codex sends Astra a 21,429-character system prompt, identical to Sol's. Permission and autonomy sections come first. A writing section follows with "Write in connected prose. Avoid section headings", a banned-phrase list, and a rule against "X, not Y" framing. askcodex sends none of it, and its tool, channel, and skill rules do not apply to a toolless call (Codex base instructions, 0.157.1).
-- Codex sends `text.verbosity: "low"` ([10]). askcodex sends no `text` field, so the backend applies `medium`, the API default ([11]; observed 2026-09-27). With `low`, the same Astra answer fell from 629 to 556 output tokens and dropped its bullet list (observed 2026-09-27, one sample each).
+- Codex sends `text.verbosity: "low"` ([10]). askcodex sends it only with `--verbosity` (0.3.0); without it the backend applies `medium`, the API default ([11]; observed 2026-09-27). With `low`, the same Astra answer fell from 629 to 556 output tokens and dropped its bullet list (observed 2026-09-27, one sample each).
 - Probes (observed 2026-09-27, one sample each):
   - Exact-format JSONL at `low`: exact output in 5.0 s with 0 reasoning tokens, identical to Sol and Luna.
   - Bare "Can you write a function that deduplicates customer records?" at `medium`: a complete answer with stated assumptions in 24.0 s, 629 output tokens (112 reasoning), formatted with headings, bold text, and bullets.
@@ -37,7 +37,7 @@ You are about to send one request to `gpt-6-astra` with `askcodex ask`. Astra is
    - Name the decisions that are yours and let Astra assume the rest: "If a detail is missing, choose a default, state it in one line, and finish." The probe proceeded without this line, but OpenAI reports Astra asks more often ([1]), so keep it. Carve out the facts the conclusion depends on: tell Astra to list those as missing evidence and withhold the conclusion instead of assuming them.
    - Define completion by listing every part of the deliverable ([4]).
    - Give goals, sources, templates, constraints, and checks; leave out step-by-step recipes ([4], [5]).
-   - State format and length: "Plain paragraphs, no headings, at most 8 lines." For prose, paste OpenAI's excerpt: "Default to using clear, concise paragraphs, each developing one main idea" ([1]).
+   - State format and length: "Plain paragraphs, no headings, at most 8 lines." For prose, paste OpenAI's excerpt: "Default to using clear, concise paragraphs, each developing one main idea" ([1]). Add `--verbosity low` when you want Codex's concision; it dropped Astra's bullet list (observed 2026-09-27), but it is not a cap, so keep the line limit.
    - Name the tests you want ("at most 3 unit tests for the empty and duplicate cases") ([1]). Astra cannot run them.
    - To reproduce Codex's writing style, copy only the style lines of its prompt into `--instructions` (Codex base instructions, 0.157.1).
 3. Run it:

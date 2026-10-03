@@ -13,7 +13,7 @@ You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it f
 
 - Catalog (live, `client_version=0.157.1`): "Older coding model for complex work." On 2026-10-02 (`client_version=0.160.0`) the description is "Older generation workhorse model.". Efforts through askcodex: `none`, `low`, `medium`, `high`, `xhigh`, `max`. The catalog default is `low`; askcodex sends `medium` unless you pass `--effort`. `ultra` is rejected with HTTP 400, and `none` works (observed 2026-09-27). Context window 272,000 tokens (catalog max 872,000). Input: text and image, but `ask` sends text only. Minimal Codex client 0.144.0. A "Fast" tier exists, but askcodex sends no `service_tier`, and responses report `default` (observed 2026-09-27).
 - Knowledge cutoff: Feb 16, 2026 ([4]).
-- The backend applied `text.verbosity: "medium"` when askcodex omitted it (observed 2026-09-27). Codex asks for `low` (catalog `default_verbosity`).
+- The backend applied `text.verbosity: "medium"` when askcodex omitted it (observed 2026-09-27). Codex asks for `low` (catalog `default_verbosity`); askcodex 0.3.0 sends that with `--verbosity low`.
 - It leads its siblings on hard reasoning ([1]):
   - FrontierMath Tier 4: 83%, vs 68.3% for Terra and 58.5% for Luna.
   - SEC-Bench Pro: 71.2%, vs 57.7% and 48.9%.
@@ -24,7 +24,7 @@ You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it f
 - OpenAI describes GPT-6 Sol as having "stronger factual reliability and clearer communication than GPT-5.6 Sol" ([6]).
 - Probe, `--effort none`: exact JSONL from a 3-line log in 4.1 s, with 128 input and 107 output tokens (observed 2026-09-27).
 - Probe, `--effort medium`, a Python function with 2 planted bugs: it found both plus 3 real ones and closed the connection correctly in its fix. 36.8 s, 1,747 output tokens (observed 2026-09-27).
-- Real-time cyber and biology classifiers can hold the stream for several seconds or block a request ([3]). Codex treats a `cyber_policy` failure as final ([7]). askcodex reports it as `stream_failed`, with the backend code only inside the message.
+- Real-time cyber and biology classifiers can hold the stream for several seconds or block a request ([3]). Codex treats a `cyber_policy` failure as final ([7]). askcodex reports it as `stream_failed`; since 0.3.0 the `--json` and `--events` diagnostic also carries the code from the backend's `response.error`, in `error.backend.code` (a filtered, bounded copy) (askcodex `docs/OUTPUT.md`; not provoked live).
 
 ## Do this
 
@@ -39,7 +39,7 @@ You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it f
    - Keep it lean. State each rule once and drop examples that do not change behavior ([2]).
    - Use ALWAYS, NEVER and must only for true invariants such as required fields or forbidden changes. For judgment calls, give a decision rule ([2]).
    - Name the layer of work. For "review", "diagnose" or "explain", say to report and not rewrite. For "fix", ask for the full corrected code. OpenAI scopes autonomy by these request types ([2]), and so does the prompt Codex sends this model: "Diagnose: determine the cause and explain it. Do not implement the fix unless the user asks" (Codex base instructions, 0.157.1).
-   - Set length and format explicitly. Give the word or line budget and say what a short answer must keep, for example: "Lead with the conclusion. Include the evidence needed to support it, any material caveat, and the next action." ([2]). Codex normally tells it to "Use the minimum formatting appropriate" (Codex base instructions, 0.157.1). Without that prompt, name the shape you want: table, JSON or prose.
+   - Set length and format explicitly. Give the word or line budget and say what a short answer must keep, for example: "Lead with the conclusion. Include the evidence needed to support it, any material caveat, and the next action." ([2]). Codex normally tells it to "Use the minimum formatting appropriate" (Codex base instructions, 0.157.1). Without that prompt, name the shape you want: table, JSON or prose. `--verbosity low` restores Codex's concision; it is not a budget, so keep the line or word limit.
    - For edits, say what stays fixed: "Preserve the requested artifact, length, structure, genre, and factual claims first." ([2])
    - For grounded answers, say to cite only the supplied sources, label inference, and report missing evidence. Missing evidence is not a factual "no" ([2]).
    - Paste every fact dated after Feb 16, 2026 ([4]).
@@ -64,14 +64,14 @@ You are about to send one request to `gpt-5.6-sol` with `askcodex ask`. Use it f
    - It rewrote code when you asked for review.
    - It stated facts after its cutoff that you did not supply.
    - Its fix does what its finding claims. Run the code yourself.
-   - The answer ended as `stream_failed` with `cyber_policy` in the message. Do not present the partial stream as an answer.
+   - The call failed with `error.code: "stream_failed"` and `error.backend.code: "cyber_policy"` on stderr (the run above uses `--json`; in human mode the code is only in the message). That is a block: do not present the partial stream as an answer, and quote the code to the user.
 
 ## Rules
 
 - Do not use it for bulk extraction or classification; use [model-gpt-5.6-luna.md](model-gpt-5.6-luna.md). Do not use it for long routine inputs where near-Sol quality is enough; use [model-gpt-5.6-terra.md](model-gpt-5.6-terra.md).
 - Do not write "be concise" alone, and do not repeat the same rule in `--instructions` and the prompt ([2]).
 - Do not set `max` as a default ([2]).
-- Do not retry or reword a `cyber_policy` block to get around it. Report the block; if a narrower defensive version still meets the user's goal, propose it and run it only with their agreement, saying what changed.
+- Do not retry or reword a `cyber_policy` block to get around it. Report the block with its `error.backend.code`; if a narrower defensive version still meets the user's goal, propose it and run it only with their agreement, saying what changed.
 - Do not compare this model with its siblings by `reasoning_tokens`. See Unverified.
 
 ## Report
@@ -83,6 +83,7 @@ Tell the user the model and effort used, where the answer was saved, and any lim
 - [UNVERIFIED: whether `/codex/responses` accepts a single input above 272,000 tokens, up to the catalog max of 872,000. Not probed. The API model page lists 1,050,000 ([4]), but the catalog governs askcodex.]
 - [UNVERIFIED: pro mode (`reasoning.mode: "pro"`) and the API alias `gpt-5.6` on this backend. askcodex cannot send the mode, and the alias is not in the catalog.]
 - Conflict: the API defaults this model to `medium` effort ([3]); Codex defaults it to `low`.
+- [UNVERIFIED: the exact `error.backend` a `cyber_policy` block produces through askcodex. Never provoked; the code comes from Codex source ([7]).]
 - [UNVERIFIED: why the four GPT-5.6-family slugs each reported exactly 1,034 reasoning tokens on the same brief, although their answers differed (observed 2026-09-27).]
 - Wall times come from single probes run 5 at a time. They are not benchmarks.
 

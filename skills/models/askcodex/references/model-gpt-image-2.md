@@ -1,24 +1,25 @@
 # Prompting GPT Image 2 (`gpt-image-2`) through askcodex
 
-You are about to generate or edit one image with `askcodex image create` or `askcodex image edit`. The subscription backend chooses the model, size and quality and ignores what askcodex sends for them. You control only the prompt and up to 5 PNG references.
+You are about to generate or edit one image with `askcodex image create` or `askcodex image edit`. The subscription backend chooses the model, size and quality and ignores what askcodex sends for them. You control the prompt, up to 5 PNG references and, since askcodex 0.3.0, the background.
 
 ## Context you must respect
 
-- **What you control:** the prompt and up to 5 PNG references (25 MiB total, a client cap).
+- **What you control:** the prompt, up to 5 PNG references (25 MiB total, a client cap), and `--background transparent|opaque`.
   - askcodex has no model, size, quality, format or n flags, because the backend ignores those fields.
-  - It has no transparency flag either. Ask for transparency in the prompt (observed 2026-09-27).
+  - `--background` sends the backend's `background` field, which it honors both ways (observed 2026-10-02). Unset, the prompt decides, as before 0.3.0.
 - **What this file covers:** only rules specific to this model and backend. For the general visual brief (labeled sections, composition, photos, illustrations, layouts, iteration), follow [prompting-images.md](prompting-images.md).
 - **If the user asks for Images 2.5:** `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst` are API models [6][7][8].
   - Tell the user askcodex cannot select an image model, and a model name sent with `askcodex raw` is ignored too (observed 2026-09-27).
   - The backend may already be serving Images 2.5 [6].
   - A guaranteed model, `xhigh`/`max` quality, an exact size, `n>1` or masks all require the OpenAI Image API with an API key and API billing [3][12]. That is outside askcodex; offer it, and never fake it.
 
-## Facts already verified (2026-09-27)
+## Facts already verified (2026-09-27; `--background`: 2026-10-02)
 
 Checked against codex rust-v0.157.1 source, live calls, and the sources below.
 
 **Backend behavior**
-- askcodex sends `{prompt, model: "gpt-image-2"}`, plus `images[]` for `image edit`. Codex rust-v0.157.1 and rust-v0.159.0-alpha.9 hardcode the same model string (observed 2026-09-27).
+- askcodex sends `{prompt, model: "gpt-image-2"}`, plus `images[]` for `image edit` and `background` when `--background` is given. Codex rust-v0.157.1 and rust-v0.159.0-alpha.9 hardcode the same model string (observed 2026-09-27); Codex rust-v0.160.0 always sends `background` (observed 2026-10-02).
+- The result reports what the saved file holds: `width`, `height` and `alpha_channel` read from the PNG header, plus the `background` the backend reported. Human output adds a line such as `  pixels 1254x1254, alpha channel yes, backend background transparent`; with `--json` the same facts are `.result.width`, `.result.height`, `.result.alpha_channel` and `.result.background` (askcodex 0.3.0).
 - The model field is ignored. The same prompt sent with `gpt-image-2.5-flare` and with `zz-not-a-model` returned identical envelopes: 1370×1148, `quality: "low"`, 429 output image tokens (observed 2026-09-27).
 - Size is a fixed budget of about 1.57 MP: 1,572,516–1,573,352 px across 9 outputs from 2026-08-07 to 2026-09-27 (observed 2026-09-27). The prompt shapes the aspect:
 
@@ -30,11 +31,12 @@ Checked against codex rust-v0.157.1 source, live calls, and the sources below.
 | No aspect stated | The model's choice: 1448×1086, 1370×1148, 1254×1254 |
 
 - Edges are not multiples of 16, so the API `size` grid (1024x1536, 2K, 4K) cannot be reached. Quality is fixed: opaque results report `quality: "low"`, and sending `quality: "auto"` changed nothing (observed 2026-09-27).
-- **Transparency (observed 2026-09-27):**
-  - A prompt asking for a transparent background returned RGBA with 52.5% of pixels at alpha 0 (1 of 1 call).
-  - Prompts without that request return opaque RGB.
-  - The backend also honors `background: "transparent"`: a raw call returned RGBA, `quality: "medium"` and 2,058 image tokens in 41 s. askcodex does not send this field.
-- Cutout quality: subject pixels sat at alpha 240–254 rather than 255, soft shadows were semi-transparent, and one edge had a faint color fringe (observed 2026-09-27).
+- **Transparency:**
+  - `background: "transparent"` returned alpha even for a neutral prompt: "A red ceramic mug, product photo, centered." gave RGBA 1254×1254 with 42.4% of pixels at alpha 0, and `image create --background transparent` with another neutral prompt gave RGBA 1254×1254 with 66.3% at alpha 0, a clean cutout (observed 2026-10-02, one call each). An earlier raw call returned RGBA, `quality: "medium"` and 2,058 image tokens in 41 s (observed 2026-09-27).
+  - `background: "opaque"` overrides the prompt: a prompt asking for "a fully transparent background (PNG cutout, no backdrop)" came back RGB, `quality: "low"` (observed 2026-10-02, one call).
+  - `image edit --background opaque` with a transparent cutout as the reference returned an RGB scene with the same subject (observed 2026-10-02, one call).
+  - Without `--background`: a prompt asking for a transparent background returned RGBA with 52.5% of pixels at alpha 0 (1 of 1 call), and prompts without that request return opaque RGB (observed 2026-09-27).
+- Cutout quality, prompt-only cutout: subject pixels sat at alpha 240–254 rather than 255, soft shadows were semi-transparent, and one edge had a faint color fringe (observed 2026-09-27).
 - Every PNG carries a C2PA manifest (`softwareAgent` "ChatGPT", version "gpt-image"; observed 2026-09-27) and an invisible SynthID watermark [10].
 - Time and quota: observed latency was 16–41 s (2026-09-27), and complex prompts can take up to 2 minutes [3]. Image calls use included Codex limits about 3–5× faster than ordinary turns [12].
 
@@ -77,47 +79,49 @@ Checked against codex rust-v0.157.1 source, live calls, and the sources below.
      - Quote the copy, say how many times it appears ("render the tagline exactly once"), and add "no other text" [2].
      - Spell uncommon names letter by letter [1].
      - Keep in-image copy to one or two short lines; results are `low` quality (observed 2026-09-27), while OpenAI recommends `medium` or `high` for small text [1]. Put dense typography in a design tool.
-   - **Cutouts:** write "isolated on a fully transparent background", and exclude scenery, solid backdrops, checkerboards and unwanted shadows [1].
+   - **Cutouts:** pass `--background transparent`; it returned alpha even for a neutral prompt (observed 2026-10-02). Still write "isolated on a fully transparent background" and exclude scenery, solid backdrops, checkerboards and unwanted shadows [1]: the flag makes the background transparent, the wording keeps the subject clean to cut around.
+   - **Opaque deliverables:** pass `--background opaque` when the image must have no alpha (a scene, a photo, a social or print asset), even if the prompt mentions transparency; it overrode such a prompt (observed 2026-10-02). With neither, the prompt decides.
    - **Real places and history:** name the place and the date [2].
 3. **For edits, add:**
    - **Roles:** label every image by index and role (Codex imagegen skill, 0.157.1). Because every reference is read at high fidelity [3], give each one a narrow role, such as "use Image 2's palette and texture only" [2].
    - **Identity:** lock face, body shape, pose, hair and expression. Change only the named element, and require realistic fit plus matching light and shadows [1].
    - **Compositing:** say what moves where ("the dog from Image 2, right next to the woman in Image 1"). Match lighting, perspective and scale, and keep the base framing [1].
-   - **Transparency:** repeat "preserve the transparent background" in every edit of a cutout [1].
+   - **Transparency:** the flag is per call. In every edit of a cutout, pass `--background transparent` again and repeat "preserve the transparent background" [1]. To place a cutout in a scene, pass `--background opaque`: that edit returned an RGB scene with the same subject (observed 2026-10-02).
    - **Aspect:** restate the aspect ratio in every edit. Nineteen 16:9 edits returned 1672×941 (observed 2026-09-24).
    - **Masks:** askcodex has none. If an area must stay pixel-identical, composite the approved edit into the original locally [2].
 4. **Run it:**
    ```sh
    mkdir -p /tmp/askcodex
-   askcodex image create 'Vertical 9:16 portrait composition. Sticker illustration for a café window: a steaming white coffee cup above a ribbon banner. Render "CAFÉ ABIERTO" exactly once on the banner in bold rounded letters; no other text. Thick white die-cut border. Isolated on a fully transparent background: no scenery, no solid backdrop, no checkerboard.' -o /tmp/askcodex/cafe-sticker-v1.png
-   askcodex image edit 'Vertical 9:16 portrait composition. Image 1 is the edit target. Change only the banner color to deep teal. Keep the cup, steam, die-cut border, the text "CAFÉ ABIERTO" and its letterforms unchanged. Preserve the transparent background.' -i /tmp/askcodex/cafe-sticker-v1.png -o /tmp/askcodex/cafe-sticker-v2.png
+   askcodex image create 'Vertical 9:16 portrait composition. Sticker illustration for a café window: a steaming white coffee cup above a ribbon banner. Render "CAFÉ ABIERTO" exactly once on the banner in bold rounded letters; no other text. Thick white die-cut border. Isolated on a fully transparent background: no scenery, no solid backdrop, no checkerboard.' --background transparent -o /tmp/askcodex/cafe-sticker-v1.png
+   askcodex image edit 'Vertical 9:16 portrait composition. Image 1 is the edit target. Change only the banner color to deep teal. Keep the cup, steam, die-cut border, the text "CAFÉ ABIERTO" and its letterforms unchanged. Preserve the transparent background.' --background transparent -i /tmp/askcodex/cafe-sticker-v1.png -o /tmp/askcodex/cafe-sticker-v2.png
    ```
-   A near-identical create returned 941×1672 with alpha and exact text (observed 2026-09-27). The edit was not run.
+   A near-identical create without the flag returned 941×1672 with alpha and exact text (observed 2026-09-27). The flag was verified on other prompts (observed 2026-10-02); this edit was not run.
 5. **Inspect before you report.**
-   - **Size:** run `file <file>` (macOS and Linux); it prints the dimensions and `RGB` or `RGBA`, for example `PNG image data, 941 x 1672, 8-bit/color RGBA`. Expect about 1.57 MP at the requested aspect, and re-check on every call because these are dated backend observations.
-   - **Transparency:** `RGBA` proves only that the channel exists. Look at the image and confirm the background is truly see-through; a drawn checkerboard is not transparency [2]. Check edges, shadows and fringes.
+   - **Size:** read the `pixels WxH, alpha channel yes|no` line askcodex prints after the save, or `.result.width`, `.result.height` and `.result.alpha_channel` with `--json`. They come from the saved file's header; you need no `file` command. Expect about 1.57 MP at the requested aspect, and re-check on every call because these are dated backend observations.
+   - **Transparency:** `alpha channel yes` proves only that the file can carry transparency, not that the background is transparent. Look at the image and confirm the background is truly see-through; a drawn checkerboard is not transparency [2]. Check edges, shadows and fringes.
    - **Text:** check every letter, accent and number of the in-image text.
    - **Preservation:** check that preserved elements and identity survived the edit, and check clothing and props in historical scenes [2].
-   - **Blocked requests:** OpenAI checks prompts, input images and outputs [10]. If a request is blocked, report the block to the user. Do not reword it to get around the block or silently drop the blocked element. If a narrower version that is clearly allowed still meets the user's goal, propose it, and run it only with their agreement, saying what changed.
+   - **Blocked requests:** OpenAI checks prompts, input images and outputs [10]. If a request is blocked, report the block to the user; with `--json`, quote the backend's reason from `error.backend`. Do not reword it to get around the block or silently drop the blocked element. If a narrower version that is clearly allowed still meets the user's goal, propose it, and run it only with their agreement, saying what changed.
 
 ## Rules
 
 - Do not put model names, "4K" or "high quality" in the prompt to raise resolution or quality. The backend ignores those fields (observed 2026-09-27).
 - Do not add characters, props, brands, slogans or palettes the user did not imply (Codex imagegen skill, 0.157.1).
 - Do not tell the user which model produced the image.
-- Do not promise transparency, an exact size or exact text. Transparency from the prompt succeeded in 1 of 1 call.
-- Do not use `askcodex raw` to send `background` or a model name unless the user explicitly asks for a backend call.
+- Do not promise transparency, an exact size or exact text before you have looked at the result. `background: "transparent"` returned alpha in 3 of 3 calls (one through `--background`), transparency from the prompt alone in 1 of 1.
+- Set the background with `--background`, not `askcodex raw`. Do not use `askcodex raw` to send a model name unless the user explicitly asks for a backend call.
 - Never claim a generated image is not AI-made. It carries C2PA metadata and SynthID [10].
 
 ## Report
 
-Tell the user the file path, actual dimensions, what you checked (aspect, alpha, text, preserved elements), any requirement the image does not meet (missing alpha, inexact size, text errors) and any finishing step still needed (upscale, crop, composite). If they asked for Flare or Sunburst, say askcodex could not select it.
+Tell the user the file path, the actual dimensions and alpha channel askcodex reported, what you checked (aspect, alpha, text, preserved elements), any requirement the image does not meet (missing alpha, inexact size, text errors) and any finishing step still needed (upscale, crop, composite). If they asked for Flare or Sunburst, say askcodex could not select it.
 
 ## Unverified
 
 - [UNVERIFIED: which model serves askcodex. The model field is ignored, C2PA says only "gpt-image", and [6] and [11] disagree.]
 - [UNVERIFIED: that every prompt-only transparency request returns alpha. Only 1 call was made.]
-- [UNVERIFIED: transparent edits through askcodex. None was run.]
+- [UNVERIFIED: that `--background transparent` always returns a clean cutout. 3 calls returned alpha; one was inspected as clean.]
+- [UNVERIFIED: `image edit --background transparent`. Only an opaque edit of a cutout was run (observed 2026-10-02).]
 - [UNVERIFIED: whether words like "4K" or "high quality" change the output. Not tested.]
 - [UNVERIFIED: that the prompt alone set the aspect in the 2026-09-24 edits. One reference was already 16:9.]
 - [UNVERIFIED: how askcodex reports a safety block. Never provoked.]

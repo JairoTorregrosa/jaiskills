@@ -25,7 +25,7 @@ You are about to send one request to `gpt-6-sol` with `askcodex ask`. Since 2026
 - Codex sends Sol exactly the same 21,429-character system prompt as Astra (Codex base instructions, 0.157.1). OpenAI presents its Astra prompts as a starting point "across the GPT-6 model family" ([1]).
 - Codex's GPT-5.6 prompt told the model "Do not implement the fix unless the user asks". GPT-6 Sol's prompt drops that rule and treats "can you..." as a request to do the work (Codex base instructions, 0.157.1). askcodex sends neither prompt.
 - Guidance that helps Sol or Luna "may overconstrain GPT-6 Astra" ([11]). This implies that explicit steps suit Sol.
-- Codex sends `text.verbosity: "low"` ([8]). askcodex sends no `text` field, so the backend applies `medium`, the API default ([9]; observed 2026-09-27).
+- Codex sends `text.verbosity: "low"` ([8]). askcodex sends it only with `--verbosity` (0.3.0); without it the backend applies `medium`, the API default ([9]; observed 2026-09-27).
 - Probes (observed 2026-09-27, one sample each):
   - Exact-format JSONL at `low`: exact output in 3.6 s with 0 reasoning tokens.
   - Bare "Can you write a function that deduplicates customer records?" at `medium`: three clarifying questions and no code, 115 output tokens in 13.3 s.
@@ -49,7 +49,7 @@ You are about to send one request to `gpt-6-sol` with `askcodex ask`. Since 2026
    - State the scope: diagnosis only, or diagnosis plus patch (Codex base instructions, 0.157.1).
    - Write out steps when the method matters; explicit guidance suits Sol ([11]).
    - Ask for exhaustive coverage explicitly when you need every item, because Sol trims low-value detail ([3]).
-   - Cap the length in the brief, because the backend uses `medium` verbosity ([8], [9]).
+   - Match the verbosity of the result you reproduce: `--verbosity low` for a Codex result, because Codex sends `low` ([8]); no flag for an earlier askcodex result, which got the backend's `medium` ([9]). Keep hard length limits in the brief; verbosity is not a cap (observed 2026-10-02).
    - Supply facts newer than the 2026-04-20 cutoff ([2]).
    - For style excerpts, reuse the ones in [model-gpt-6-astra.md](model-gpt-6-astra.md) ([1]).
 3. Run it:

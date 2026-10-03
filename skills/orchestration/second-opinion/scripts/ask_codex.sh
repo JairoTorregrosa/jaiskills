@@ -110,7 +110,10 @@ OUT=$(cd "$OUT" && pwd)
 PROMPT="$OUT/prompt.md"
 LAST="$OUT/last-message.md"
 LOG="$OUT/codex.log"
-cat >"$PROMPT"
+# Capture stdin before touching prompt.md: stdin may be that very file (-o DIR < DIR/prompt.md).
+STDIN_COPY=$(mktemp "$OUT/.prompt.XXXXXX") || die 6 "mktemp failed"
+cat >"$STDIN_COPY"
+mv -f "$STDIN_COPY" "$PROMPT"
 [ -s "$PROMPT" ] || [ -n "$REVIEW" ] || die 2 "empty prompt on stdin"
 [ -n "$REVIEW" ] && [ -s "$PROMPT" ] &&
 	die 2 "--review cannot take instructions (codex exec review rejects a target plus a prompt); pass < /dev/null, or use adversarial mode for a steered review"

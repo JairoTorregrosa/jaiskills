@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.0 (2026-10-02): askcodex 0.3.0, a tool for the agent calling it
+
+- `askcodex` re-synced from the released askcodex v0.3.0 (JairoTorregrosa/askcodex#14, #15 and
+  #16): `--schema FILE` for answers to parse (strict rules, `.result.json`, re-checked
+  locally), `--verbosity`, `image create|edit --background transparent|opaque` with the saved
+  file's real `width`, `height` and `alpha_channel`, `models --no-refresh` for a short listing
+  (the raw backend response is now opt-in with `--backend`), and a table from `error.backend` to
+  the next step (`invalid_json_schema`, unsupported effort or model, policy blocks such as
+  `cyber_policy`, `incomplete_details`, rate limits). The Luna batch examples use `--schema`.
+- `second-opinion`: `ask_codex.sh -o DIR < DIR/prompt.md` no longer truncates the prompt before
+  reading it (stdin is copied first, then moved into place).
+- `scripts/sync-askcodex.py` replaces the manual rsync-and-patch re-sync of the askcodex mirror; it
+  exits 1 before touching anything when the upstream wording its delta replaces has moved.
+
 ## 1.3.0 (2026-10-02): askcodex 0.2.0 release and GPT-6.1 Sol
 
 - `askcodex` re-synced from the released askcodex v0.2.0 (JairoTorregrosa/askcodex#13): Codex
