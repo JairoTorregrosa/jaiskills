@@ -5,7 +5,9 @@ Usage: uv run scripts/sync-askcodex.py PATH/TO/askcodex
 
 The canonical skill is `skill/` in https://github.com/JairoTorregrosa/askcodex.
 This replaces everything in skills/models/askcodex/ except `agents/` (local
-Codex picker metadata) with that copy, then re-applies the mirror's only delta:
+Codex picker metadata) with the committed `skill/` at the checkout's HEAD
+(`git archive`, so ignored or untracked files never ship; a dirty `skill/` is
+refused), then re-applies the mirror's only delta:
 
 1. the description's not-for clause points to second-opinion;
 2. a "Canonical copy" note above the first `##` section.
@@ -20,6 +22,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from pathlib import Path
 
@@ -86,17 +89,23 @@ def main() -> None:
         )
     commit = git(repo, "rev-parse", "--short", "HEAD")
     describe = git(repo, "describe", "--tags", "--always", "HEAD")
-    if (source / "agents").exists():
-        die(f"{source}/agents exists upstream; decide which copy wins before syncing")
-
-    localized = localize((source / "SKILL.md").read_text(encoding="utf-8"))
 
     # Build the new mirror next to the old one, then swap, so a failure
-    # midway leaves the old mirror intact.
+    # midway leaves the old mirror intact. The content comes from
+    # `git archive HEAD`, so only tracked, committed files can ship: ignored
+    # files (a local secret, a build artifact) never reach the mirror.
     with tempfile.TemporaryDirectory(dir=MIRROR.parent) as scratch:
-        staged = Path(scratch) / "askcodex"
-        shutil.copytree(source, staged)
-        (staged / "SKILL.md").write_text(localized, encoding="utf-8")
+        archive = Path(scratch) / "skill.tar"
+        git(repo, "archive", "--format=tar", "-o", str(archive), "HEAD", "skill")
+        with tarfile.open(archive) as tar:
+            tar.extractall(scratch, filter="data")
+        staged = Path(scratch) / "skill"
+        if (staged / "agents").exists():
+            die("skill/agents exists upstream; decide which copy wins before syncing")
+        skill_md = staged / "SKILL.md"
+        skill_md.write_text(
+            localize(skill_md.read_text(encoding="utf-8")), encoding="utf-8"
+        )
         for kept in KEEP:
             if (MIRROR / kept).exists():
                 shutil.copytree(MIRROR / kept, staged / kept)
