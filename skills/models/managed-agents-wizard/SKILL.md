@@ -37,6 +37,10 @@ Input from the user (may be empty): $ARGUMENTS
   data plane (creating Sessions, answering events) is the person's code or a Deployment.
 - Questions and explanations follow the person's language; Spanish is the default. This file and
   the references are English; Spanish labels in the drawings are deliberate.
+- The person is here to learn how the agent is built, so nothing is a black box. Every layer
+  you propose (model and effort, system prompt, tools, MCP tools, skills, environment and hosts,
+  memory, schedule, cost cap, credentials) appears with its exact value and the reason for it in
+  this job. `references/ficha.md` is the format; show it whole at step 9 and after each change.
 - Two modes. **Taller** (default when the person is learning): explain each concept at its step.
   **Directo** (they say "solo hazlo", "ya sé", or they are clearly expert): skip explanations,
   ask only the decisions, show the four concepts once at the end.
@@ -72,15 +76,20 @@ Input from the user (may be empty): $ARGUMENTS
 
 ## Rules for every question
 
-0. A decision the diagnosis already settled ("listo el 3 de cada mes", "Jurídica aprueba") is a
-   proposal with one confirmation line, never a question. Ask only what is still open.
+Every choice, confirmation and go-ahead goes through `AskUserQuestion`, never a question in
+plain text: the person clicks, sees the alternatives, and learns what else was possible. Plain
+text is only for open facts no option list can cover (step 1, the prompt interview).
 
-1. One `AskUserQuestion` call per decision, one question per call, single-select
-   (previews render only on single-select questions).
-2. Every option has a `preview` from `references/previews.md`. Recommended option first, with
-   `(Recomendado)`. `header` at most 12 characters. 2-4 options; the UI adds "Other".
-3. Everything that is not a real decision is a **proposal**: write it, say why in one line, and
-   let them object. Do not turn proposals into questions.
+0. A decision the diagnosis already settled ("listo el 3 de cada mes", "Jurídica aprueba") is
+   asked as a confirmation: your proposal first with `(Recomendado)`, then 1-3 real alternatives.
+1. Single-select, so previews render. Up to 4 questions in one call when they are independent
+   (model, memory, network); one per call when an answer changes the next question.
+2. Every option has a `preview`: the exact value it writes (model ID and effort, cron and zone,
+   tool list, hosts, USD cap) and what it costs or risks. Use `references/previews.md` and fill
+   it with the person's values. `header` at most 12 characters. 2-4 options; the UI adds "Other".
+3. Your proposals for the layers nobody asked about (tools, MCP tools, skills, hosts, memory
+   access, cost cap) go in one `AskUserQuestion` batch at the end of step 4, each with its value
+   and reason in the preview, so the person approves or changes each layer.
 4. After each answer, one line that confirms it and names the concept it set. Example:
    `Listo: corre los lunes a las 3:00 → eso es un Deployment.`
 
@@ -109,8 +118,8 @@ it and start from it; otherwise:
 > Managed Agents es un agente alojado: Anthropic corre el loop, el sandbox y la infraestructura; tú
 > defines el agente y decides cuándo arranca. Cuéntame qué debe hacer, para quién, y qué lo arranca.
 
-In the same message, list only the diagnosis facts the answer does not give yet (this is the one
-message allowed to carry several questions; a vague idea also gets 2-3 example jobs to react to).
+In the same message, list only the diagnosis facts the answer does not give yet (open facts, so
+plain text). A vague idea also gets an `AskUserQuestion` with 2-3 example jobs, each with a preview.
 
 Diagnose before you design: follow `references/diagnostico.md` to get the five facts (trigger,
 input, output, action, cost of error), reframe a domain ("un agente financiero") into a job, and
@@ -135,7 +144,9 @@ Explain outcomes in two lines: a separate grader checks the rubric and the agent
 
 ### 4. The Agent: model, tools, connectors, skills
 
-Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
+Explain Agent (§ Agent). Ask the model (`Modelo`); after the answer, say the model ID, the
+effort level and why. Then propose each item with its exact value and its reason, and confirm
+them in one `AskUserQuestion` batch (rule 3):
 
 - **Tools**: `agent_toolset_20260401`, `default_config.permission_policy: auto`; `web_fetch` and
   `web_search` listed with `enabled: false` unless the job needs the web. Remove tools the job
@@ -164,7 +175,8 @@ Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
 Design it with `references/system-prompt.md`, together with the custom tool descriptions and the
 rubric, as one contract: interview for the missing facts, draft in Simplified Technical English
 with the always-include lines (untrusted data, verification before done, when to stop, scope),
-run the critique checklist on all three files, then show them. Offer an independent
+run the critique checklist on all three files, then show them in full (the prompt in a code
+block, with two to four Spanish lines on what each section makes the agent do). Offer an independent
 critique: "¿Quieres que otro modelo lo critique?" → call the Skill tool with `second-opinion`.
 
 ### 6. The Environment
@@ -197,7 +209,9 @@ Secrets needed inside the sandbox (a PDF password): `credenciales.md` § Inside 
 
 Walk the job clause by clause: every verb has an enabled tool or MCP tool; every MCP server and
 mounted repo has a credential; every host is reachable; every input is mounted; "done" is
-checkable; a scheduled run has no call that waits for a human. Show only the gaps and close them.
+checkable; a scheduled run has no call that waits for a human. Close the gaps, then show the
+whole design as the ficha (`references/ficha.md`), then `AskUserQuestion` `Ficha`: "Va así
+(Recomendado)" or the layer to change (modelo y costo · tools, MCP y skills · horario y permisos).
 
 ### 10. Write the files — one folder per agent, one concern per file
 
@@ -217,7 +231,8 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
 1. `F=(<every file you wrote>); ant apply --dry-run -v "${F[@]}"` (`-v` shows every field except
    `resources`, which prints as sensitive: check access modes in `schedule.yaml`); the header names the organization: check it is the right one. Never pass `.`: it walks the
    whole tree and creates whatever looks like a resource.
-2. Show the plan in plain words: what gets created. Run `ant apply --yes "${F[@]}"` only after the
+2. Show the plan in plain words: what gets created. Ask `Aplicar` with `AskUserQuestion` (crear
+   ahora · cambiar algo antes). Run `ant apply --yes "${F[@]}"` only after the
    person says yes. Never `--force`, never `--prune`.
 3. Deployments: pause each one right after creation (`ant beta:deployments pause --deployment-id`).
    `ant beta:deployments run` works while paused and is the first real test.
@@ -241,7 +256,7 @@ agent. Stop after 3 failed rounds on the same symptom and show the person what y
 
 ### 14. Go live
 
-Only when the person says so: remove "Dry run", `ant beta:deployments unpause`, or install the
+Only when the person picks it in `AskUserQuestion` `En vivo` (activar ahora · dejar pausado · otra prueba): remove "Dry run", `ant beta:deployments unpause`, or install the
 trigger. Tell them how to watch it: `references/deployments.md` § Operate.
 
 ## Rules
@@ -259,7 +274,8 @@ trigger. Tell them how to watch it: `references/deployments.md` § Operate.
 
 At the end, in the person's language, short:
 
-1. The four concepts drawn with their values filled in (`conceptos.md` § Final drawing).
+1. The ficha with the created IDs (`references/ficha.md`), and the four concepts drawn with
+   their values (`conceptos.md` § Final drawing).
 2. A table of created resources with IDs, and which Deployments are paused.
 3. Each test: result, cost, link.
 4. What is still pending on their side (credentials, permissions, go-live).

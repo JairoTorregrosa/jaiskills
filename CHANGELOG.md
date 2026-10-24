@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.2 (2026-10-24): managed-agents-wizard shows the whole agent
+
+- `references/ficha.md`: one card with every layer of the agent (model and effort, trigger,
+  kickoff and rubric, cost cap, system prompt in full, tools, MCP tools, skills, environment and
+  hosts, memory and its access, files, credentials, the human gate, what was left out), each with
+  its exact value, the file it lives in, and the reason in this job. Shown before files are
+  written, after every change, and in the final report; kept in the agent's README.
+- Every choice, confirmation and go-ahead goes through `AskUserQuestion` with previews that show
+  the exact value each option writes: the diagnosis playback, settled decisions (proposal first),
+  a batch for the layers nobody asked about, the ficha, `ant apply`, and go-live. Plain text stays
+  for open facts only. Up to 4 independent questions per call.
+
 ## 1.5.1 (2026-10-24): managed-agents-wizard diagnoses, then designs big
 
 - `references/diagnostico.md`: five facts (trigger, input, output, action, cost of error) before
