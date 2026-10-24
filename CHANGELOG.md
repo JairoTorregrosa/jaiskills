@@ -7,6 +7,8 @@
   Session, iterate with the Console trace, schedule; a smaller first version when time or a
   credential is short; clean-up with `AskUserQuestion` when the person is done. The learning mode
   is now called **Guiado**.
+- States that `AskUserQuestion` is the wizard's tool in the coding agent, talking to the person who
+  builds; it never goes into the Managed Agent's prompt, tools or kickoff.
 
 ## 1.5.4 (2026-10-24): managed-agents-wizard follows the workshop deck
 

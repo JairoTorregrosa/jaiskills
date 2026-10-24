@@ -82,6 +82,11 @@ Input from the user (may be empty): $ARGUMENTS
 
 ## Rules for every question
 
+These rules are for you, the coding agent running this wizard (Claude Code), talking to the
+person who builds the agent. `AskUserQuestion` is your tool, not the Managed Agent's: it never
+goes into the agent's system prompt, `tools.yaml` or kickoff. The Managed Agent reaches a person
+only through what you design for it: `always_ask`, a custom tool, or a draft it leaves.
+
 Every choice, confirmation and go-ahead goes through `AskUserQuestion`, never a question in
 plain text: the person clicks, sees the alternatives, and learns what else was possible. Plain
 text is only for open facts no option list can cover (step 1, the prompt interview).
