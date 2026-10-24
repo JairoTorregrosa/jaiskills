@@ -28,6 +28,11 @@
   - step 1 starts from the registration answer; decisions the diagnosis settled become proposals;
     preflight reads org and token expiry; model advice keyed to the cost of an error; test budget
     USD 5 (Sonnet) to 20 (Opus `high`); workshop credits and the Claude Desktop setup in preflight.
+- Third simulated run (Meta Ads agency, 9 clients): Meta MCP accepts a System User token as
+  `static_bearer` (read-only by scope, verified in Meta's docs); prefer vendor bearer tokens over
+  OAuth in a workshop; credentials load after the apply that creates the vault; `probar.py` mounts
+  memory stores `read_only` unless the spec says otherwise; read-only reference data refreshed
+  with `memories update`; `-v` prints `resources` as sensitive.
 
 ## 1.5.0 (2026-10-24): managed-agents-wizard
 

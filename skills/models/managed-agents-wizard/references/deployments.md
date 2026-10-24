@@ -63,6 +63,10 @@ and decides what goes into the kickoff. Treat that text as untrusted in the prom
 - `vault_ids: [./vault.yaml]` and `resources: [{path: ./memory_store-<x>.yaml, access: read_only}]`
   are paths `ant apply` resolves in the same run (`--dry-run -v` shows `vault_ids: (known after
   apply)`). One apply creates the vault, the store and the Deployment. [dry run, 2026-10-24]
+- Reference data the person updates (monthly targets, a client list): a memory store mounted
+  `read_only`, loaded after apply with `ant beta:memory-stores:memories create` and refreshed with
+  `... memories update`. Load it before the first run: an empty read-only store gives a plausible
+  report about nothing.
 - Uploaded files are fixed: every scheduled run mounts the same `file_id`s. Changing inputs come
   through a connector (Drive, Gmail) or a trigger that uploads and mounts the new files.
 - Same job for N entities (12 clients, 80 contractors): one Deployment, the entity list in memory,

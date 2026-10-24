@@ -188,6 +188,8 @@ inputs that change need a connector or a trigger that mounts the new ones.
 Explain vaults (§ Vault). Follow `references/credenciales.md`: the person pastes each secret with
 `read -rs` in their own terminal (or `! read -rs VAR` in Claude Code); you never see it. One vault
 per agent; a vault whose MCP credential has the same URL can be reused. No credentials, no vault.
+Here you write `credentials.md` and explain; the person loads each secret after step 11 creates
+the vault. Prefer a vendor bearer token over OAuth in a workshop (`credenciales.md`).
 Reference it by path (`vault_ids: [./vault.yaml]`): `ant apply` creates it first in the same run.
 Secrets needed inside the sandbox (a PDF password): `credenciales.md` § Inside the sandbox.
 
@@ -212,8 +214,8 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
 
 ### 11. Apply
 
-1. `F=(<every file you wrote>); ant apply --dry-run -v "${F[@]}"` (`-v` shows every field,
-   including `vault_ids`); the header names the organization: check it is the right one. Never pass `.`: it walks the
+1. `F=(<every file you wrote>); ant apply --dry-run -v "${F[@]}"` (`-v` shows every field except
+   `resources`, which prints as sensitive: check access modes in `schedule.yaml`); the header names the organization: check it is the right one. Never pass `.`: it walks the
    whole tree and creates whatever looks like a resource.
 2. Show the plan in plain words: what gets created. Run `ant apply --yes "${F[@]}"` only after the
    person says yes. Never `--force`, never `--prune`.

@@ -43,7 +43,7 @@ vendor page before trusting a row marked *preview*.
 | | QuickBooks · Xero · Zoho Books · Ramp · Expensify | `https://ai-inc.quickbooks.intuit.com/v1/mcp` · `https://mcp.xero.com/mcp` · `https://claude-zohobooks.zohomcp.com/mcp/message` · `https://mcp.ramp.com/mcp` · `https://www.expensify.com/mcp` | OAuth |
 | | Mercado Pago · Mercado Libre | `https://mcp.mercadopago.com/mcp` · `https://mcp.mercadolibre.com/mcp` | OAuth; both mostly docs and app setup, not store operations |
 | | Market data | Alpha Vantage `https://mcp.alphavantage.co/mcp` | OAuth |
-| Marketing | Meta Ads | `https://mcp.facebook.com/ads` | OAuth; *open beta* |
+| Marketing | Meta Ads | `https://mcp.facebook.com/ads` | OAuth, or a System User token as `static_bearer` (Employee role, `ads_mcp_management` + `ads_read`: read-only by scope; best for schedules); *open beta* |
 | | TikTok Ads · Klaviyo · Mailchimp · Supermetrics | `https://business-api.tiktok.com/open_mcp/tt-ads-mcp-layer` · `https://mcp.klaviyo.com/mcp` · `https://ai-inc.mailchimp.com/claude/mcp/v2` · `https://mcp.supermetrics.com/mcp` | OAuth |
 | | Canva · Figma | `https://mcp.canva.com/mcp` · `https://mcp.figma.com/mcp` | OAuth |
 | | Ahrefs · Similarweb | `https://api.ahrefs.com/mcp/mcp` · `https://mcp.similarweb.com/mcp` | OAuth |

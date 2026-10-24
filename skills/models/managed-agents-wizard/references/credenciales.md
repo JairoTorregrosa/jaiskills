@@ -11,14 +11,19 @@ own shell; you build the request from environment variables and never print, sto
   `mcp_oauth` refreshes by itself. [live runs, platform docs]
 - MCP credentials match their server by URL: one vault with a GitHub MCP credential served 8
   agents that use the same URL. [live runs]
-- Deployments and sessions take vaults by ID (`vault_ids: [vlt_...]`), not by path. [ant apply]
+- A Deployment file managed by `ant apply` takes the vault by path (`vault_ids: [./vault.yaml]`);
+  sessions created from code (and `probar.py` specs) take the ID from `claude-lock.json`. [ant apply --dry-run -v]
+- Prefer a long-lived bearer token when the vendor offers one for unattended use: GitHub
+  fine-grained PAT, Meta System User token (Employee role only; `ads_mcp_management` + `ads_read`,
+  sent as `Authorization: Bearer`). It needs no OAuth client and keeps the scope in the token.
+  [developers.facebook.com/documentation/ads-commerce/ads-ai-connectors/ads-mcp-server/ads-mcp-server-get-started.md]
 - Fine-grained GitHub PATs have no Checks permission. Read CI through `actions_*` tools. [live runs]
 - The Admin API (usage, cost) is not available to individual accounts. [platform docs]
 
 ## Do this
 
 1. List each credential in `credentials.md`: service, type, minimum permissions, what for.
-2. Apply `vault.yaml`, then read its ID: `jq -r '.resources["./agents/<name>/vault.yaml"].id' claude-lock.json`.
+2. The vault exists after step 11 (`ant apply` creates it with the rest). Then read its ID: `jq -r '.resources["./agents/<name>/vault.yaml"].id' claude-lock.json`.
 3. Give the person the block for each credential and wait for "listo". They run it; in Claude Code
    they can prefix each line with `!`.
 
@@ -31,7 +36,10 @@ JQ
 unset CMA_TOKEN
 ```
 
-MCP with OAuth (refreshed by the platform; read `token_endpoint` from the server's
+MCP with OAuth needs an access token, a refresh token and a client ID that the vendor's own OAuth
+flow gives the person (an OAuth app they register, then one authorization in the browser). This
+skill does not run that flow: in a workshop, pick a bearer-token option or files, and leave OAuth
+for after the session. When they have the tokens (refreshed by the platform; read `token_endpoint` from the server's
 `/.well-known/oauth-authorization-server`):
 ```sh
 read -rs CMA_ACCESS && read -rs CMA_REFRESH && read -r CMA_CLIENT_ID && export CMA_ACCESS CMA_REFRESH CMA_CLIENT_ID
