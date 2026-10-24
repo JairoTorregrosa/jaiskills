@@ -5,7 +5,5 @@
  "vault_ids": [],
  "resources": [{"path": "./agents/<nombre>/memory_store-memoria.yaml", "access": "read_only"}],
  "fixtures": {"<custom_tool>": {"by": "<input field>", "values": {"<value>": {"<key>": "<fake data>"}}, "default": "not found"}},
- "events": [{"type": "user.define_outcome", "max_iterations": 2,
-   "description": "<kickoff>\nDry run.",
-   "rubric": {"type": "text", "content": "1. <criterion>"}}]
+ "events": [{"type": "user.message", "content": [{"type": "text", "text": "<kickoff>\nDry run."}]}]
 }

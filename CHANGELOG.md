@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.3 (2026-10-24): managed-agents-wizard starts with a message kickoff
+
+- The default kickoff is `user.message`, with the "done" check in the system prompt's Goal. An
+  outcome (`user.define_outcome` + rubric) is an explicit choice in `AskUserQuestion`, proposed
+  after one or two runs show what a good result looks like: it adds a grader and up to
+  `max_iterations` rounds, and a rubric written before real outputs tends to fail good work.
+  Catalog designs, previews, the ficha and the test template follow the new default.
+
 ## 1.5.2 (2026-10-24): managed-agents-wizard shows the whole agent
 
 - `references/ficha.md`: one card with every layer of the agent (model and effort, trigger,

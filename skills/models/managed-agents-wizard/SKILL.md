@@ -126,7 +126,7 @@ input, output, action, cost of error), reframe a domain ("un agente financiero")
 play it back in five lines. Then match the job to a family in `references/catalogo-ideas.md`
 (designs built from 147 real workshop ideas) and to the closest tested archetype in
 `references/arquetipos.md`. Propose the full ambitious design (real source, real action behind a
-gate, memory, trigger, rubric); shrink it only when the person asks or a credential is missing.
+gate, memory, trigger, a checkable Goal); shrink it only when the person asks or a credential is missing.
 
 ### 2. Trigger → Session or Deployment
 
@@ -137,10 +137,13 @@ Session: `references/deployments.md` § Three triggers.
 
 ### 3. What "done" means → kickoff
 
-Ask `¿Qué entrega cada corrida?` (`Entrega`): Un entregable verificable · Respuestas o cambios
-en registros. Deliverable → `user.define_outcome` with a starter rubric you draft (5-7 checkable
-criteria; label it "inicial, se ajusta tras las primeras corridas"). Otherwise `user.message`.
-Explain outcomes in two lines: a separate grader checks the rubric and the agent iterates.
+The default kickoff is `user.message`: one instruction, one run, a cost you can read. An outcome
+(`user.define_outcome` + rubric) adds a separate grader and up to `max_iterations` rounds, so it
+multiplies the cost, and a rubric written before any real output tends to fail good work. Write
+the "done" check into the system prompt's Goal section instead. Ask `Entrega` with
+`AskUserQuestion`: "Mensaje (Recomendado)" · "Outcome con rúbrica" (preview: the grader loop and
+its cost). Propose the outcome only after one or two runs show what a good result looks like,
+or when the person picks it; then draft 5-7 checkable criteria from those real outputs.
 
 ### 4. The Agent: model, tools, connectors, skills
 
@@ -172,8 +175,8 @@ them in one `AskUserQuestion` batch (rule 3):
 
 ### 5. The system prompt
 
-Design it with `references/system-prompt.md`, together with the custom tool descriptions and the
-rubric, as one contract: interview for the missing facts, draft in Simplified Technical English
+Design it with `references/system-prompt.md`, together with the custom tool descriptions (and the
+rubric, only if the person chose an outcome), as one contract: interview for the missing facts, draft in Simplified Technical English
 with the always-include lines (untrusted data, verification before done, when to stop, scope),
 run the critique checklist on all three files, then show them in full (the prompt in a code
 block, with two to four Spanish lines on what each section makes the agent do). Offer an independent

@@ -95,7 +95,10 @@ For MCP servers: `default_config: {enabled: false}` and enable only the tools th
 tools the server adds stay off); reads `always_allow`, reversible writes `auto`, irreversible or
 shared writes `always_ask` or a custom tool that queues them.
 
-## 4. Write the rubric
+## 4. Write the rubric (only when the kickoff is an outcome)
+
+The default kickoff is a message; the Goal section is the check. Write a rubric when the person
+chose an outcome, ideally from the outputs of the first runs.
 
 Five to seven criteria in Markdown, grouped by heading when the deliverable has parts. Each one:
 

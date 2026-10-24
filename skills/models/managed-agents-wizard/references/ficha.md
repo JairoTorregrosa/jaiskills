@@ -25,7 +25,7 @@ y un solo agente" hides the decisions they came to learn; show the values themse
 4. Show the system prompt in full, in a code block, and under it two to four lines in Spanish on
    what each section makes the agent do. The prompt is in English; the person must still be able
    to read what it says.
-5. Show the kickoff and the rubric in full. For each rubric criterion, one phrase on which
+5. Show the kickoff in full, and the rubric when there is one. For each rubric criterion, one phrase on which
    failure it catches.
 6. Say what you left out on purpose and why ("sin `web_search`: el trabajo no necesita internet
    abierto y así un resultado de búsqueda no puede darle instrucciones").
@@ -40,7 +40,7 @@ Modelo        <id> · effort <nivel>                         model.yaml
 Disparador    <cron> <zona> = "<en palabras: todos los días a las 3:00 a. m.>"  schedule.yaml
               o: evento <cuál> · o: una persona desde <dónde>
               por qué: <cuándo hace falta el resultado>
-Entrega       <outcome con rúbrica de N criterios | mensaje>  kickoff.md · rubric.md
+Entrega       <mensaje | outcome con rúbrica de N criterios>  kickoff.md · rubric.md
               iteraciones máx.: <n> · por qué: <qué es verificable>
 Tope de costo USD <x> por corrida (amount "<centavos>")     schedule.yaml
               por qué: <costo medido o estimado; se ajusta tras la prueba>

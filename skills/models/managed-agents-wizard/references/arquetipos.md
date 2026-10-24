@@ -2,7 +2,8 @@
 
 Map the person's job to the closest row and say so in one line. The defaults are proposals; the
 person can change any of them. Every row was built as a real agent (Oct 2026) and all but two were run;
-the cost is one measured run.
+the cost is one measured run. The tests ran with outcomes; a new agent starts with a message
+kickoff and adds the outcome later (SKILL.md step 3).
 
 | Archetype | Example | Trigger | Kickoff | Connectors / inputs | Skills | Memory | Cost |
 |---|---|---|---|---|---|---|---|
