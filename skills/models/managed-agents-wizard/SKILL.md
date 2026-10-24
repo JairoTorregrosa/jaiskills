@@ -37,6 +37,10 @@ Input from the user (may be empty): $ARGUMENTS
   data plane (creating Sessions, answering events) is the person's code or a Deployment.
 - Questions and explanations follow the person's language; Spanish is the default. This file and
   the references are English; Spanish labels in the drawings are deliberate.
+- The person is here to learn how the agent is built, so nothing is a black box. Every layer
+  you propose (model and effort, system prompt, tools, MCP tools, skills, environment and hosts,
+  memory, schedule, cost cap, credentials) appears with its exact value and the reason for it in
+  this job. `references/ficha.md` is the format; show it whole at step 9 and after each change.
 - Two modes. **Taller** (default when the person is learning): explain each concept at its step.
   **Directo** (they say "solo hazlo", "ya sé", or they are clearly expert): skip explanations,
   ask only the decisions, show the four concepts once at the end.
@@ -135,7 +139,8 @@ Explain outcomes in two lines: a separate grader checks the rubric and the agent
 
 ### 4. The Agent: model, tools, connectors, skills
 
-Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
+Explain Agent (§ Agent). Ask the model (`Modelo`); after the answer, say the model ID, the
+effort level and why. Then propose, in one block, each item with its exact value and its reason:
 
 - **Tools**: `agent_toolset_20260401`, `default_config.permission_policy: auto`; `web_fetch` and
   `web_search` listed with `enabled: false` unless the job needs the web. Remove tools the job
@@ -164,7 +169,8 @@ Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
 Design it with `references/system-prompt.md`, together with the custom tool descriptions and the
 rubric, as one contract: interview for the missing facts, draft in Simplified Technical English
 with the always-include lines (untrusted data, verification before done, when to stop, scope),
-run the critique checklist on all three files, then show them. Offer an independent
+run the critique checklist on all three files, then show them in full (the prompt in a code
+block, with two to four Spanish lines on what each section makes the agent do). Offer an independent
 critique: "¿Quieres que otro modelo lo critique?" → call the Skill tool with `second-opinion`.
 
 ### 6. The Environment
@@ -197,7 +203,8 @@ Secrets needed inside the sandbox (a PDF password): `credenciales.md` § Inside 
 
 Walk the job clause by clause: every verb has an enabled tool or MCP tool; every MCP server and
 mounted repo has a credential; every host is reachable; every input is mounted; "done" is
-checkable; a scheduled run has no call that waits for a human. Show only the gaps and close them.
+checkable; a scheduled run has no call that waits for a human. Close the gaps, then show the
+whole design as the ficha (`references/ficha.md`) and wait for "sí" before you write files.
 
 ### 10. Write the files — one folder per agent, one concern per file
 
@@ -259,7 +266,8 @@ trigger. Tell them how to watch it: `references/deployments.md` § Operate.
 
 At the end, in the person's language, short:
 
-1. The four concepts drawn with their values filled in (`conceptos.md` § Final drawing).
+1. The ficha with the created IDs (`references/ficha.md`), and the four concepts drawn with
+   their values (`conceptos.md` § Final drawing).
 2. A table of created resources with IDs, and which Deployments are paused.
 3. Each test: result, cost, link.
 4. What is still pending on their side (credentials, permissions, go-live).

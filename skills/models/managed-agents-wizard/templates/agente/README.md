@@ -2,9 +2,13 @@
 
 <Una o dos frases: qué hace, para quién, qué entrega.>
 
-- **Modelo:** `<model id>`, effort `<effort>`
-- **Arranque:** <Horario: `<cron>` (<zona>), Deployment `<archivo>` (pausado) | Evento: <qué lo dispara> | Una persona: <dónde>>
 - **Costo medido por corrida:** USD <x> (<fecha>)
+
+## Ficha
+
+<La ficha completa de `references/ficha.md` del wizard: cada capa con su valor exacto y su
+porqué (modelo y effort, disparador, entrega, tope, tools, MCP, skills, environment y hosts,
+memoria, archivos, credenciales, compuerta, lo que quedó fuera).>
 
 ## Archivos
 

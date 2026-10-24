@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.2 (2026-10-24): managed-agents-wizard shows the whole agent
+
+- `references/ficha.md`: one card with every layer of the agent (model and effort, trigger,
+  kickoff and rubric, cost cap, system prompt in full, tools, MCP tools, skills, environment and
+  hosts, memory and its access, files, credentials, the human gate, what was left out), each with
+  its exact value, the file it lives in, and the reason in this job. Shown before files are
+  written, after every change, and in the final report; kept in the agent's README.
+
 ## 1.5.1 (2026-10-24): managed-agents-wizard diagnoses, then designs big
 
 - `references/diagnostico.md`: five facts (trigger, input, output, action, cost of error) before
