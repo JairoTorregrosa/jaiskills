@@ -8,9 +8,9 @@ description: >-
   connectors, sets up credentials without the secret ever reaching the chat, writes the files,
   applies them with the `ant` CLI, runs a capped test session, and diagnoses failed sessions
   from their events. Trigger on "crea un agente en Managed Agents", "managed agents wizard",
-  "quiero un agente que corra solo", "agente programado", "agente always-on", "agente que
+  "quiero un agente que corra solo", "agente programado", "agente que
   revise mis repos cada lunes", "mi sesión se quedó pegada", "por qué falló mi agente", "debug
-  my managed agent session", "set up a scheduled Claude agent", "deploy an agent on a cron". Not
+  my managed agent session", "explícame la traza", "set up a scheduled Claude agent", "deploy an agent on a cron". Not
   for the Claude Agent SDK (use agent-sdk-wizard), the raw Messages API, or Claude Code itself.
 argument-hint: "[qué debe hacer el agente, o un session_id para depurar — opcional]"
 ---
@@ -76,6 +76,7 @@ Input from the user (may be empty): $ARGUMENTS
 |---|---|
 | An idea, or nothing | Step 1. |
 | A `sesn_...` ID, "se quedó pegada", "falló", "no hizo nada" | Debug mode: run `scripts/inspeccionar.py <session_id>` (from this skill, or the copy in their project), then `references/debugging.md`. No wizard. |
+| A `sesn_...` that ran and they want to understand it ("qué hizo", "explícame la traza") | `scripts/trazas.py <session_id>`, then `references/trazas.md`. No wizard. |
 | "explícame Managed Agents", "¿qué es un deployment?" | Answer with `references/conceptos.md`. No wizard. |
 | An agent already exists and they want one change | Do that step only, then re-apply and re-test (steps 11-13). |
 | Agent SDK, Messages API | Different product. Say so in one line. For the Agent SDK, call the Skill tool with `agent-sdk-wizard`. |
@@ -239,7 +240,7 @@ which keeps `ant apply` from picking templates up); the table is `references/dep
 
 Write only the parts the design uses. Then build the two files `ant apply` reads:
 `uv run --script <this skill>/scripts/ensamblar.py agents/<name>`. Copy `scripts/ensamblar.py`,
-`probar.py` and `inspeccionar.py` into the project's `scripts/` so the person keeps them. Fill the
+`probar.py`, `trazas.py` and `inspeccionar.py` into the project's `scripts/` so the person keeps them. Fill the
 agent's `README.md` from `templates/agente/README.md` (what it does, how it starts, the file table,
 the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at the project root.
 
@@ -261,13 +262,14 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
    systems, sample inputs with no real personal data, fixtures for custom tools.
 2. `uv run --script scripts/probar.py agents/<name>/tests/<case>.json`. Give the Console URL it
    prints so the person watches the trace live.
-3. Read `tests/out/<agent>/<session>/`: transcript, outputs, outcome verdict, cost.
+3. Explain the trace with the person, event by event: `scripts/trazas.py <session_id>` and
+   `references/trazas.md`. Every test, not only failed ones: reading traces is half of what they
+   came to learn. Then read `tests/out/<agent>/<session>/` (outputs, transcript, cost) against
+   the Goal.
 
 ### 13. Debug until it works
 
-Keep the Session open in the Console (platform.claude.com → Sessions) while you read it with the
-person: the trace shows each tool call and its result. If the run stopped wrong, cost too much, or
-the output is wrong: run
+If the run stopped wrong, cost too much, or the output is wrong: run
 `uv run --script scripts/inspeccionar.py <session_id>`, find the symptom in
 `references/debugging.md`, fix the cause in its own file (`system_prompt.md`, `rubric.md`, `tools.yaml`,
 `environment.yaml`, the vault), re-run `ensamblar.py`, re-apply, re-test. Change one thing per run. A rubric that fails good work gets fixed, not the

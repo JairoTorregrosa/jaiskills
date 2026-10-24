@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.5.6 (2026-10-24): managed-agents-wizard explains the Session trace
+
+- `scripts/trazas.py <session_id>`: the session as a timeline next to the Console. It shows each
+  model request with its duration and tokens (new, from cache, written), each tool call with the
+  permission that let it run and a short input and result, messages, confirmations, errors and the
+  stop reason, plus a header with billed time against open time, cost against the cap, and cache
+  use. The first time each event type appears, one Spanish line explains it. `--breve` and
+  `--json` are available. It is read-only and free.
+- `references/trazas.md` tells the agent to walk every test trace with the person and map each
+  block to the ficha row that made it possible (tool and permission, Procedure, stop_reason). It
+  then compares the run with the design and asks, with `AskUserQuestion`, for one change per run.
+- `probar.py` uses `agents/<agent>/kickoff.md` when the spec has no `events`, and `"dry_run": true`
+  appends "Dry run.", so the test and the Deployment share one kickoff. It also prints the
+  `trazas.py` command after every run.
+- Validated with a demo agent (`web-health`, Sonnet 5.5 `low`). Run 1 cost USD 0.02. Then one
+  prompt line changed, the agent went to v2, and the next run cost USD 0.01; the prompt prefix was
+  still in the cache.
+
 ## 1.5.5 (2026-10-24): managed-agents-wizard is event-agnostic
 
 - Removed `references/taller.md` and every reference to a specific workshop (agenda times, credits

@@ -6,6 +6,10 @@ prints status, last stop reason, cost, outcome verdicts, calls still waiting for
 errors, denied calls, session errors, the last message and the output files. Then find the line
 below. Fix the cause in its own file, re-run `ensamblar.py`, re-apply, re-test. One change per run.
 
+To see the order in which things happened (which model request led to which tool call, how long
+each took, which permission let it run), run `scripts/trazas.py <session_id>` and read it with
+the person (`references/trazas.md`).
+
 ## The session did not finish
 
 | Symptom (inspeccionar) | Cause | Fix |
