@@ -30,8 +30,10 @@ Borra las filas de las partes que este agente no usa.
 
 ```sh
 uv run --script scripts/ensamblar.py agents/<nombre>
-ant apply --dry-run agents/<nombre>/agent.md <agents/<nombre>/deployment-<x>.yaml>
-ant apply agents/<nombre>/agent.md <agents/<nombre>/deployment-<x>.yaml>
+# todos los archivos del agente que existan: agent, environment, vault, memory store, deployment, skills propias
+F=(agents/<nombre>/agent.md agents/<nombre>/environment.yaml agents/<nombre>/vault.yaml agents/<nombre>/memory_store-<x>.yaml agents/<nombre>/deployment-<x>.yaml skills/<skill>)
+ant apply --dry-run -v "${F[@]}"
+ant apply --yes "${F[@]}"     # solo después de leer el plan
 ```
 
 ## Probar y depurar

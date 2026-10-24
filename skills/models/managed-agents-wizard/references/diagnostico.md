@@ -23,9 +23,18 @@ Ask in one message, in plain words, only what the description did not already gi
 |---|---|---|
 | **Trigger** | ¿Qué pasa justo antes de que necesites esto? ¿Cada cuánto? | "Cada lunes llega el extracto", "cuando un contratista sube una póliza", "cuando cae una métrica" |
 | **Input** | ¿Qué miras hoy para hacerlo a mano? ¿Dónde vive? | "PDFs en Gmail", "una hoja de Sheets", "el tablero de Meta Ads", "logs en Snowflake" |
-| **Output** | Si el agente lo hiciera perfecto, ¿qué tienes en la mano al final? | "una tabla con lo que falta por contratista", "un borrador de respuesta", "un PR" |
+| **Output** | Si el agente lo hiciera perfecto, ¿qué tienes en la mano al final, y dónde lo quieres ver? | "una tabla con lo que falta por contratista", "una pestaña en mi Sheet", "un borrador en mi Gmail", "un PR" |
 | **Action** | ¿Quién hace qué con ese resultado? ¿El agente puede hacerlo él? | "yo apruebo y se envía", "se crea la tarea en Notion", "se escala al de guardia" |
 | **Cost of error** | ¿Qué pasa si se equivoca o llega tarde? | "glosa de la EPS", "una multa", "perdemos el lead", "nada grave" |
+
+Two more things decide the design; ask when the job has rules or third-party data:
+
+- **Rules and reference data**: the thresholds and policies only they know (what counts as a
+  duplicate, the collection policy, the 25 rules of a matrix) and the data a rule needs that is
+  not in the documents (contract value and end date). They become a custom skill and a mounted file.
+- **Whose data**: documents of clients, patients or contractors carry personal data (in Colombia,
+  Ley 1581). Test with invented data; before real data, the person confirms their contracts and
+  data-processing authorization cover it.
 
 If the person cannot answer **Input**, the idea is not ready: help them pick one real source they
 already have, or offer the closest archetype with sample data so they still build something today.
@@ -52,8 +61,8 @@ Grade the action, not the agent:
 | Action | Default |
 |---|---|
 | Read and report | Runs alone on a schedule. |
-| Write to its own space (a file, a draft, a branch, a task in a list it owns) | Runs alone; a person reviews the result. |
-| Write where others see it (a comment, a message to a customer, a post) | Draft + approval: custom tool that queues it, or `always_ask`. Dry run in tests. |
+| Write to its own space (a file, a draft, a branch, a task in a list it owns) | Runs alone; a person reviews the result. This is the gate for unattended runs. |
+| Write where others see it (a comment, a message to a customer, a post) | With a person present: `always_ask` or a custom tool their app answers. Unattended: the agent writes a draft in its own space and a person sends it. Dry run in tests. |
 | Money, legal, health, deleting data | Never alone. The agent prepares, a person decides. Say this to the person in one line. |
 
 ## 4. Be ambitious by default
@@ -69,10 +78,11 @@ does the job, not a toy that summarizes a text:
   memory store and gets better each run.
 - **A schedule or a trigger.** An agent that only runs when someone remembers to run it is a script.
 - **A rubric.** One deliverable → an outcome with 5-7 checkable criteria.
-- **The right model.** Sonnet 5.5 at `medium` for most jobs; Opus 5.5 at `high` when the job is
-  long, ambiguous or high-stakes (audits, clinical or legal checks, multi-repo code); a Haiku 5.5
-  worker only for parallel reading.
-- **A test budget that lets it finish.** USD 5-20 per test session; measure, then set the cap.
+- **The right model.** Sonnet 5.5 at `medium` for most jobs; Opus 5.5 at `high` when an error
+  costs a fine, a legal or a safety problem (audits, clinical, legal, tax checks); a Haiku 5.5
+  worker only for parallel reading. The person can switch later with one line in `model.yaml`.
+- **A test budget that lets it finish.** USD 5 for Sonnet, up to 20 for Opus `high`; measure,
+  then set the cap of the schedule.
 
 Say what you left out and why ("sin pagos automáticos: el agente prepara, tú pagas").
 

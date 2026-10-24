@@ -27,7 +27,7 @@ vendor page before trusting a row marked *preview*.
 
 | Family need | Service | URL | Auth |
 |---|---|---|---|
-| Email, calendar, files | Gmail · Calendar · Drive · Sheets | `https://gmailmcp.googleapis.com/mcp/v1` · `calendarmcp` · `drivemcp` · `sheetsmcp` (`.googleapis.com/mcp/v1`) | OAuth, own Google Cloud client; *developer preview* |
+| Email, calendar, files | Gmail · Calendar · Drive · Sheets | `https://gmailmcp.googleapis.com/mcp/v1` · `calendarmcp` · `drivemcp` · `sheetsmcp` (`.googleapis.com/mcp/v1`) | OAuth, own Google Cloud client; *developer preview*. Gmail tools: `search_threads`, `get_thread`, `get_message`, `list_labels`, `label_thread`, `create_draft`: no attachment download, no send |
 | | Microsoft 365 | Work IQ / Agent 365 servers; needs an Entra admin | OAuth; *preview*. Fallback: Graph API + `environment_variable` |
 | | Box · Egnyte | `https://mcp.box.com` · `https://mcp-server.egnyte.com/mcp` | OAuth |
 | Chat, tasks, docs | Slack | `https://mcp.slack.com/mcp` | OAuth, own Slack app |
@@ -86,7 +86,8 @@ their workflow as a tool, and the person keeps control of what that workflow can
 4. **Learn the auth** from the registry `headers` or the docs, and map it to a vault credential:
    OAuth → `mcp_oauth`; a fixed token in `Authorization` → `static_bearer`. Write it in
    `credentials.md` with the minimum permissions.
-5. **List its tools.** The names come from the server, not from you: the vendor docs, or a smoke
+5. **List its tools, and check each verb of the job has one.** A connector that reads email but
+   cannot download attachments does not cover "read the PDFs in my inbox". The names come from the server, not from you: the vendor docs, or a smoke
    test session with the toolset enabled and the prompt "List your MCP tools by name. Do nothing
    else." Then write `mcp.yaml` with `default_config: {enabled: false}` and one `configs` entry per
    needed tool: reads `always_allow`, writes `auto` or `always_ask`.

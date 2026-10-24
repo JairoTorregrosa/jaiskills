@@ -55,17 +55,20 @@ before you write one: Anthropic and the vendors already publish skills for most 
    curl -s 'https://skills.sh/api/search?q=<phrase>&limit=10' | jq -c '.skills[] | {id, installs}'
    curl -s 'https://skills.sh/api/search?q=<phrase>&owner=<vendor-org>&limit=10' | jq -c '.skills[]'
    ```
-3. Read the candidate's `SKILL.md` (`gh api repos/<owner>/<repo>/contents/<path>/SKILL.md --jq
+3. Most knowledge-work skills are interactive commands that ask the user and assume a connector
+   (CRM, ledger, CLM). For an unattended agent, keep only the procedure and the rules, and drop
+   the steps that ask a person or call a connector this agent does not have.
+4. Read the candidate's `SKILL.md` (`gh api repos/<owner>/<repo>/contents/<path>/SKILL.md --jq
    .content | base64 -d`). Keep it only if its procedure matches the person's job and its tools
    exist in this agent (a skill written for Claude Code's `Read`/`WebFetch` still works: the
    Managed Agents toolset has `read` and `web_fetch`).
-4. Vet it (§ Vet). Then copy the folder into `skills/<name>/` of the project, adapt the parts that
+5. Vet it (§ Vet). Then copy the folder into `skills/<name>/` of the project, adapt the parts that
    name another product (a ledger the person does not use, a connector they do not have), keep the
    license file and a one-line credit, and add it to `skills.yaml`.
-5. Write a custom skill when nothing fits and the procedure is the person's own: their collection
+6. Write a custom skill when nothing fits and the procedure is the person's own: their collection
    policy, their requirement matrix, their scoring rules, their runbook. Use the `skill-creator`
    shape: `SKILL.md` with a trigger description, the procedure, and the data in reference files.
-6. Prefer a skill over prompt text when the content is a procedure longer than about 10 lines, a
+7. Prefer a skill over prompt text when the content is a procedure longer than about 10 lines, a
    table of rules, or knowledge only some runs need.
 
 ## Vet

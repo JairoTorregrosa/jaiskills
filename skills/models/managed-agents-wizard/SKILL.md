@@ -72,6 +72,9 @@ Input from the user (may be empty): $ARGUMENTS
 
 ## Rules for every question
 
+0. A decision the diagnosis already settled ("listo el 3 de cada mes", "Jurídica aprueba") is a
+   proposal with one confirmation line, never a question. Ask only what is still open.
+
 1. One `AskUserQuestion` call per decision, one question per call, single-select
    (previews render only on single-select questions).
 2. Every option has a `preview` from `references/previews.md`. Recommended option first, with
@@ -87,17 +90,27 @@ Input from the user (may be empty): $ARGUMENTS
 
 1. `ant --version`. Missing or older than 1.40: give one command (`brew install anthropics/tap/ant`
    or `brew update && brew upgrade anthropics/tap/ant`). Ask before you run an installer.
-2. `ant beta:agents list --limit 1`. "Can't access this organization" means the profile points at
-   another org: `ant auth login --profile <name>`, then use `--profile <name>` or set it default.
+2. `ant auth status`: read the org name ("Logged in to <org>") and the token `expires` line; say
+   both. Under 4 hours left: `ant auth login` now, not mid-workshop. Then `ant beta:agents list
+   --limit 1 >/dev/null && echo ok` (the raw output prints another agent's prompt). "Can't access
+   this organization": `ant auth login --profile <name>`.
 3. Look for `claude-lock.json` in the working directory. If it exists, list what it holds and
    reuse it; never create duplicates.
+4. Taller mode: confirm the person redeemed the workshop credits (the QR) in the organization
+   `ant` points at. If they will also use Claude Desktop with those API credits, give them the
+   steps: Help → Troubleshoot → Enable Developer Mode; then Developer → Configure 3rd Party
+   Inference → choose Claude API in the dropdown → sign in again.
 
 ### 1. The job
 
-Ask one open question, no form:
+Open with one plain message, no AskUserQuestion. If you know their registration answer, quote
+it and start from it; otherwise:
 
 > Managed Agents es un agente alojado: Anthropic corre el loop, el sandbox y la infraestructura; tú
 > defines el agente y decides cuándo arranca. Cuéntame qué debe hacer, para quién, y qué lo arranca.
+
+In the same message, list only the diagnosis facts the answer does not give yet (this is the one
+message allowed to carry several questions; a vague idea also gets 2-3 example jobs to react to).
 
 Diagnose before you design: follow `references/diagnostico.md` to get the five facts (trigger,
 input, output, action, cost of error), reframe a domain ("un agente financiero") into a job, and
@@ -130,8 +143,10 @@ Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
 - **Connectors**: one MCP server per system where the input lives or the action lands. Look it
   up in the table in `references/conectores.md` first, then the registry; name the credential and
   any OAuth app the person must register as you propose it.
-- **Write permissions**: ask `¿Quién autoriza las escrituras?` (`Permisos`). Scheduled runs
-  have nobody to answer a paused call: say so when they pick "Una persona aprueba".
+- **Write permissions**: an unattended run has nobody to answer a paused call, so no
+  `always_ask` and no approval tool that waits. Reading untrusted input, it writes only to its
+  own space (outputs, a draft to the person, a tab it owns); that artifact is the human gate
+  (`diagnostico.md` § 3). Ask `Permisos` only when a person is present and it is still open.
 - **Skills**: Anthropic's `xlsx` `docx` `pptx` `pdf` when the job reads or makes those files.
   Search for published skills that already do part of the job (`references/skills.md`: Anthropic's
   knowledge-work plugins, vendor skills, skills.sh), vet them, and write a custom skill for the
@@ -162,13 +177,19 @@ agente?` (`Red`) only if they need hosts they cannot list. Reuse an existing Env
 ### 7. Memory and files
 
 If the agent must remember between runs (seen items, a baseline, a playbook), propose a memory
-store and explain it (§ Memory store). If it reads a dataset or docs, propose Files API uploads.
+store and explain it (§ Memory store). Mount it `access: read_only` when it holds rules and the
+agent reads untrusted input; `read_write` only for state the agent must update. If it reads a
+dataset or docs, propose Files API uploads: `ant files upload --file <path>` for each, IDs into
+`files.yaml` before step 10. Uploads are fixed: a Deployment mounts the same files every run, so
+inputs that change need a connector or a trigger that mounts the new ones.
 
 ### 8. Credentials → vault
 
 Explain vaults (§ Vault). Follow `references/credenciales.md`: the person pastes each secret with
 `read -rs` in their own terminal (or `! read -rs VAR` in Claude Code); you never see it. One vault
-per agent; a vault whose MCP credential has the same URL can be reused.
+per agent; a vault whose MCP credential has the same URL can be reused. No credentials, no vault.
+Reference it by path (`vault_ids: [./vault.yaml]`): `ant apply` creates it first in the same run.
+Secrets needed inside the sandbox (a PDF password): `credenciales.md` § Inside the sandbox.
 
 ### 9. Viability check (silent)
 
@@ -178,17 +199,10 @@ checkable; a scheduled run has no call that waits for a human. Show only the gap
 
 ### 10. Write the files — one folder per agent, one concern per file
 
-The person must be able to open the agent in their editor and see each layer on its own. Always
-write this layout (templates in `templates/agente/`, with a `.tmpl` suffix so `ant apply` never
-picks them up: drop the suffix when you copy; full table in `references/deployments.md` § Layout):
-
-```
-agents/<name>/
-  README.md  model.yaml  system_prompt.md  tools.yaml  mcp.yaml  skills.yaml  subagents.yaml
-  environment.yaml  vault.yaml  credentials.md  memory_store-<x>.yaml  memory/  files.yaml  files/
-  schedule.yaml  kickoff.md  rubric.md  trigger/  tests/<case>.json
-  agent.md  deployment-<x>.yaml        ← generated; never edit by hand
-```
+The person must be able to open the agent in their editor and see each layer on its own. Write
+`agents/<name>/` with one file per concern, from `templates/agente/` (drop the `.tmpl` suffix,
+which keeps `ant apply` from picking templates up); the table is `references/deployments.md`
+§ Layout. `agent.md` and `deployment-<x>.yaml` are generated; never edit them by hand.
 
 Write only the parts the design uses. Then build the two files `ant apply` reads:
 `uv run --script <this skill>/scripts/ensamblar.py agents/<name>`. Copy `scripts/ensamblar.py`,
@@ -198,7 +212,8 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
 
 ### 11. Apply
 
-1. `F=(<every file you wrote>); ant apply --dry-run "${F[@]}"`. Never pass `.`: it walks the
+1. `F=(<every file you wrote>); ant apply --dry-run -v "${F[@]}"` (`-v` shows every field,
+   including `vault_ids`); the header names the organization: check it is the right one. Never pass `.`: it walks the
    whole tree and creates whatever looks like a resource.
 2. Show the plan in plain words: what gets created. Run `ant apply --yes "${F[@]}"` only after the
    person says yes. Never `--force`, never `--prune`.
@@ -207,8 +222,9 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
 
 ### 12. Test with a cap
 
-1. Write `agents/<name>/tests/<case>.json` (`templates/agente/tests/basico.json.tmpl`): budget USD 5 or less, "Dry run" in the
-   kickoff when the agent writes to real systems, fixtures for custom tools.
+1. Write `agents/<name>/tests/<case>.json` (`templates/agente/tests/basico.json.tmpl`): budget
+   USD 5 (Sonnet) to 20 (Opus `high`), "Dry run" in the kickoff when the agent writes to real
+   systems, sample inputs with no real personal data, fixtures for custom tools.
 2. `uv run --script scripts/probar.py agents/<name>/tests/<case>.json`. Give the Console URL it
    prints so the person watches the trace live.
 3. Read `tests/out/<agent>/<session>/`: transcript, outputs, outcome verdict, cost.

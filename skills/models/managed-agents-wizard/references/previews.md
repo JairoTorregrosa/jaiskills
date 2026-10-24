@@ -51,13 +51,16 @@ another language, keeping the layout. Max 14 lines × 70 columns.
 
 ## Modelo — "¿Qué tan capaz lo necesitas?"
 
-### Sonnet 5.5 (Recomendado)
+Recommend by cost of error (`diagnostico.md` § 4): Sonnet for most jobs; Opus first when an error
+costs a fine, a legal or a safety problem. Adapt every cron preview to the job's real schedule.
+
+### Sonnet 5.5 (Recomendado unless an error is costly)
 ```
  claude-sonnet-5-5   effort medium (low para triage/chat)
  casi todo: briefs, revisiones, reportes, soporte
  medido: USD 0,02 – 0,41 por corrida
 ```
-### Opus 5.5
+### Opus 5.5 (Recomendado for legal, clinical, safety, tax)
 ```
  claude-opus-5-5   effort high
  trabajo largo y difícil: auditorías, refactors grandes
@@ -71,6 +74,9 @@ another language, keeping the layout. Max 14 lines × 70 columns.
 ```
 
 ## Permisos — "¿Quién autoriza las escrituras?"
+
+Ask only when it is still open (SKILL.md rule 0). Pick at most 4 options that fit the trigger:
+drop "Una persona aprueba" for unattended runs unless there is a webhook that answers.
 
 ### El servidor decide (auto) (Recomendado for unattended runs)
 ```
@@ -89,6 +95,12 @@ another language, keeping the layout. Max 14 lines × 70 columns.
  escritura ──► corre siempre
  la regla vive en system_prompt.md: "Merge only if ..."
  úsalo solo en una tool angosta (una, no todas)
+```
+### Solo en su propio espacio (Recomendado when it reads untrusted input unattended)
+```
+ escribe solo en outputs/, su pestaña o un borrador para ti
+ nada sale a terceros: el borrador es la compuerta, tú lo envías
+ nunca se queda en pausa esperando a alguien
 ```
 ### Solo lectura
 ```

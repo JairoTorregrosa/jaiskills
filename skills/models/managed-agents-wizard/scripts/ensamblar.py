@@ -112,10 +112,16 @@ def build(folder: Path) -> dict[Path, str]:
             event = {"type": "user.message", "content": [{"type": "text", "text": kickoff}]}
         resources = list(sched.get("resources") or [])
         for f in load(folder / "files.yaml").get("files") or []:
-            if f.get("file_id"):
-                resources.append({"type": "file", "file_id": f["file_id"], "mount_path": f["mount_path"]})
+            fid = str(f.get("file_id") or "")
+            if not fid.startswith("file_"):
+                raise SystemExit(f"{folder}/files.yaml: {f.get('path')} has no file_id; upload it first "
+                                 f"(ant files upload --file <path>) or remove the entry")
+            resources.append({"type": "file", "file_id": fid, "mount_path": f["mount_path"]})
         dep: dict = {"name": sched.get("name", f"{config['name']} schedule"),
                      "agent": "./agent.md", "environment_id": "./environment.yaml"}
+        for v in list(sched.get("vault_ids") or []) + [r if isinstance(r, str) else r.get("path", "") for r in resources]:
+            if "<" in str(v):
+                raise SystemExit(f"{folder}/schedule.yaml: placeholder left in {v!r}")
         for key in ("vault_ids", "schedule", "budget"):
             if key in sched:
                 dep[key] = sched[key]

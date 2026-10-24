@@ -6,7 +6,7 @@
 """Run one test session of a Managed Agents agent and save what it produced.
 
 Usage (from the project root, next to claude-lock.json):
-  uv run --script <skill>/scripts/probar.py tests/<name>.json
+  uv run --script scripts/probar.py agents/<name>/tests/<case>.json
 
 The spec (JSON):
   {"agent": "<dir under agents/>", "title": "...", "budget_usd": 5,

@@ -61,6 +61,15 @@ Never write it into a committed file.
    and list 1 item. Do not start the task." A wrong token shows up only here, not at session
    creation.
 
+## Inside the sandbox
+
+Vault credentials are added to outbound requests only; the sandbox never sees them, and memory
+never holds secrets. So there is no safe place for a secret the agent needs inside the container,
+such as the password of an encrypted PDF (Colombian bank statements often have one). Say so and
+design around it: the inputs reach the agent already unlocked (the person saves an unlocked copy,
+or their own pipeline decrypts before upload). Never put the password in a prompt, a kickoff, a
+memory file or `files/`.
+
 ## Rules
 
 - Never ask for a secret in the chat, never echo it, never put it in a file, a URL or a log.

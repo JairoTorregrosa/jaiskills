@@ -19,8 +19,10 @@ education and health 9, field and sector operations 8, market watch 6, support 6
 ## How to read a design
 
 `Trigger` · `Input → connectors` · `Work` · `Output` · `Gate` · `Memory` · `Kickoff` · `Model`.
-"Draft + approval" means a custom tool (`queue_for_approval`) or an `always_ask` write: the agent
-never sends money, messages to third parties, or posts on its own.
+"Draft + approval": the agent never sends money, messages to third parties, or posts on its own.
+In an unattended run (Deployment, trigger) the draft is a file, a Gmail draft to the person or a
+tab it owns, and a person sends it; `queue_for_approval` or `always_ask` only fit when a person
+or their app is there to answer, otherwise the Session waits forever.
 
 ---
 
@@ -29,19 +31,25 @@ never sends money, messages to third parties, or posts on its own.
 What hurts: statements and invoices arrive as PDFs in email; someone types them into a sheet; late
 or missed payments and collections cost money; nobody watches the portfolio daily.
 
-**Design A — Monthly statement analyst.**
-Trigger: Deployment, day 2 of each month. Input: bank statement PDFs from Gmail (Gmail MCP) or
-uploaded files. Work: extract every transaction (`pdf` skill), categorize with the person's own
-category list (memory), reconcile against last month, flag duplicates, new subscriptions and
-spikes. Output: `xlsx` workbook + 1-page summary. Gate: read-only. Memory: categories, merchants
-already seen, last month's totals. Kickoff: outcome; rubric checks that every transaction is in
-exactly one category and totals match the statement. Model: Sonnet 5.5 `medium`.
+**Design A — Monthly statement analyst** (one person or an accountant with N clients).
+Trigger: Deployment over a window, days 2-6 of each month, so late statements still get done.
+Input: statement PDFs in a Drive folder per month and client (Drive MCP); the Gmail MCP cannot
+download attachments, so the person saves them from Gmail ("Guardar en Drive") or uploads them.
+Encrypted PDFs must arrive unlocked (`credenciales.md` § Inside the sandbox). Work: extract every
+transaction (`pdf` skill), categorize with the person's own categories and thresholds (custom
+skill), check opening balance + movements = closing balance, flag duplicates, unknown suppliers,
+spikes and new subscriptions. Output: where the person works: a new month tab in their Sheet
+(Sheets MCP, writing only that tab) or an `xlsx`, plus a short note per client and a Gmail draft
+to themselves. Gate: nothing goes to clients; the person reviews. Memory: client list, what is
+done this month, suppliers seen, last month's totals. Kickoff: outcome; rubric checks totals
+match and every transaction has one of their categories or "Por revisar". Model: Sonnet 5.5
+`medium`; Opus 5.5 if the statements feed a tax filing and Sonnet misreads them.
 
 **Design B — Collections (cartera) agent for a small business.**
 Trigger: Deployment, weekdays 08:00. Input: receivables from the ERP or a Sheet (Sheets MCP or a
 file). Work: age each invoice, apply the person's collection policy (custom skill with the rules),
 pick the next action per client, draft the message. Output: a task list and drafts. Gate: drafts
-go to `queue_for_approval`; nothing is sent. Memory: last contact per client, promises to pay.
+stay in outputs or the person's Gmail drafts; nothing is sent. Memory: last contact per client, promises to pay.
 Kickoff: message. Model: Sonnet 5.5 `medium`.
 
 **Design C — Portfolio watcher.** Trigger: Deployment, market close. Input: a market data API
@@ -105,12 +113,16 @@ costs a rejected invoice (glosa), a fine, or a missed legal deadline. These are 
 the set: clear input, clear rule, measurable cost.
 
 **Design — Document auditor.** Trigger: event (a folder or form upload creates the Session) or a
-daily Deployment over a Drive folder. Input: the documents (Drive connector or mounted files) and
-the requirement matrix as a custom skill (one rule per line, with its legal source). Work: read
+daily Deployment over a Drive folder; uploaded files are fixed, so a daily run over uploads
+re-reads the same documents. Input: the documents (Drive connector or mounted files), the
+requirement matrix as a custom skill (one rule per line, with its legal source), and the reference
+data the rules need but the documents lack (contract value, end date, type) as a mounted sheet.
+Scanned Spanish documents: check which OCR languages the sandbox has before you promise OCR. Work: read
 each document (`pdf` skill; images too), check every rule, quote the page that proves each pass.
 Output: a per-document checklist (pass / fail / unreadable, with page) and a message to the
-uploader listing exactly what is missing. Gate: the message is a draft; the decision stays human.
-Memory: rules that caused disputes, past rejections. Kickoff: outcome; rubric checks every rule
+uploader listing exactly what is missing. Gate: the message is a draft file; the decision stays
+human. Memory: files already checked, pending items per contractor, rules that caused disputes;
+mount the rules `read_only`, because the agent reads documents written by third parties. Kickoff: outcome; rubric checks every rule
 has a verdict with a page reference and nothing is marked pass without evidence. Model: Opus 5.5
 `high` (clinical, legal, customs).
 
