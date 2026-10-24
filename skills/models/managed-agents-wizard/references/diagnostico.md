@@ -89,4 +89,6 @@ Say what you left out and why ("sin pagos automáticos: el agente prepara, tú p
 ## Report
 
 Before step 2 of the wizard, write back to the person in five lines: trigger, input, output,
-action and its gate, and what an error costs. Ask "¿Es esto?" once. Then go on.
+action and its gate, and what an error costs. Confirm with `AskUserQuestion` (`Diagnóstico`):
+"Sí, es esto (Recomendado)" plus the 1-3 facts most likely to be wrong as options to correct.
+For a vague idea, offer the 2-3 example jobs as `AskUserQuestion` options with a preview each.
