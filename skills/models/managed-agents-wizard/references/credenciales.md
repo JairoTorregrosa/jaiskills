@@ -66,3 +66,9 @@ Never write it into a committed file.
 - Never ask for a secret in the chat, never echo it, never put it in a file, a URL or a log.
 - If the person pastes a secret into the chat anyway, tell them to rotate it, and do not use it.
 - Rotate by creating the credential again with the new value; archive the old one only if asked.
+
+## Sources
+
+- Vaults: https://platform.claude.com/docs/en/managed-agents/vaults.md
+- MCP connector: https://platform.claude.com/docs/en/managed-agents/mcp-connector.md
+- GitHub mounts: https://platform.claude.com/docs/en/managed-agents/github.md

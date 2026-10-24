@@ -36,3 +36,9 @@ learn how it authenticates, and allowlist only the tools the job needs.
 - Never invent an MCP URL or a tool name. Unknown is "no connector found": fall back to a custom
   tool or to the service's HTTP API with an `environment_variable` credential.
 - A mounted `github_repository` is files only. Opening a PR needs the GitHub MCP tools.
+
+## Sources
+
+- MCP connector: https://platform.claude.com/docs/en/managed-agents/mcp-connector.md
+- Permission policies: https://platform.claude.com/docs/en/managed-agents/permission-policies.md
+- MCP Registry API: https://registry.modelcontextprotocol.io/v0/servers?search=NAME

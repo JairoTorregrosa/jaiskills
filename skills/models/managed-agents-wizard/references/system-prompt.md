@@ -67,3 +67,8 @@ Check every line against this list and fix what fails:
 
 Then offer an independent read: call the Skill tool with `second-opinion` (advise mode) on the
 draft if the person wants one.
+
+## Sources
+
+- Agent setup: https://platform.claude.com/docs/en/managed-agents/agent-setup.md
+- ASD-STE100 rules: https://www.asd-ste100.org

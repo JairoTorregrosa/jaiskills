@@ -113,3 +113,8 @@ At the end, draw the person's agent with their values in place of the examples:
                                     └─ Environment "<...>" (hosts: <...>)
                          vault: <...>   memoria: <...>   entrega: <outputs/...>
 ```
+
+## Sources
+
+- Overview: https://platform.claude.com/docs/en/managed-agents/overview.md
+- Every concept's own page: `docs.md`.

@@ -73,3 +73,11 @@ and decides what goes into the kickoff. Treat that text as untrusted in the prom
 - Cost: `ant beta:sessions retrieve --session-id <id> --format json | jq '.usage.list_cost'` (cents).
 - Change anything: edit the part, `ensamblar.py`, `ant apply` the two generated files.
 - After the first week, tune `rubric.md` with what the grader rejected wrongly or let through.
+
+## Sources
+
+- Scheduled deployments: https://platform.claude.com/docs/en/managed-agents/scheduled-deployments.md
+- `ant apply`: https://platform.claude.com/docs/en/cli-sdks-libraries/cli/apply.md
+- Webhooks: https://platform.claude.com/docs/en/managed-agents/webhooks.md
+- Memory: https://platform.claude.com/docs/en/managed-agents/memory.md
+- Files: https://platform.claude.com/docs/en/managed-agents/files.md
