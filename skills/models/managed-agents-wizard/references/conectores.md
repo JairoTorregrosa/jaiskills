@@ -16,7 +16,7 @@ learn how it authenticates, and allowlist only the tools the job needs.
   `gh api repos/anthropics/knowledge-work-plugins/contents/<plugin>/.mcp.json --jq .content | base64 -d`.
 - Some servers need an OAuth app the person registers first (no dynamic client registration):
   Google Workspace, Slack, HubSpot, Salesforce, Snowflake, Microsoft 365. Plan 15-30 minutes for
-  that before the workshop session; otherwise start with a file upload. [vendor docs]
+  that before the first test; otherwise start with a file upload. [vendor docs]
 - AWS's MCP server needs SigV4 signing, which a vault credential cannot produce: use the AWS
   Knowledge server for docs, or the CLI with keys in an `environment_variable`. [AWS docs]
 

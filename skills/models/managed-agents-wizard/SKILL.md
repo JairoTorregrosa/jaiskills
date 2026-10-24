@@ -41,9 +41,10 @@ Input from the user (may be empty): $ARGUMENTS
   you propose (model and effort, system prompt, tools, MCP tools, skills, environment and hosts,
   memory, schedule, cost cap, credentials) appears with its exact value and the reason for it in
   this job. `references/ficha.md` is the format; show it whole at step 9 and after each change.
-- In a workshop, follow `references/taller.md`: the agenda blocks (Diseña, Prueba, Itera,
-  Programa), credits and Claude Desktop, the Console tab, and clean-up at the end.
-- Two modes. **Taller** (default when the person is learning): explain each concept at its step.
+- The path is always design → one test Session with a budget → iterate with the trace open in the
+  Console (platform.claude.com → Sessions) → schedule. When time or a credential is short, offer
+  with `AskUserQuestion` to test the smallest version that works now and add layers after it runs.
+- Two modes. **Guiado** (default when the person is learning): explain each concept at its step.
   **Directo** (they say "solo hazlo", "ya sé", or they are clearly expert): skip explanations,
   ask only the decisions, show the four concepts once at the end.
 
@@ -81,6 +82,11 @@ Input from the user (may be empty): $ARGUMENTS
 
 ## Rules for every question
 
+These rules are for you, the coding agent running this wizard (Claude Code), talking to the
+person who builds the agent. `AskUserQuestion` is your tool, not the Managed Agent's: it never
+goes into the agent's system prompt, `tools.yaml` or kickoff. The Managed Agent reaches a person
+only through what you design for it: `always_ask`, a custom tool, or a draft it leaves.
+
 Every choice, confirmation and go-ahead goes through `AskUserQuestion`, never a question in
 plain text: the person clicks, sees the alternatives, and learns what else was possible. Plain
 text is only for open facts no option list can cover (step 1, the prompt interview).
@@ -105,14 +111,14 @@ text is only for open facts no option list can cover (step 1, the prompt intervi
 1. `ant --version`. Missing or older than 1.40: give one command (`brew install anthropics/tap/ant`
    or `brew update && brew upgrade anthropics/tap/ant`). Ask before you run an installer.
 2. `ant auth status`: read the org name ("Logged in to <org>") and the token `expires` line; say
-   both. Under 4 hours left: `ant auth login` now, not mid-workshop. Then `ant beta:agents list
+   both, and confirm that org is the one that should pay. Under 4 hours left: `ant auth login`
+   now, not mid-build. Then `ant beta:agents list
    --limit 1 >/dev/null && echo ok` (the raw output prints another agent's prompt). "Can't access
    this organization": `ant auth login --profile <name>`.
 3. `uv --version` and `jq --version`: the scripts run with `uv`, and credentials load with `jq`.
    Missing: `brew install uv jq` (ask before you run it).
 4. Look for `claude-lock.json` in the working directory. If it exists, list what it holds and
    reuse it; never create duplicates.
-5. Taller mode: credits and Claude Desktop, `references/taller.md` § Before you start.
 
 ### 1. The job
 
@@ -128,7 +134,7 @@ plain text). A vague idea also gets an `AskUserQuestion` with 2-3 example jobs, 
 Diagnose before you design: follow `references/diagnostico.md` to get the five facts (trigger,
 input, output, action, cost of error), reframe a domain ("un agente financiero") into a job, and
 play it back in five lines. Then match the job to a family in `references/catalogo-ideas.md`
-(designs built from 147 real workshop ideas) and to the closest tested archetype in
+(designs built from 147 real agent ideas) and to the closest tested archetype in
 `references/arquetipos.md`. Propose the full ambitious design (real source, real action behind a
 gate, memory, trigger, a checkable Goal); shrink it only when the person asks or a credential is missing.
 
@@ -212,7 +218,7 @@ Explain vaults (§ Vault). Follow `references/credenciales.md`: the person paste
 `read -rs` in their own terminal (or `! read -rs VAR` in Claude Code); you never see it. One vault
 per agent; a vault whose MCP credential has the same URL can be reused. No credentials, no vault.
 Here you write `credentials.md` and explain; the person loads each secret after step 11 creates
-the vault. Prefer a vendor bearer token over OAuth in a workshop (`credenciales.md`).
+the vault. Prefer a vendor bearer token over OAuth when it exists (`credenciales.md`).
 Reference it by path (`vault_ids: [./vault.yaml]`): `ant apply` creates it first in the same run.
 Secrets needed inside the sandbox (a PDF password): `credenciales.md` § Inside the sandbox.
 
@@ -274,7 +280,9 @@ trigger. Tell them how to watch it: `references/deployments.md` § Operate.
 
 ### 15. Clean up
 
-At the end of a workshop: `references/taller.md` § Clean up.
+When the person is done, ask `Limpieza` with `AskUserQuestion`: keep the agent (Deployment
+paused) · archive the test agents (`ant beta:agents archive --agent-id <id>`; archiving an Agent
+also archives its Deployments). Archive only what they pick; never delete.
 
 ## Rules
 

@@ -7,7 +7,7 @@ in, and who is hurt when it is late or wrong. Design nothing until you have thos
 
 ## Facts already verified (2026-10-24)
 
-- Of 147 registrations for the La Salle workshop that answered "¿Qué agente quieres construir?",
+- Of 147 people who answered "¿Qué agente quieres construir?",
   about 1 in 5 named only a domain or nothing ("Financiero", "marketing", "Agents", "No sé aún"),
   and about 1 in 3 described a concrete loop (source → decision → action). The concrete ones came
   with the data already named: "extractos bancarios por correo", "logs de Snowflake", "decreto
@@ -67,7 +67,7 @@ Grade the action, not the agent:
 
 ## 4. Be ambitious by default
 
-The person came to build, and the workshop pays for the credits. Design the agent that actually
+The person came to build something real. Design the agent that actually
 does the job, not a toy that summarizes a text:
 
 - **A real source.** Connect the system where the input lives (an MCP connector, a mounted repo, a
