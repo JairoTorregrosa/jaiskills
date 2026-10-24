@@ -41,6 +41,8 @@ Input from the user (may be empty): $ARGUMENTS
   you propose (model and effort, system prompt, tools, MCP tools, skills, environment and hosts,
   memory, schedule, cost cap, credentials) appears with its exact value and the reason for it in
   this job. `references/ficha.md` is the format; show it whole at step 9 and after each change.
+- In a workshop, follow `references/taller.md`: the agenda blocks (Diseña, Prueba, Itera,
+  Programa), credits and Claude Desktop, the Console tab, and clean-up at the end.
 - Two modes. **Taller** (default when the person is learning): explain each concept at its step.
   **Directo** (they say "solo hazlo", "ya sé", or they are clearly expert): skip explanations,
   ask only the decisions, show the four concepts once at the end.
@@ -52,11 +54,14 @@ Input from the user (may be empty): $ARGUMENTS
 - Models: `claude-sonnet-5-5` (effort `medium` for agentic work, `low` for triage and chat),
   `claude-opus-5-5` (hard, long work), `claude-haiku-5-5` (cheap workers). [agent create]
 - Budget amounts are in **cents**: `amount: "2000"` is USD 20. At the cap the Session goes idle
-  with `budget_reached`; raising the budget resumes it. [session update]
-- Measured cost per run: support ticket triage USD 0.02-0.03; daily brief of 3 repos USD 0.19-0.31;
-  PR review USD 0.12; website health check USD 0.11; Excel + 5-slide deck USD 0.41; research
-  digest with 8 Haiku readers USD 1.57; full security audit of 3 repos (Opus, dynamic workflows)
-  USD 104.66. [11 agents, 13 sessions]
+  with `budget_reached`; no message resumes it, only raising the budget above what it spent.
+  [session update]
+- Cost = tokens at the model's list price + USD 10 per 1,000 web searches + USD 0.08 per
+  session-hour while `running` (idle time is free). The model and subagents move it most.
+  [about-claude/pricing § Claude Managed Agents pricing]
+- Measured cost per run: USD 0.02 (ticket triage) to 1.57 (research digest with 8 Haiku readers);
+  a full Opus security audit of 3 repos with dynamic workflows cost USD 104.66.
+  [11 agents, 13 sessions; per archetype in `references/arquetipos.md`]
 - The `auto` permission policy can deny a legitimate write (`create_pull_request` was denied on
   a PR that deleted data). [vuln-patcher session]
 - Output files appear in `files.list` a few seconds after idle, and the list also returns copies
@@ -103,12 +108,11 @@ text is only for open facts no option list can cover (step 1, the prompt intervi
    both. Under 4 hours left: `ant auth login` now, not mid-workshop. Then `ant beta:agents list
    --limit 1 >/dev/null && echo ok` (the raw output prints another agent's prompt). "Can't access
    this organization": `ant auth login --profile <name>`.
-3. Look for `claude-lock.json` in the working directory. If it exists, list what it holds and
+3. `uv --version` and `jq --version`: the scripts run with `uv`, and credentials load with `jq`.
+   Missing: `brew install uv jq` (ask before you run it).
+4. Look for `claude-lock.json` in the working directory. If it exists, list what it holds and
    reuse it; never create duplicates.
-4. Taller mode: confirm the person redeemed the workshop credits (the QR) in the organization
-   `ant` points at. If they will also use Claude Desktop with those API credits, give them the
-   steps: Help → Troubleshoot → Enable Developer Mode; then Developer → Configure 3rd Party
-   Inference → choose Claude API in the dropdown → sign in again.
+5. Taller mode: credits and Claude Desktop, `references/taller.md` § Before you start.
 
 ### 1. The job
 
@@ -157,8 +161,10 @@ them in one `AskUserQuestion` batch (rule 3):
 - **Connectors**: one MCP server per system where the input lives or the action lands. Look it
   up in the table in `references/conectores.md` first, then the registry; name the credential and
   any OAuth app the person must register as you propose it.
-- **Write permissions**: an unattended run has nobody to answer a paused call, so no
-  `always_ask` and no approval tool that waits. Reading untrusted input, it writes only to its
+- **Write permissions**: an unattended run has nobody to answer a paused call, so `always_ask`
+  needs code that answers it: a `session.status_idled` webhook whose handler reads the Session
+  and sends `user.tool_confirmation` by a rule ("el agente pide el merge; un if lo aprueba"). Without
+  that handler, no `always_ask` and no approval tool that waits. Reading untrusted input, it writes only to its
   own space (outputs, a draft to the person, a tab it owns); that artifact is the human gate
   (`diagnostico.md` § 3). Ask `Permisos` only when a person is present and it is still open.
 - **Skills**: Anthropic's `xlsx` `docx` `pptx` `pdf` when the job reads or makes those files.
@@ -186,8 +192,10 @@ critique: "¿Quieres que otro modelo lo critique?" → call the Skill tool with 
 
 Explain Environment (§ Environment). Propose `type: cloud`, `networking: limited`, plus
 `allow_mcp_servers: true` if there are MCP servers, `allow_package_managers: true` if it installs
-packages, and `allowed_hosts` with only the hosts the job reaches. Ask `¿A qué puede salir tu
-agente?` (`Red`) only if they need hosts they cannot list. Reuse an existing Environment if one fits.
+packages, and `allowed_hosts` with only the hosts the job reaches. Always write `networking`:
+an environment created through the API (and `ant apply`) without it gets `unrestricted`. With
+`limited`, `allowed_hosts` also limits `web_search` and `web_fetch` (sandbox specs: `conceptos.md`
+§ Environment). Ask `Red` only if they need hosts they cannot list. Reuse an existing Environment if one fits.
 
 ### 7. Memory and files
 
@@ -251,7 +259,9 @@ the IDs after step 11). No placeholder may survive. Keep `claude-lock.json` at t
 
 ### 13. Debug until it works
 
-If the run stopped wrong, cost too much, or the output is wrong: run
+Keep the Session open in the Console (platform.claude.com → Sessions) while you read it with the
+person: the trace shows each tool call and its result. If the run stopped wrong, cost too much, or
+the output is wrong: run
 `uv run --script scripts/inspeccionar.py <session_id>`, find the symptom in
 `references/debugging.md`, fix the cause in its own file (`system_prompt.md`, `rubric.md`, `tools.yaml`,
 `environment.yaml`, the vault), re-run `ensamblar.py`, re-apply, re-test. Change one thing per run. A rubric that fails good work gets fixed, not the
@@ -261,6 +271,10 @@ agent. Stop after 3 failed rounds on the same symptom and show the person what y
 
 Only when the person picks it in `AskUserQuestion` `En vivo` (activar ahora · dejar pausado · otra prueba): remove "Dry run", `ant beta:deployments unpause`, or install the
 trigger. Tell them how to watch it: `references/deployments.md` § Operate.
+
+### 15. Clean up
+
+At the end of a workshop: `references/taller.md` § Clean up.
 
 ## Rules
 

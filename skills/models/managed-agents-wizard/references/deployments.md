@@ -56,6 +56,13 @@ and decides what goes into the kickoff. Treat that text as untrusted in the prom
   `agent.md` re-pins it in the same run. A Deployment created any other way must be moved by hand:
   `ant beta:deployments update --deployment-id <id> --agent '{type: agent, id: <agent_id>, version: <N>}'`.
 - `ant beta:deployments pause|unpause|run --deployment-id <id>`. `run` works while paused.
+- The cron runs with jitter up to 15 % of the interval (max 9 minutes). Unpausing resumes from the
+  next occurrence; missed runs are not backfilled. Avoid 1-3 AM in zones with daylight saving
+  (Colombia has none).
+- An unrecoverable session-creation error (archived environment or vault) records a failed run and
+  pauses the Deployment by itself (`paused_reason.error.type`). Archiving the Agent archives the
+  Deployment.
+- The budget applies per run; changing it affects only runs started afterward.
 - A scheduled Session has nobody streaming it. A call that pauses for approval (`ask`) and a
   custom tool nobody answers both wait forever. Design for no pauses: reads `always_allow`, writes
   only to the agent's own space, and the human gate is the artifact it leaves (a draft, a file, a
