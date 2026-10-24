@@ -49,11 +49,27 @@ All URLs returned HTTP 200 on 2026-10-24.
 | Effort | https://platform.claude.com/docs/en/build-with-claude/effort.md | choosing `effort` per agent |
 | Usage and cost API | https://platform.claude.com/docs/en/manage-claude/usage-cost-api.md | cost reports for a watchdog agent (needs an organization) |
 
+## Prompting, tools, skills
+
+| Topic | URL | Read it for |
+|---|---|---|
+| Prompting best practices | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices.md | calm wording, reasons behind rules, scope, long-horizon state |
+| Prompting Opus 5.5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5.md | effort default, progress reports, early stops on unattended runs |
+| Prompting Sonnet 5.5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5.md | effort levels, verification, scope creep, date and search |
+| Prompting Haiku 5.5 | https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5.md | worker prompts, early stops, rules that hold in chat |
+| Define tools | https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools.md | custom tool names, descriptions, schemas |
+| Agent Skills overview | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview.md | skill structure and the security review before attaching one |
+| Writing tools for agents | https://www.anthropic.com/engineering/writing-tools-for-agents | fewer, bigger tools; high-signal results; fixable errors |
+| Context engineering | https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents | prompt altitude, minimal prompts, state in files |
+| Evals for agents | https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents | rubric criteria that grade consistently |
+
 ## Outside the platform docs
 
 | Topic | URL | Read it for |
 |---|---|---|
 | MCP Registry | https://registry.modelcontextprotocol.io/v0/servers?search=NAME | finding a remote MCP server and its auth headers |
+| Knowledge-work plugins | https://github.com/anthropics/knowledge-work-plugins | business skills by function and their remote MCP URLs (`*/.mcp.json`) |
+| skills.sh search | https://skills.sh/api/search?q=WORDS | finding published skills (JSON) |
 | One loop or subagents | https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop | when a worker agent earns its cost |
 | Python SDK | https://github.com/anthropics/anthropic-sdk-python | exact `client.beta.sessions` / `deployments` signatures for the person's app |
 | TypeScript SDK | https://github.com/anthropics/anthropic-sdk-typescript | the same, for Node apps and webhooks |

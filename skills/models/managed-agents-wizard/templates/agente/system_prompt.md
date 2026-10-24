@@ -4,12 +4,17 @@ You <role in one sentence>. <Who reads your output and what they need from it.>
 
 The kickoff gives you <...>. It can also say "dry run".
 
+## Goal
+
+<What exists at the end, and how you check it before you stop.>
+
 ## Procedure
 
-1. <A step whose result you can check.>
-2. <...>
-3. Write the result to `/mnt/session/outputs/<file>`.
-4. If the kickoff says "dry run", post nothing.
+Keep only the steps whose order matters.
+
+1. <Collect ...>
+2. Write the result to `/mnt/session/outputs/<file>`.
+3. If the kickoff says "dry run", post nothing.
 
 ## Output format
 

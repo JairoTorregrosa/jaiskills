@@ -30,7 +30,7 @@ Input from the user (may be empty): $ARGUMENTS
   Session. The person defines the agent and decides when it starts. It is not the Agent SDK
   (loop in their process) and not the Messages API (they write the loop).
 - Four concepts carry everything. Explain each one the first time it appears, with the drawing
-  from `references/conceptos.md`. Never dump all four at the start.
+  from `references/conceptos.md`.
 - `references/docs.md` maps every topic to its official docs page. Facts in this skill carry the
   date they were checked; when the API answers differently, the docs page wins.
 - The control plane is files plus the `ant` CLI (`ant apply`, IDs in `claude-lock.json`). The
@@ -52,7 +52,7 @@ Input from the user (may be empty): $ARGUMENTS
 - Measured cost per run: support ticket triage USD 0.02-0.03; daily brief of 3 repos USD 0.19-0.31;
   PR review USD 0.12; website health check USD 0.11; Excel + 5-slide deck USD 0.41; research
   digest with 8 Haiku readers USD 1.57; full security audit of 3 repos (Opus, dynamic workflows)
-  USD 104.66. [11 agents, 12 test sessions]
+  USD 104.66. [11 agents, 13 sessions]
 - The `auto` permission policy can deny a legitimate write (`create_pull_request` was denied on
   a PR that deleted data). [vuln-patcher session]
 - Output files appear in `files.list` a few seconds after idle, and the list also returns copies
@@ -72,7 +72,8 @@ Input from the user (may be empty): $ARGUMENTS
 
 ## Rules for every question
 
-1. One `AskUserQuestion` call per decision, one question per call, never `multiSelect`.
+1. One `AskUserQuestion` call per decision, one question per call, single-select
+   (previews render only on single-select questions).
 2. Every option has a `preview` from `references/previews.md`. Recommended option first, with
    `(Recomendado)`. `header` at most 12 characters. 2-4 options; the UI adds "Other".
 3. Everything that is not a real decision is a **proposal**: write it, say why in one line, and
@@ -98,8 +99,12 @@ Ask one open question, no form:
 > Managed Agents es un agente alojado: Anthropic corre el loop, el sandbox y la infraestructura; tú
 > defines el agente y decides cuándo arranca. Cuéntame qué debe hacer, para quién, y qué lo arranca.
 
-Map the answer to the closest archetype in `references/arquetipos.md` and say which one in one
-line. The archetype sets the defaults for steps 2-9.
+Diagnose before you design: follow `references/diagnostico.md` to get the five facts (trigger,
+input, output, action, cost of error), reframe a domain ("un agente financiero") into a job, and
+play it back in five lines. Then match the job to a family in `references/catalogo-ideas.md`
+(designs built from 147 real workshop ideas) and to the closest tested archetype in
+`references/arquetipos.md`. Propose the full ambitious design (real source, real action behind a
+gate, memory, trigger, rubric); shrink it only when the person asks or a credential is missing.
 
 ### 2. Trigger → Session or Deployment
 
@@ -122,22 +127,29 @@ Explain Agent (§ Agent). Ask the model (`Modelo`). Then propose, in one block:
 - **Tools**: `agent_toolset_20260401`, `default_config.permission_policy: auto`; `web_fetch` and
   `web_search` listed with `enabled: false` unless the job needs the web. Remove tools the job
   never uses.
-- **Connectors**: one MCP server per external service the job names. Find each one with
-  `references/conectores.md` and name the credential it needs as you propose it.
+- **Connectors**: one MCP server per system where the input lives or the action lands. Look it
+  up in the table in `references/conectores.md` first, then the registry; name the credential and
+  any OAuth app the person must register as you propose it.
 - **Write permissions**: ask `¿Quién autoriza las escrituras?` (`Permisos`). Scheduled runs
   have nobody to answer a paused call: say so when they pick "Una persona aprueba".
-- **Skills**: Anthropic's `xlsx` `docx` `pptx` `pdf` when the job makes those files; a custom
-  skill for a procedure or domain knowledge they will reuse.
+- **Skills**: Anthropic's `xlsx` `docx` `pptx` `pdf` when the job reads or makes those files.
+  Search for published skills that already do part of the job (`references/skills.md`: Anthropic's
+  knowledge-work plugins, vendor skills, skills.sh), vet them, and write a custom skill for the
+  person's own rules (their policy, requirement matrix, scoring, runbook).
 - **Custom tools**: when their own app must answer (look up a customer, queue a reply for a
-  human). Their code answers `agent.custom_tool_use` with `user.custom_tool_result`.
+  human). Their code answers `agent.custom_tool_use` with `user.custom_tool_result`. Write each
+  description as a contract, 3-4 sentences: what it does, what it returns, when to use it and when
+  not, and a description on every parameter.
 - **Subagents**: ask `¿Un agente o varios?` (`Subagentes`) only when the job has parallel
-  heavy reading. Default: one agent with skills. Never enable dynamic workflows unless asked.
+  heavy reading. Default: one agent with skills. Leave dynamic workflows off unless the person asks for
+  them: every agent in a workflow run spends tokens.
 
 ### 5. The system prompt
 
-Design it with `references/system-prompt.md`: interview for the four missing facts (role and
-reader, inputs, definition of done, things it must never do), draft it in Simplified Technical
-English, run the critique checklist on your own draft, then show it. Offer an independent
+Design it with `references/system-prompt.md`, together with the custom tool descriptions and the
+rubric, as one contract: interview for the missing facts, draft in Simplified Technical English
+with the always-include lines (untrusted data, verification before done, when to stop, scope),
+run the critique checklist on all three files, then show them. Offer an independent
 critique: "¿Quieres que otro modelo lo critique?" → call the Skill tool with `second-opinion`.
 
 ### 6. The Environment

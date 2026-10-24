@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5.1 (2026-10-24): managed-agents-wizard diagnoses, then designs big
+
+- `references/diagnostico.md`: five facts (trigger, input, output, action, cost of error) before
+  any design; a table that turns a domain ("un agente financiero") into a first loop; what the
+  agent may do alone; ambitious defaults (real source, gated real action, memory, trigger, rubric).
+- `references/catalogo-ideas.md`: 13 families from 147 real answers to "¿Qué agente quieres
+  construir?" (La Salle workshop registrations, no personal data), each with a full design.
+- `references/skills.md`: find and vet published skills (Anthropic knowledge-work plugins, vendor
+  skills, the skills.sh search API) before writing a custom one.
+- `references/conectores.md`: table of official remote MCP servers probed on 2026-10-24, the
+  OAuth-app prerequisites, and the HTTP fallback for services with none.
+- `references/system-prompt.md`: prompt, custom tools and rubric designed as one contract, with
+  rules from the current prompting guides for Opus, Sonnet and Haiku 5.5.
+- `references/docs.md`: index of the official pages (prompting guides added); audit fixes from a prompt-audit pass.
+
 ## 1.5.0 (2026-10-24): managed-agents-wizard
 
 - New `models/managed-agents-wizard`: idea → Claude Managed Agents agent that runs on its own,
