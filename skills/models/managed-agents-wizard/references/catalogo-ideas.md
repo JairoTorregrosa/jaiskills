@@ -41,7 +41,7 @@ skill), check opening balance + movements = closing balance, flag duplicates, un
 spikes and new subscriptions. Output: where the person works: a new month tab in their Sheet
 (Sheets MCP, writing only that tab) or an `xlsx`, plus a short note per client and a Gmail draft
 to themselves. Gate: nothing goes to clients; the person reviews. Memory: client list, what is
-done this month, suppliers seen, last month's totals. Kickoff: outcome; rubric checks totals
+done this month, suppliers seen, last month's totals. Kickoff: message; the Goal checks totals
 match and every transaction has one of their categories or "Por revisar". Model: Sonnet 5.5
 `medium`; Opus 5.5 if the statements feed a tax filing and Sonnet misreads them.
 
@@ -67,8 +67,8 @@ Trigger: Deployment, Monday 07:00. Input: Meta Ads or Google Ads metrics (connec
 CSV export). Work: find campaigns below the target CPL/ROAS in memory, diagnose (audience, creative
 fatigue, budget pacing), write concrete changes and 3 new copy variants per losing ad. Output:
 `pptx` 5-slide report for the client + a change list. Gate: changes are proposals; a person
-applies them. Memory: targets per client, last week's numbers, what was tried. Kickoff: outcome;
-rubric checks every claim cites a metric and every losing ad has a change. Model: Sonnet 5.5.
+applies them. Memory: targets per client, last week's numbers, what was tried. Kickoff: message;
+the Goal checks every claim cites a metric and every losing ad has a change. Model: Sonnet 5.5.
 
 **Variant — Trend scout.** `web_search` limited to the platforms' public pages and news, a memory
 of trends already reported, a weekly digest with 5 ideas and why each fits the niche.
@@ -122,7 +122,7 @@ each document (`pdf` skill; images too), check every rule, quote the page that p
 Output: a per-document checklist (pass / fail / unreadable, with page) and a message to the
 uploader listing exactly what is missing. Gate: the message is a draft file; the decision stays
 human. Memory: files already checked, pending items per contractor, rules that caused disputes;
-mount the rules `read_only`, because the agent reads documents written by third parties. Kickoff: outcome; rubric checks every rule
+mount the rules `read_only`, because the agent reads documents written by third parties. Kickoff: message; the Goal checks every rule
 has a verdict with a page reference and nothing is marked pass without evidence. Model: Opus 5.5
 `high` (clinical, legal, customs).
 

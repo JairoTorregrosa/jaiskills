@@ -33,20 +33,20 @@ another language, keeping the layout. Max 14 lines × 70 columns.
 
 ## Entrega — "¿Qué entrega cada corrida?"
 
-### Un entregable verificable (Recomendado when there is one artifact)
+### Mensaje (Recomendado)
+```
+ kickoff: user.message  ("Revisa los repos y abre los PR que hagan falta")
+   agente ──► trabajo ──► revisa su propio Goal ──► listo
+   1 corrida = 1 costo; ves el resultado y decides si hace falta más
+```
+### Outcome con rúbrica (después de 1-2 corridas buenas)
 ```
  kickoff: user.define_outcome + rúbrica
    agente ──► reporte.md ──► evaluador aparte ──► ¿cumple 1..N?
       ▲                                           │ no
       └────────────── revisa y corrige ◄──────────┘
    sí ─► listo (máx. max_iterations vueltas)
-```
-### Respuestas o cambios en registros
-```
- kickoff: user.message
-   "Ticket de laura@…: ¿puedo pausar?"
-        └─► agente responde / cambia un registro / escala
-   sin rúbrica: cada mensaje es una tarea distinta
+   cuesta hasta max_iterations × la corrida + el evaluador
 ```
 
 ## Modelo — "¿Qué tan capaz lo necesitas?"

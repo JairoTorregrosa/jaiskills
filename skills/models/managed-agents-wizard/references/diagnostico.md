@@ -77,7 +77,8 @@ does the job, not a toy that summarizes a text:
 - **Memory.** If the job repeats, the agent keeps a baseline, a "seen" list or a playbook in a
   memory store and gets better each run.
 - **A schedule or a trigger.** An agent that only runs when someone remembers to run it is a script.
-- **A rubric.** One deliverable → an outcome with 5-7 checkable criteria.
+- **A checkable Goal.** The system prompt says what done looks like and the check the agent runs
+  before it stops. An outcome with a rubric comes later, from real outputs, if the person wants it.
 - **The right model.** Sonnet 5.5 at `medium` for most jobs; Opus 5.5 at `high` when an error
   costs a fine, a legal or a safety problem (audits, clinical, legal, tax checks); a Haiku 5.5
   worker only for parallel reading. The person can switch later with one line in `model.yaml`.
