@@ -2,8 +2,8 @@
 
 You are about to show the person the agent you designed. They are here to learn how an agent is
 built, so nothing stays hidden: each layer appears with its exact value and the reason for that
-value, in words they can repeat to someone else. A summary such as "Opus with the security skill,
-one agent" hides the decisions they came to learn; show the values themselves.
+value, in words they can repeat to someone else. A summary such as "un modelo potente con una skill,
+y un solo agente" hides the decisions they came to learn; show the values themselves.
 
 ## When to show it
 
