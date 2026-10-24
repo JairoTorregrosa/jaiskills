@@ -13,7 +13,8 @@ The spec (JSON):
    "vault_ids": ["vlt_..."],
    "resources": ["./agents/x/memory_store-y.yaml" (mounted read_only), {"path": "./agents/x/memory_store-y.yaml", "access": "read_write"}, {"type": "file", "file_id": "file_...", "mount_path": "..."}],
    "fixtures": {"<custom tool>": "text" | {"by": "<input field>", "values": {...}, "default": "..."}},
-   "events": [<kickoff events: user.message or user.define_outcome>]}
+   "dry_run": true,              # appends "Dry run." to agents/<agent>/kickoff.md (the default kickoff)
+   "events": [<optional: replaces the kickoff; user.message or user.define_outcome>]}
 
 A string resource is a path in claude-lock.json (memory stores). Paused calls (evaluated_permission
 "ask") are denied, because nobody watches a test. Custom tools get their answer from "fixtures".
@@ -64,8 +65,15 @@ def main() -> int:
     fixtures = spec.get("fixtures", {})
     budget_cents = str(int(float(spec.get("budget_usd", 5)) * 100))
 
-    client = anthropic.Anthropic()
     agent_dir = spec["agent"]
+    events = spec.get("events")
+    if not events:
+        # same kickoff as the Deployment: agents/<agent>/kickoff.md, plus "Dry run." when asked
+        kickoff = (Path("agents") / agent_dir / "kickoff.md").read_text(encoding="utf-8").strip()
+        if spec.get("dry_run"):
+            kickoff += "\nDry run."
+        events = [{"type": "user.message", "content": [{"type": "text", "text": kickoff}]}]
+    client = anthropic.Anthropic()
     session = client.beta.sessions.create(
         agent=id_of(f"./agents/{agent_dir}/agent.md"),
         environment_id=id_of(f"./agents/{agent_dir}/environment.yaml"),
@@ -81,7 +89,7 @@ def main() -> int:
     log: list[str] = []
     stop = "unknown"
     with client.beta.sessions.events.stream(session_id=session.id) as stream:
-        client.beta.sessions.events.send(session_id=session.id, events=spec["events"])
+        client.beta.sessions.events.send(session_id=session.id, events=events)
         for event in stream:
             t = event.type
             if t == "agent.message":
@@ -129,6 +137,7 @@ def main() -> int:
         {"session": session.id, "status": final.status, "stop_reason": stop, "cost_usd": cost,
          "outcomes": outcomes, "files": [f.filename for f in files]}, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[{agent_dir}] stop={stop} status={final.status} cost=USD {cost:.2f} files={[f.filename for f in files]} -> {out}")
+    print(f"[{agent_dir}] trace: uv run --script scripts/trazas.py {session.id}")
     return 0 if stop in ("end_turn", "retries_exhausted") else 1
 
 
