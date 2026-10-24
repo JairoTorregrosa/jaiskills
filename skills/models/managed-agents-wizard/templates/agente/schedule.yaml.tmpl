@@ -1,0 +1,8 @@
+name: <nombre> <cuándo>
+deployment_file: deployment-<cuando>.yaml
+schedule: {type: cron, expression: "0 7 * * 1-5", timezone: America/Bogota}
+budget: {type: limit, max_list_cost: {amount: "500", currency: USD}}   # cents: "500" = USD 5
+vault_ids: [<vlt_...>]                   # IDs, not paths
+resources:
+  - ./memory_store-memoria.yaml          # paths to memory store files
+max_iterations: 2                        # outcome rounds, only used when rubric.md exists

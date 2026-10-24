@@ -1,0 +1,27 @@
+# Copy to .github/workflows/<nombre>.yml in the repository that triggers the agent.
+# Repository secret: ANTHROPIC_API_KEY. Repository variables: AGENT_ID, ENV_ID, VAULT_ID (from claude-lock.json).
+name: Claude <nombre>
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+permissions: {}
+jobs:
+  start:
+    if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start a Managed Agents session
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          AGENT_ID: ${{ vars.AGENT_ID }}
+          ENV_ID: ${{ vars.ENV_ID }}
+          VAULT_ID: ${{ vars.VAULT_ID }}
+        run: |
+          jq -n --arg pr "$PR_URL" --arg a "$AGENT_ID" --arg e "$ENV_ID" --arg v "$VAULT_ID" '{
+            agent: $a, environment_id: $e, vault_ids: [$v], title: ("Review " + $pr),
+            budget: {type: "limit", max_list_cost: {amount: "300", currency: "USD"}},
+            initial_events: [{type: "user.message", content: [{type: "text", text: ("Review this pull request: " + $pr)}]}]
+          }' | curl -fsS https://api.anthropic.com/v1/sessions \
+            -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2026-10-21" \
+            -H "anthropic-beta: managed-agents-2026-04-01" -H "content-type: application/json" -d @- | jq '{id, status}'
