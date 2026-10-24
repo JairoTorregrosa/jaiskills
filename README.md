@@ -87,6 +87,18 @@ test run. It talks in your language, Spanish by default.
 <br>*I use it for* people building their first agent. It was born from my Claude Agent SDK workshop
 at Platzi Conf 2026.
 
+**[managed-agents-wizard](skills/models/managed-agents-wizard/SKILL.md)**: takes you from "I want an
+agent that…" to a Claude Managed Agents agent that runs on its own: it explains Agent, Environment,
+Session and Deployment at the moment each one matters, asks the real decisions as drawn options,
+writes the system prompt in Simplified Technical English, finds MCP connectors, loads credentials
+into a vault without the secret touching the chat, and lays every agent out as one folder with one
+file per concern (`system_prompt.md`, `tools.yaml`, `mcp.yaml`, `schedule.yaml`…). Then it applies
+with the `ant` CLI, runs a capped test session, and reads a failed session's events to tell you why
+it stopped. Spanish by default.
+<br>*I use it for* my Claude Managed Agents workshop at Universidad de La Salle (Oct 2026), and for
+the agents I run myself: a weekly vulnerability patcher for my repos and ten always-on agents
+(briefs, PR review, CI triage, release notes, a papers radar, site checks, reports, support).
+
 **[metaprompt](skills/models/metaprompt/SKILL.md)**: takes a goal, a target model and a target
 harness, and writes the complete prompt for that combination, from researched guides per model
 (Claude, GPT-5.x) and per harness (Claude Code, Codex, pi, Amp and more).
@@ -133,6 +145,8 @@ file-todos, compound-knowledge and insistir's plan deepening are adapted from Ev
   `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and run it in an interactive session. Without them it
   runs the same crew as plain subagents, and the completion hook may not apply.
 - agent-sdk-wizard's test run needs an `ANTHROPIC_API_KEY` (and Node for a TypeScript agent).
+- managed-agents-wizard needs the `ant` CLI 1.40 or later, logged in (`ant auth login`), and
+  `ANTHROPIC_API_KEY` (or the `ant` login) for its test sessions, which cost real money (capped).
 - Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion and the
   judges in insistir and goal-loop (without it they fall back to a Claude judge); the
   [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI for askcodex and image-to-frontend;

@@ -1,0 +1,11 @@
+tools:
+  - type: agent_toolset_20260401
+    default_config: {enabled: true, permission_policy: {type: auto}}
+    configs:
+      - {name: web_fetch, enabled: false}   # enable only if the job reads the web; then add allowed_domains
+      - {name: web_search, enabled: false}
+  # Custom tool: your app answers it (agent.custom_tool_use -> user.custom_tool_result).
+  # - type: custom
+  #   name: lookup_customer
+  #   description: <What it returns and when to use it.>
+  #   input_schema: {type: object, properties: {email: {type: string}}, required: [email]}

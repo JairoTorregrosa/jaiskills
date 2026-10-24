@@ -1,0 +1,3 @@
+interface:
+  display_name: "Managed Agents wizard"
+  short_description: "Idea to a scheduled, tested Claude Managed Agent, debugging included"

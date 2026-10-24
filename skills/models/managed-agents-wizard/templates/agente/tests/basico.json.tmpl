@@ -1,0 +1,11 @@
+{
+ "agent": "<nombre>",
+ "title": "test <nombre>",
+ "budget_usd": 5,
+ "vault_ids": [],
+ "resources": ["./agents/<nombre>/memory_store-memoria.yaml"],
+ "fixtures": {"<custom_tool>": {"by": "<input field>", "values": {"<value>": {"<key>": "<fake data>"}}, "default": "not found"}},
+ "events": [{"type": "user.define_outcome", "max_iterations": 2,
+   "description": "<kickoff>\nDry run.",
+   "rubric": {"type": "text", "content": "1. <criterion>"}}]
+}

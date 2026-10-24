@@ -1,0 +1,9 @@
+mcp_servers:
+  - {type: url, name: <server>, url: <https://.../mcp>}
+toolsets:
+  - type: mcp_toolset
+    mcp_server_name: <server>
+    default_config: {enabled: false, permission_policy: {type: always_allow}}   # allowlist: only what is listed
+    configs:
+      - {name: <read_tool>, enabled: true}                                       # reads: always_allow
+      - {name: <write_tool>, enabled: true, permission_policy: {type: auto}}     # writes: auto, or always_ask

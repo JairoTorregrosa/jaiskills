@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.5.0 (2026-10-24): managed-agents-wizard
+
+- New `models/managed-agents-wizard`: idea → Claude Managed Agents agent that runs on its own,
+  debugging included. Explains Agent, Environment, Session, Deployment, vault, memory store and
+  outcome at the step that needs each one; six illustrated AskUserQuestion decisions (trigger,
+  kickoff, model, write permissions, subagents, network); system prompts in Simplified Technical
+  English with a self-critique checklist; MCP connector search (vendor docs, then the official MCP
+  Registry); vault credentials loaded with `read -rs` so secrets never reach the chat.
+- Every agent is one folder with one concern per file (`model.yaml`, `system_prompt.md`,
+  `tools.yaml`, `mcp.yaml`, `skills.yaml`, `environment.yaml`, `schedule.yaml`, `kickoff.md`,
+  `rubric.md`, `files.yaml`, `memory/`, `tests/`); `scripts/ensamblar.py` builds the `agent.md`
+  and `deployment-*.yaml` that `ant apply` reads (`--check` for CI). Templates carry a `.tmpl`
+  suffix so `ant apply` never picks them up.
+- `scripts/probar.py` runs one capped test session (denies paused calls, answers custom tools from
+  fixtures, downloads only real outputs); `scripts/inspeccionar.py` reports why a session stopped,
+  what failed, what was denied and what it cost. `references/debugging.md` maps each symptom to its
+  fix. Archetypes, costs and gotchas come from 11 agents and 13 test sessions run on 2026-10-24.
+
 ## 1.4.0 (2026-10-02): askcodex 0.3.0, a tool for the agent calling it
 
 - `askcodex` re-synced from askcodex v0.3.0 (JairoTorregrosa/askcodex#14, #15, #16) plus #17,
