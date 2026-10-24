@@ -38,7 +38,7 @@ unset CMA_TOKEN
 
 MCP with OAuth needs an access token, a refresh token and a client ID that the vendor's own OAuth
 flow gives the person (an OAuth app they register, then one authorization in the browser). This
-skill does not run that flow: in a workshop, pick a bearer-token option or files, and leave OAuth
+skill does not run that flow: when time is short, pick a bearer-token option or files, and leave OAuth
 for after the session. When they have the tokens (refreshed by the platform; read `token_endpoint` from the server's
 `/.well-known/oauth-authorization-server`):
 ```sh

@@ -2,7 +2,7 @@
 
 You are about to match a person's idea to a family below and propose the agent in full: trigger,
 connectors, skills, memory, kickoff, gate. Every family comes from what 147 people answered when
-they registered for a Managed Agents workshop in Bogotá (Oct 2026). The designs are ambitious on
+they signed up to build a Managed Agents agent (Oct 2026). The designs are ambitious on
 purpose: real sources, real actions behind a gate, memory, a schedule. Shrink one only when the
 person asks or a credential is missing.
 
@@ -14,7 +14,7 @@ Never copy a design without step 1 of `diagnostico.md`: the person's five facts 
 Family sizes, out of 147 answers (names not kept): finance 18, marketing and content 17,
 engineering and ops 17, personal assistant 12, document compliance 11, sales 9, research,
 education and health 9, field and sector operations 8, market watch 6, support 6, data 4,
-"many sub-agents" 3, no concrete idea 27. [La Salle registration export, read locally]
+"many sub-agents" 3, no concrete idea 27. [registration answers, read locally; no personal data kept]
 
 ## How to read a design
 

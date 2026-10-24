@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.5 (2026-10-24): managed-agents-wizard is event-agnostic
+
+- Removed `references/taller.md` and every reference to a specific workshop (agenda times, credits
+  QR, Claude Desktop setup, venue). The skill keeps the general path: design, one budgeted test
+  Session, iterate with the Console trace, schedule; a smaller first version when time or a
+  credential is short; clean-up with `AskUserQuestion` when the person is done. The learning mode
+  is now called **Guiado**.
+
 ## 1.5.4 (2026-10-24): managed-agents-wizard follows the workshop deck
 
 - `references/taller.md`: the deck's agenda (Diseña 10:15, Prueba 10:45, Itera 11:10, Programa
