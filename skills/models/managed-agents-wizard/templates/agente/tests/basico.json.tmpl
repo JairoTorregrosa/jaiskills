@@ -3,7 +3,7 @@
  "title": "test <nombre>",
  "budget_usd": 5,
  "vault_ids": [],
- "resources": ["./agents/<nombre>/memory_store-memoria.yaml"],
+ "resources": [{"path": "./agents/<nombre>/memory_store-memoria.yaml", "access": "read_only"}],
  "fixtures": {"<custom_tool>": {"by": "<input field>", "values": {"<value>": {"<key>": "<fake data>"}}, "default": "not found"}},
  "events": [{"type": "user.define_outcome", "max_iterations": 2,
    "description": "<kickoff>\nDry run.",

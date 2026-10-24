@@ -1,8 +1,8 @@
 # arquetipos.md — the job → defaults for every decision
 
 Map the person's job to the closest row and say so in one line. The defaults are proposals; the
-person can change any of them. Every row was built and run as a real agent (Oct 2026); the cost
-is one measured run.
+person can change any of them. Every row was built as a real agent (Oct 2026) and all but two were run;
+the cost is one measured run.
 
 | Archetype | Example | Trigger | Kickoff | Connectors / inputs | Skills | Memory | Cost |
 |---|---|---|---|---|---|---|---|

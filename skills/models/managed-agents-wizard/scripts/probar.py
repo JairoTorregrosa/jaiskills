@@ -6,12 +6,12 @@
 """Run one test session of a Managed Agents agent and save what it produced.
 
 Usage (from the project root, next to claude-lock.json):
-  uv run --script <skill>/scripts/probar.py tests/<name>.json
+  uv run --script scripts/probar.py agents/<name>/tests/<case>.json
 
 The spec (JSON):
   {"agent": "<dir under agents/>", "title": "...", "budget_usd": 5,
    "vault_ids": ["vlt_..."],
-   "resources": ["./agents/x/memory_store-y.yaml", {"type": "file", "file_id": "file_...", "mount_path": "..."}],
+   "resources": ["./agents/x/memory_store-y.yaml" (mounted read_only), {"path": "./agents/x/memory_store-y.yaml", "access": "read_write"}, {"type": "file", "file_id": "file_...", "mount_path": "..."}],
    "fixtures": {"<custom tool>": "text" | {"by": "<input field>", "values": {...}, "default": "..."}},
    "events": [<kickoff events: user.message or user.define_outcome>]}
 
@@ -53,7 +53,11 @@ def main() -> int:
     resources = []
     for r in spec.get("resources", []):
         if isinstance(r, str):
-            resources.append({"type": "memory_store", "memory_store_id": id_of(r)})
+            # tests never write to a production store unless the spec says so
+            resources.append({"type": "memory_store", "memory_store_id": id_of(r), "access": "read_only"})
+        elif r.get("path"):
+            resources.append({"type": "memory_store", "memory_store_id": id_of(r["path"]),
+                              "access": r.get("access", "read_only")})
         else:
             resources.append(r)
     mounted = {Path(r["mount_path"]).name for r in resources if r.get("type") == "file" and r.get("mount_path")}

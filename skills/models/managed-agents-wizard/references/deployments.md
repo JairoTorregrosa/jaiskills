@@ -56,9 +56,23 @@ and decides what goes into the kickoff. Treat that text as untrusted in the prom
   `agent.md` re-pins it in the same run. A Deployment created any other way must be moved by hand:
   `ant beta:deployments update --deployment-id <id> --agent '{type: agent, id: <agent_id>, version: <N>}'`.
 - `ant beta:deployments pause|unpause|run --deployment-id <id>`. `run` works while paused.
-- A scheduled Session has nobody streaming it. A call that pauses for approval (`ask`) waits
-  forever. Design for no pauses (reads `always_allow`, writes `auto` or a narrow `always_allow`),
-  or register a `session.status_idled` webhook in the Console that answers paused calls by rule.
+- A scheduled Session has nobody streaming it. A call that pauses for approval (`ask`) and a
+  custom tool nobody answers both wait forever. Design for no pauses: reads `always_allow`, writes
+  only to the agent's own space, and the human gate is the artifact it leaves (a draft, a file, a
+  tab it owns). A `session.status_idled` webhook that answers by rule is the other way out.
+- `vault_ids: [./vault.yaml]` and `resources: [{path: ./memory_store-<x>.yaml, access: read_only}]`
+  are paths `ant apply` resolves in the same run (`--dry-run -v` shows `vault_ids: (known after
+  apply)`). One apply creates the vault, the store and the Deployment. [dry run, 2026-10-24]
+- Reference data the person updates (monthly targets, a client list): a memory store mounted
+  `read_only`, loaded after apply with `ant beta:memory-stores:memories create` and refreshed with
+  `... memories update`. Load it before the first run: an empty read-only store gives a plausible
+  report about nothing.
+- Uploaded files are fixed: every scheduled run mounts the same `file_id`s. Changing inputs come
+  through a connector (Drive, Gmail) or a trigger that uploads and mounts the new files.
+- Same job for N entities (12 clients, 80 contractors): one Deployment, the entity list in memory,
+  one note file per entity as it works; not one Deployment per entity.
+- Inputs that arrive late: run over a window (`0 6 2-6 * *`), keep in memory what is done this
+  period, process only what is new, and list what is still missing instead of guessing.
 
 ## Go live (only when the person says so)
 
@@ -73,3 +87,11 @@ and decides what goes into the kickoff. Treat that text as untrusted in the prom
 - Cost: `ant beta:sessions retrieve --session-id <id> --format json | jq '.usage.list_cost'` (cents).
 - Change anything: edit the part, `ensamblar.py`, `ant apply` the two generated files.
 - After the first week, tune `rubric.md` with what the grader rejected wrongly or let through.
+
+## Sources
+
+- Scheduled deployments: https://platform.claude.com/docs/en/managed-agents/scheduled-deployments.md
+- `ant apply`: https://platform.claude.com/docs/en/cli-sdks-libraries/cli/apply.md
+- Webhooks: https://platform.claude.com/docs/en/managed-agents/webhooks.md
+- Memory: https://platform.claude.com/docs/en/managed-agents/memory.md
+- Files: https://platform.claude.com/docs/en/managed-agents/files.md

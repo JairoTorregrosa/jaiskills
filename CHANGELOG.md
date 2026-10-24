@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.5.1 (2026-10-24): managed-agents-wizard diagnoses, then designs big
+
+- `references/diagnostico.md`: five facts (trigger, input, output, action, cost of error) before
+  any design; a table that turns a domain ("un agente financiero") into a first loop; what the
+  agent may do alone; ambitious defaults (real source, gated real action, memory, trigger, rubric).
+- `references/catalogo-ideas.md`: 13 families from 147 real answers to "¿Qué agente quieres
+  construir?" (La Salle workshop registrations, no personal data), each with a full design.
+- `references/skills.md`: find and vet published skills (Anthropic knowledge-work plugins, vendor
+  skills, the skills.sh search API) before writing a custom one.
+- `references/conectores.md`: table of official remote MCP servers probed on 2026-10-24, the
+  OAuth-app prerequisites, and the HTTP fallback for services with none.
+- `references/system-prompt.md`: prompt, custom tools and rubric designed as one contract, with
+  rules from the current prompting guides for Opus, Sonnet and Haiku 5.5.
+- `references/docs.md`: index of the official pages (prompting guides added); audit fixes from a prompt-audit pass.
+- Fixes from two simulated workshop runs (a vague "Financiero" idea and a contractor-document
+  auditor), each played to `ant apply --dry-run` with a role-played participant:
+  - unattended runs never use `always_ask` or approval tools that wait; the gate is a draft in the
+    agent's own space; catalog designs updated to match;
+  - Gmail MCP cannot download attachments: statements enter through Drive or uploads; encrypted
+    PDFs must arrive unlocked (`credenciales.md` § Inside the sandbox);
+  - `vault_ids: [./vault.yaml]` and `{path, access}` memory resources resolve in one apply
+    (checked with `--dry-run -v`); `ensamblar.py` now fails on a file without `file_id` or a
+    placeholder left in `vault_ids`/`resources`;
+  - patterns for N entities in one Deployment, late inputs over a run window, fixed uploads,
+    reference data, third-party personal data, where the person reads the result;
+  - step 1 starts from the registration answer; decisions the diagnosis settled become proposals;
+    preflight reads org and token expiry; model advice keyed to the cost of an error; test budget
+    USD 5 (Sonnet) to 20 (Opus `high`); workshop credits and the Claude Desktop setup in preflight.
+- Third simulated run (Meta Ads agency, 9 clients): Meta MCP accepts a System User token as
+  `static_bearer` (read-only by scope, verified in Meta's docs); prefer vendor bearer tokens over
+  OAuth in a workshop; credentials load after the apply that creates the vault; `probar.py` mounts
+  memory stores `read_only` unless the spec says otherwise; read-only reference data refreshed
+  with `memories update`; `-v` prints `resources` as sensitive.
+
 ## 1.5.0 (2026-10-24): managed-agents-wizard
 
 - New `models/managed-agents-wizard`: idea → Claude Managed Agents agent that runs on its own,

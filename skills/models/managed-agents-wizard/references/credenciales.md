@@ -11,14 +11,19 @@ own shell; you build the request from environment variables and never print, sto
   `mcp_oauth` refreshes by itself. [live runs, platform docs]
 - MCP credentials match their server by URL: one vault with a GitHub MCP credential served 8
   agents that use the same URL. [live runs]
-- Deployments and sessions take vaults by ID (`vault_ids: [vlt_...]`), not by path. [ant apply]
+- A Deployment file managed by `ant apply` takes the vault by path (`vault_ids: [./vault.yaml]`);
+  sessions created from code (and `probar.py` specs) take the ID from `claude-lock.json`. [ant apply --dry-run -v]
+- Prefer a long-lived bearer token when the vendor offers one for unattended use: GitHub
+  fine-grained PAT, Meta System User token (Employee role only; `ads_mcp_management` + `ads_read`,
+  sent as `Authorization: Bearer`). It needs no OAuth client and keeps the scope in the token.
+  [developers.facebook.com/documentation/ads-commerce/ads-ai-connectors/ads-mcp-server/ads-mcp-server-get-started.md]
 - Fine-grained GitHub PATs have no Checks permission. Read CI through `actions_*` tools. [live runs]
 - The Admin API (usage, cost) is not available to individual accounts. [platform docs]
 
 ## Do this
 
 1. List each credential in `credentials.md`: service, type, minimum permissions, what for.
-2. Apply `vault.yaml`, then read its ID: `jq -r '.resources["./agents/<name>/vault.yaml"].id' claude-lock.json`.
+2. The vault exists after step 11 (`ant apply` creates it with the rest). Then read its ID: `jq -r '.resources["./agents/<name>/vault.yaml"].id' claude-lock.json`.
 3. Give the person the block for each credential and wait for "listo". They run it; in Claude Code
    they can prefix each line with `!`.
 
@@ -31,7 +36,10 @@ JQ
 unset CMA_TOKEN
 ```
 
-MCP with OAuth (refreshed by the platform; read `token_endpoint` from the server's
+MCP with OAuth needs an access token, a refresh token and a client ID that the vendor's own OAuth
+flow gives the person (an OAuth app they register, then one authorization in the browser). This
+skill does not run that flow: in a workshop, pick a bearer-token option or files, and leave OAuth
+for after the session. When they have the tokens (refreshed by the platform; read `token_endpoint` from the server's
 `/.well-known/oauth-authorization-server`):
 ```sh
 read -rs CMA_ACCESS && read -rs CMA_REFRESH && read -r CMA_CLIENT_ID && export CMA_ACCESS CMA_REFRESH CMA_CLIENT_ID
@@ -61,8 +69,23 @@ Never write it into a committed file.
    and list 1 item. Do not start the task." A wrong token shows up only here, not at session
    creation.
 
+## Inside the sandbox
+
+Vault credentials are added to outbound requests only; the sandbox never sees them, and memory
+never holds secrets. So there is no safe place for a secret the agent needs inside the container,
+such as the password of an encrypted PDF (Colombian bank statements often have one). Say so and
+design around it: the inputs reach the agent already unlocked (the person saves an unlocked copy,
+or their own pipeline decrypts before upload). Never put the password in a prompt, a kickoff, a
+memory file or `files/`.
+
 ## Rules
 
 - Never ask for a secret in the chat, never echo it, never put it in a file, a URL or a log.
 - If the person pastes a secret into the chat anyway, tell them to rotate it, and do not use it.
 - Rotate by creating the credential again with the new value; archive the old one only if asked.
+
+## Sources
+
+- Vaults: https://platform.claude.com/docs/en/managed-agents/vaults.md
+- MCP connector: https://platform.claude.com/docs/en/managed-agents/mcp-connector.md
+- GitHub mounts: https://platform.claude.com/docs/en/managed-agents/github.md

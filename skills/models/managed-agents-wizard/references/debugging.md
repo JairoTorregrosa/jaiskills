@@ -49,3 +49,11 @@ below. Fix the cause in its own file, re-run `ensamblar.py`, re-apply, re-test. 
 After 3 runs on the same symptom with no progress, stop. Show the person the inspeccionar output,
 what you changed each time, and the next hypothesis. Offer an outside read: call the Skill tool
 with `second-opinion` on the prompt and the event trace.
+
+## Sources
+
+- Sessions: https://platform.claude.com/docs/en/managed-agents/sessions.md
+- Events and streaming: https://platform.claude.com/docs/en/managed-agents/events-and-streaming.md
+- Permission policies: https://platform.claude.com/docs/en/managed-agents/permission-policies.md
+- Define outcomes: https://platform.claude.com/docs/en/managed-agents/define-outcomes.md
+- Observability: https://platform.claude.com/docs/en/managed-agents/session-observability.md
