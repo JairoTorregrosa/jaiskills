@@ -44,6 +44,8 @@ Entrega       <mensaje | outcome con rúbrica de N criterios>  kickoff.md · rub
               iteraciones máx.: <n> · por qué: <qué es verificable>
 Tope de costo USD <x> por corrida (amount "<centavos>")     schedule.yaml
               por qué: <costo medido o estimado; se ajusta tras la prueba>
+              se compone de: tokens del modelo + USD 10 por 1.000 búsquedas web
+              + USD 0,08 por hora en running (idle no cuenta)
 System prompt system_prompt.md, completo abajo
 Tools         habilitadas: <bash, read, write, edit, glob, grep> · política <auto>   tools.yaml
               apagadas: <web_fetch, web_search> · por qué cada una

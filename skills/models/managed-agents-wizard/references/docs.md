@@ -46,6 +46,7 @@ All URLs returned HTTP 200 on 2026-10-24.
 | Files API | https://platform.claude.com/docs/en/build-with-claude/files.md | uploading inputs |
 | Skills guide | https://platform.claude.com/docs/en/build-with-claude/skills-guide.md | writing and uploading a custom skill |
 | Models | https://platform.claude.com/docs/en/models/overview.md | current model IDs and prices |
+| Pricing | https://platform.claude.com/docs/en/about-claude/pricing.md | Managed Agents: tokens, USD 0.08 per session-hour running, web search |
 | Effort | https://platform.claude.com/docs/en/build-with-claude/effort.md | choosing `effort` per agent |
 | Usage and cost API | https://platform.claude.com/docs/en/manage-claude/usage-cost-api.md | cost reports for a watchdog agent (needs an organization) |
 

@@ -39,6 +39,9 @@ What: the template of the container where tools run: network rules and packages.
 agents. Each Session gets a fresh container from it; nothing survives the Session except
 outputs and memory.
 Analogy: the desk you give the worker each morning, cleared every night.
+Cloud sandbox (2026-10-24): Ubuntu 24.04, up to 8 GB RAM and 10 GB disk; Python, Node, Go, Rust,
+Java, git, rg, Playwright, LibreOffice and ffmpeg preinstalled; packages cached between Sessions.
+[managed-agents/cloud-sandboxes-reference]
 
 ```
  Environment  (cloud, networking: limited)

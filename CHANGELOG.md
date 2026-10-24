@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.4 (2026-10-24): managed-agents-wizard follows the workshop deck
+
+- `references/taller.md`: the deck's agenda (Diseña 10:15, Prueba 10:45, Itera 11:10, Programa
+  11:35) mapped to wizard steps, credits and Claude Desktop, the Console tab, a smaller first
+  version when time runs out, and clean-up with `AskUserQuestion` (archiving an Agent archives
+  its Deployments).
+- Same story as the slides: `always_ask` in unattended runs is fine when a `session.status_idled`
+  webhook answers it by rule; cost = tokens + USD 10 per 1,000 searches + USD 0.08 per
+  session-hour running; `budget_reached` resumes only by raising the budget; cron jitter up to 9
+  minutes, no backfill, auto-pause on unrecoverable errors; `networking` always explicit (API
+  default is `unrestricted`); `allowed_hosts` also limits web tools; cloud sandbox specs.
+- Preflight checks `uv` and `jq`; debugging keeps the Session open in the Console.
+
 ## 1.5.3 (2026-10-24): managed-agents-wizard starts with a message kickoff
 
 - The default kickoff is `user.message`, with the "done" check in the system prompt's Goal. An
