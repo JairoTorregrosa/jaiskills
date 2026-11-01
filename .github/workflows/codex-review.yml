@@ -26,9 +26,11 @@ permissions:
   pull-requests: read
   issues: read
 
-concurrency:
-  group: codex-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+# No `concurrency`: cancelling is what broke the gate. A push and a Codex review arrive
+# together, one run cancels the other, and the cancelled check run (same name, same head)
+# blocks the merge although another run passed. Every run therefore finishes with a
+# verdict instead. Runs for the same head read the same marker, so they agree, and a run
+# whose head is no longer the PR's head stops at once (see "superseded" below).
 
 jobs:
   codex-review:
@@ -58,6 +60,10 @@ jobs:
           }
           start=$(date +%s)
           while :; do
+            cur=$(gh api "repos/$REPO/pulls/$PR" --jq .head.sha)
+            if [ "$cur" != "$HEAD" ]; then
+              echo "::notice::superseded: the PR head is now $cur, not $HEAD; that head's run decides"; exit 0
+            fi
             s=$(state || true)
             if [ -n "$s" ]; then
               sha=$(jq -r '.code_review.commit_sha // ""' <<<"$s")
@@ -66,7 +72,7 @@ jobs:
               echo "codex state: commit=$sha status=$status unresolved=$unresolved (head=$HEAD)"
               if [ "$sha" = "$HEAD" ] && [ "$status" = completed ]; then
                 if [ "$unresolved" = false ]; then echo "Codex reviewed $HEAD: no unresolved findings"; exit 0; fi
-                echo "::error::Codex has unresolved findings on $HEAD. Fix and push, resolve the threads and re-run this job, or add the ai-review-override label."
+                echo "::error::Codex has unresolved findings on $HEAD. Next: read them (gh api repos/$REPO/pulls/$PR/comments), fix and push, or reply and resolve each thread; codex-nudge re-runs this job once Codex reports no unresolved findings. False positive: add the ai-review-override label. Full status: merge-ready $REPO $PR"
                 exit 1
               fi
             fi
