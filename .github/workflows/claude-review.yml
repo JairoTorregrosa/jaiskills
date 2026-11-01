@@ -52,6 +52,9 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Dependency updates get the same review. Dependabot runs read the token from
+          # Dependabot secrets (gh-guard sets both).
+          allowed_bots: "dependabot[bot]"
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
