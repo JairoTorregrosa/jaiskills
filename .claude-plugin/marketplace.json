@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "jaiskills",
-  "description": "Jairo Torregrosa's personal agent skills, as one Claude Code plugin",
+  "description": "Jairo Torregrosa's personal agent skills, as one plugin for Claude Code and Codex",
   "owner": {
     "name": "Jairo Torregrosa"
   },
@@ -10,7 +10,7 @@
       "name": "jaiskills",
       "source": ".",
       "description": "12 personal skills: motion-design (videos people are proud to share), image-to-frontend, insistir (agents checking agents), goal-loop, second-opinion (GPT-6 Astra as advisor, adversarial reviewer or judge, read-only), remote-agents (SSH), agent-sdk-wizard, managed-agents-wizard, metaprompt, askcodex, compound-knowledge, file-todos",
-      "version": "1.5.6",
+      "version": "1.6.0",
       "category": "development",
       "tags": [
         "skills",

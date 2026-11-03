@@ -78,22 +78,23 @@ cwd: "./workspace",        // TypeScript
 
 | Option | Value | Price in/out per MTok |
 |---|---|---|
-| Sonnet 5 *(rec.)* | `"claude-sonnet-5"` | $2 / $10 |
-| Haiku 4.5 | `"claude-haiku-4-5-20251001"` | $1 / $5 |
+| Sonnet 5.5 *(rec.)* | `"claude-sonnet-5-5"` | $2 / $10 |
+| Haiku 5.5 | `"claude-haiku-5-5"` | $0.10 / $0.50 (prompts up to 100K tokens; $0.50 / $2.50 above) |
 | Opus 5.5 | `"claude-opus-5-5"` | $4 / $20 |
 | Fable 5.1 | `"claude-fable-5-1"` | $10 / $50 |
 
-Prices verified 2026-09-26 against `platform.claude.com/docs/en/about-claude/models/overview`
-(the Opus 5.5 and Fable 5.1 model pages agree). Sonnet 5's $2/$10 is the standard price, not an
-introductory one. Opus 5.5 defaults to `effort="medium"` when effort is omitted (every other
-model here defaults to `"high"`); the sub-question always sets it explicitly.
+Prices and IDs verified 2026-11-02 against the claude-api skill's model table (cached 2026-10-06)
+and its Sonnet 5.5 and Haiku 5.5 migration guides. Sonnet 5.5 replaced Sonnet 5 and Haiku 5.5
+replaced Haiku 4.5; both older IDs are still served, so offer them only when the person names them.
+Opus 5.5 and Haiku 5.5 default to `effort="medium"` when effort is omitted; Sonnet 5.5 and Fable
+5.1 default to `"high"`. The sub-question always sets it explicitly.
 
 ```python
-model="claude-sonnet-5",
+model="claude-sonnet-5-5",
 effort="high",             # only if the sub-question ran; "low"|"medium"|"high"|"xhigh"|"max"
 ```
 ```typescript
-model: "claude-sonnet-5",
+model: "claude-sonnet-5-5",
 effort: "high",
 ```
 

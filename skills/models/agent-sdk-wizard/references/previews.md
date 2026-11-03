@@ -113,33 +113,34 @@ tú ──► ┌─────────────────────
 
 ## Step 3 · Modelo — "¿Qué tan listo lo necesitas (y cuánto quieres pagar)?"
 
-> Precios en dólares por millón de tokens (verificados 2026-09-26).
+> Precios en dólares por millón de tokens (verificados 2026-11-02).
 > Una corrida típica del taller mueve ~30 mil tokens: centavos.
 
-### 3A · Sonnet 5 *(Recomendado)*
+### 3A · Sonnet 5.5 *(Recomendado)*
 
 ```
               entrada    salida     velocidad
   Fable 5.1   $10,00     $50,00     ▓▓▒▒▒
   Opus 5.5     $4,00     $20,00     ▓▓▓▒▒
-▶ Sonnet 5     $2,00     $10,00     ▓▓▓▓▒   ◄ AQUÍ
-  Haiku 4.5    $1,00      $5,00     ▓▓▓▓▓
+▶ Sonnet 5.5   $2,00     $10,00     ▓▓▓▓▒   ◄ AQUÍ
+  Haiku 5.5    $0,10      $0,50     ▓▓▓▓▓
 
   El equilibrio: entiende tareas de varios pasos y cuesta
   poco. Es el default de la casa. Si dudas, este.
 ```
 
-### 3B · Haiku 4.5 — rápido y barato
+### 3B · Haiku 5.5 — rápido y muy barato
 
 ```
               entrada    salida     velocidad
   Fable 5.1   $10,00     $50,00     ▓▓▒▒▒
   Opus 5.5     $4,00     $20,00     ▓▓▓▒▒
-  Sonnet 5     $2,00     $10,00     ▓▓▓▓▒
-▶ Haiku 4.5    $1,00      $5,00     ▓▓▓▓▓   ◄ AQUÍ
+  Sonnet 5.5   $2,00     $10,00     ▓▓▓▓▒
+▶ Haiku 5.5    $0,10      $0,50     ▓▓▓▓▓   ◄ AQUÍ
 
-  La mitad del precio de Sonnet y más rápido. Bien para
-  buscar, listar, clasificar. Se pierde en razonar largo.
+  Veinte veces más barato que Sonnet si el prompt cabe en
+  100 mil tokens. Bien para buscar, listar, clasificar y
+  como ayudante. Para razonar largo, sube a Sonnet.
 ```
 
 ### 3C · Opus 5.5 — razonamiento largo
@@ -148,8 +149,8 @@ tú ──► ┌─────────────────────
               entrada    salida     velocidad
   Fable 5.1   $10,00     $50,00     ▓▓▒▒▒
 ▶ Opus 5.5     $4,00     $20,00     ▓▓▓▒▒   ◄ AQUÍ
-  Sonnet 5     $2,00     $10,00     ▓▓▓▓▒
-  Haiku 4.5    $1,00      $5,00     ▓▓▓▓▓
+  Sonnet 5.5   $2,00     $10,00     ▓▓▓▓▒
+  Haiku 5.5    $0,10      $0,50     ▓▓▓▓▓
 
   2× el precio de Sonnet. Vale la pena solo si la tarea
   tiene muchos pasos que dependen unos de otros.
@@ -160,8 +161,8 @@ tú ──► ┌─────────────────────
 ```
 ▶ Fable 5.1   $10,00     $50,00     ▓▓▒▒▒   ◄ AQUÍ
   Opus 5.5     $4,00     $20,00     ▓▓▓▒▒
-  Sonnet 5     $2,00     $10,00     ▓▓▓▓▒
-  Haiku 4.5    $1,00      $5,00     ▓▓▓▓▓
+  Sonnet 5.5   $2,00     $10,00     ▓▓▓▓▒
+  Haiku 5.5    $0,10      $0,50     ▓▓▓▓▓
 
   5× Sonnet a la entrada, 5× a la salida. Para problemas
   que de verdad no salen con Sonnet. Empieza por Sonnet y

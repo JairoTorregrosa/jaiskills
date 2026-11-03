@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.6.0 (2026-11-02): Codex plugin, current models, review loop
+
+- **Codex plugin.** `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` ship the same
+  12 skills to Codex (`codex plugin marketplace add JairoTorregrosa/jaiskills`). Checked with
+  `codex debug prompt-input` on codex-cli 0.166.0: the 10 model-invoked skills are listed;
+  insistir and goal-loop stay explicit-only. `scripts/check.py` fails when the Codex manifest's
+  version or name drifts from `.claude-plugin/plugin.json`.
+- **agent-sdk-wizard:** the model question offers Sonnet 5.5 (`claude-sonnet-5-5`, $2 / $10) and
+  Haiku 5.5 (`claude-haiku-5-5`, $0.10 / $0.50 up to 100K-token prompts) instead of Sonnet 5 and
+  Haiku 4.5; previews, archetypes and templates follow. Source: the claude-api skill's model
+  table (cached 2026-10-06).
+- **metaprompt:** Claude lineup and comparison table on Sonnet 5.5 and Haiku 5.5, with prompting
+  sections for both from Anthropic's migration guides; Sonnet 5 and Haiku 4.5 marked previous
+  generation. New GPT-6 / GPT-6.1 section (6.1 Sol, Astra, Luna, 6 Sol; 6.1 Terra listed as
+  undocumented) from the askcodex references and the live Codex catalog; GPT-5.6 marked older.
+- **second-opinion:** fix-and-recheck loop for review and adversarial mode (3 rounds, 5 for
+  security or data loss, gating only on findings Claude confirmed, ledger, the end of the budget is
+  not approval), adapted from tstack's `sol-loop`. When Codex itself runs the skill, results are
+  labelled same-provider.
+
 ## 1.5.6 (2026-10-24): managed-agents-wizard explains the Session trace
 
 - `scripts/trazas.py <session_id>`: the session as a timeline next to the Console. It shows each

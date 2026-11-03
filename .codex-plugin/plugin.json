@@ -1,0 +1,20 @@
+{
+  "name": "jaiskills",
+  "version": "1.6.0",
+  "description": "Jairo Torregrosa's personal skill catalog for Codex: code-driven videos, image-to-frontend, cross-validated multi-agent work (insistir, goal-loop, second-opinion, remote agents over SSH), Claude Agent SDK and Managed Agents wizards, model- and harness-specific prompts, OpenAI from the terminal (askcodex), solution docs and file-based TODOs.",
+  "author": {
+    "name": "Jairo Torregrosa",
+    "url": "https://github.com/JairoTorregrosa"
+  },
+  "homepage": "https://github.com/JairoTorregrosa/jaiskills",
+  "repository": "https://github.com/JairoTorregrosa/jaiskills",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "jaiskills",
+    "shortDescription": "Jairo's personal agent skills",
+    "developerName": "Jairo Torregrosa",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"]
+  }
+}
