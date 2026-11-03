@@ -2,7 +2,7 @@
 name: metaprompt
 description: >-
   Generate a complete, ready-to-paste prompt engineered for a specific target model (Claude Fable
-  5.1 / Opus 5.5 / Sonnet 5 / Haiku 4.5, GPT-5.x) and harness (Claude Code CLAUDE.md or skill,
+  5.1 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5, GPT-6.1 / GPT-6) and harness (Claude Code CLAUDE.md or skill,
   Codex AGENTS.md, pi, Amp, eve, AI Gateway, Agent SDK, raw API, chat UI), using per-model and
   per-harness reference guides. Trigger on "metaprompt", "write me a prompt for", "generate a
   system prompt", "prompt engineer this", "optimize this prompt for GPT-5 / Opus", "hazme un
@@ -22,7 +22,7 @@ Parse `$ARGUMENTS`: free text is the goal; `--model <id>` and `--harness <name>`
 ## Required inputs
 
 1. **Goal** — what the prompt should accomplish (from `$ARGUMENTS`, or ask).
-2. **Target model** — which LLM will run the prompt (e.g., `claude-opus-5-5`, `claude-fable-5-1`, `claude-sonnet-5`, `gpt-5.6-sol`, `gpt-5.2`). If the user omits this, ask: "Which model will run this prompt?" Default to `claude-opus-5-5` only if the user says "whatever" or "any".
+2. **Target model** — which LLM will run the prompt (e.g., `claude-opus-5-5`, `claude-fable-5-1`, `claude-sonnet-5-5`, `gpt-6.1-sol`, `gpt-6-astra`). If the user omits this, ask: "Which model will run this prompt?" Default to `claude-opus-5-5` only if the user says "whatever" or "any".
 3. **Target harness** — where the prompt will run: `claude-code` (CLAUDE.md / skill), `codex-cli` (AGENTS.md), `pi` (AGENTS.md / SYSTEM.md), `amp` (AGENTS.md), `eve` (agent/instructions.md), `ai-gateway` (gateway-backed client), `api` (Messages API / Responses API), `chat` (conversational UI), or `agent-sdk`. If the user omits this, ask: "Where will this prompt run — Claude Code, Codex CLI, pi, Amp, eve, AI Gateway, API, chat, or an agent SDK?"
 
 ## Model → reference routing
@@ -34,9 +34,10 @@ Parse `$ARGUMENTS`: free text is the goal; `--model <id>` and `--harness <name>`
 | Claude Fable 5, Claude Mythos 5 (legacy) | `references/claude-models.md` |
 | Claude Opus 5, 4.8, 4.7, 4.6 (legacy) | `references/claude-models.md` |
 | Claude Opus 4.1 (retired Aug 5, 2026; do not target) | `references/claude-models.md` (migration notes only) |
-| Claude Sonnet 5, Claude Sonnet 4.6 | `references/claude-models.md` |
-| Claude Haiku 4.5 | `references/claude-models.md` |
-| GPT-5.6 Sol, GPT-5.6 Terra, GPT-5.6 Luna | `references/openai-models.md` |
+| Claude Sonnet 5.5, Claude Haiku 5.5 | `references/claude-models.md` |
+| Claude Sonnet 5, Claude Sonnet 4.6, Claude Haiku 4.5 (previous generation) | `references/claude-models.md` |
+| GPT-6.1 Sol, GPT-6 Astra, GPT-6 Luna, GPT-6 Sol, GPT-6.1 Terra | `references/openai-models.md` (GPT-6 section) |
+| GPT-5.6 Sol, GPT-5.6 Terra, GPT-5.6 Luna (older generation) | `references/openai-models.md` |
 | GPT-5.x (GPT-5, GPT-5.1, GPT-5.2, GPT-5.3) | `references/openai-models.md` |
 | gpt-5-codex | `references/openai-models.md` |
 | Unknown or newer model | Run a freshness web search (see workflow step 2) |

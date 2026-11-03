@@ -19,6 +19,8 @@ scripts/check.py             catalog lint: every invariant below that a machine 
 scripts/link-skills.sh       symlink skills into ~/.claude/skills and ~/.agents/skills (instead of the plugin)
 scripts/sync-askcodex.py     re-sync the askcodex mirror from an askcodex checkout and re-apply its one local delta
 .claude-plugin/              plugin.json (the shipped skill list) and marketplace.json (the repo is its own marketplace)
+.codex-plugin/plugin.json    the same plugin for Codex (`skills: ./skills/` reaches every bucket)
+.agents/plugins/             marketplace.json for Codex (`codex plugin marketplace add JairoTorregrosa/jaiskills`)
 .claude/CLAUDE.md            imports this file for Claude Code sessions in this repo
 ```
 
@@ -107,8 +109,9 @@ One commit touches:
 
 ## Releasing
 
-Bump `version` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` together (Claude
-Code uses it to decide when installed users get an update), add a dated `CHANGELOG.md` entry, merge,
+Bump `version` in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and
+`.codex-plugin/plugin.json` together (Claude Code and Codex use it to decide when installed users
+get an update; `scripts/check.py` fails when they differ), add a dated `CHANGELOG.md` entry, merge,
 then tag the merge commit and push the tag (`git tag -a vX.Y.Z <sha> -m … && git push origin
 vX.Y.Z`); the README links to tags.
 

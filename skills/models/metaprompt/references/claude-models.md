@@ -1,14 +1,14 @@
 ---
 title: Anthropic Claude Models — Prompt Engineering Reference
 last_verified: 2026-07-16
-lineup_verified: 2026-09-26
+lineup_verified: 2026-11-02
 sources_verified: true
-covers: Claude Fable 5.1, Claude Opus 5.5, Claude Sonnet 5, Claude Haiku 4.5 (lineup, effort, gotchas); per-model prompting guides for Claude Fable 5, Claude Mythos 5, Claude Opus 4.8, Claude Sonnet 5, Claude Haiku 4.5
+covers: Claude Fable 5.1, Claude Opus 5.5, Claude Sonnet 5.5, Claude Haiku 5.5 (lineup, effort, gotchas); per-model prompting guides for Claude Sonnet 5.5, Claude Haiku 5.5, Claude Fable 5, Claude Mythos 5, Claude Opus 4.8, Claude Sonnet 5, Claude Haiku 4.5
 ---
 
 > **Verification:** Sections marked "verified 2026-09-26" (lineup table, effort levels, the lineup-related migration gotchas) were re-fetched on 2026-09-26. Everything else was fetched and content-verified on 2026-07-16 and describes models up to Fable 5 / Opus 4.8 / Sonnet 5. Each section's Source line points to the page supporting its claims.
 >
-> **Current lineup (2026-09-26):** Claude Fable 5.1 (`claude-fable-5-1`), Claude Opus 5.5 (`claude-opus-5-5`), Claude Sonnet 5 (`claude-sonnet-5`), Claude Haiku 4.5 (`claude-haiku-4-5-20251001`). Anthropic's default starting point is Opus 5.5; Fable 5.1 is for demanding reasoning and long-horizon agentic work. This file has no dedicated prompting section for Fable 5.1 or Opus 5.5 yet: before targeting either, read https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1 or https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5 (SKILL.md workflow step 2), then use the Fable 5 / Opus 4.8 sections below as background.
+> **Current lineup (2026-11-02):** Claude Fable 5.1 (`claude-fable-5-1`), Claude Opus 5.5 (`claude-opus-5-5`), Claude Sonnet 5.5 (`claude-sonnet-5-5`), Claude Haiku 5.5 (`claude-haiku-5-5`). Claude Sonnet 5 and Claude Haiku 4.5 are the previous generation, still served; target them only when the user names them. Anthropic's default starting point is Opus 5.5; Fable 5.1 is for demanding reasoning and long-horizon agentic work. This file has no dedicated prompting section for Fable 5.1 or Opus 5.5 yet: before targeting either, read https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1 or https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5 (SKILL.md workflow step 2), then use the Fable 5 / Opus 4.8 sections below as background.
 
 # Claude Prompt Engineering Techniques
 
@@ -124,30 +124,30 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 
 # Current Claude Model Lineup and Selection
 
-## Model comparison table (verified 2026-09-26)
+## Model comparison table (verified 2026-11-02)
 
 If unsure, start with Opus 5.5. Use Fable 5.1 for demanding reasoning and long-horizon agentic work, or when evals on Opus 5.5 at higher effort still fall short.
 
-| Feature | Claude Fable 5.1 | Claude Opus 5.5 | Claude Sonnet 5 | Claude Haiku 4.5 |
+| Feature | Claude Fable 5.1 | Claude Opus 5.5 | Claude Sonnet 5.5 | Claude Haiku 5.5 |
 |---|---|---|---|---|
-| **Model ID** | `claude-fable-5-1` | `claude-opus-5-5` | `claude-sonnet-5` | `claude-haiku-4-5-20251001` (alias `claude-haiku-4-5`) |
-| **Pricing (input/output MTok)** | $10 / $50 | $4 / $20 | $2 / $10 | $1 / $5 |
-| **Context window** | 1M tokens | 1M tokens | 1M tokens | 200k tokens |
-| **Max output** | 128k tokens | 128k tokens | 128k tokens | 64k tokens |
-| **Thinking** | Adaptive, always on (`disabled` returns 400) | Adaptive, always on (`disabled` returns 400 at every effort) | Adaptive, on by default (can disable) | Extended (`budget_tokens`) only |
-| **Extended thinking (budget_tokens)** | Not accepted | Not accepted | Not accepted | Supported |
-| **Effort parameter** | low / medium / high / xhigh / max | low / medium / high / xhigh / max | low / medium / high / xhigh / max | Not supported |
-| **Effort default** | high | **medium** | high | N/A |
-| **Sampling params (temperature, top_p, top_k)** | Non-default values return 400 | Non-default values return 400 | Non-default values return 400 | Accepted |
-| **Prefilling** | Not possible (thinking always on) | Not possible (thinking always on) | Not supported (400 error) | Supported |
-| **Forced `tool_choice` (`any` / `tool`)** | 400 error — use `auto` + strict tools or structured outputs | 400 error — use `auto` + strict tools or structured outputs | Supported | Supported only with thinking off (incompatible with extended thinking) |
-| **Thinking display default** | omitted | omitted | omitted | N/A (extended thinking) |
-| **Reliable knowledge cutoff** | Jun 2026 | Jun 2026 | Jan 2026 | Feb 2025 |
-| **Best for** | Demanding reasoning, long-horizon agentic work | Long-running agentic coding and knowledge work (default choice) | Speed + intelligence balance | Fastest; classification, high-volume, subagents |
+| **Model ID** | `claude-fable-5-1` | `claude-opus-5-5` | `claude-sonnet-5-5` | `claude-haiku-5-5` |
+| **Pricing (input/output MTok)** | $10 / $50 | $4 / $20 | $2 / $10 | $0.10 / $0.50 (prompts up to 100K tokens; $0.50 / $2.50 above) |
+| **Context window** | 1M tokens | 1M tokens | 1M tokens | 1M tokens |
+| **Max output** | 128k tokens | 128k tokens | 128k tokens | 128k tokens |
+| **Thinking** | Adaptive, always on (`disabled` returns 400) | Adaptive, always on (`disabled` returns 400 at every effort) | Adaptive, on by default; `disabled` returns 400, use `between_tools` (effort `high` or below) to turn it off | Adaptive, on by default; `disabled` accepted only at effort `high` or below |
+| **Extended thinking (budget_tokens)** | Not accepted | Not accepted | Not accepted | Not accepted |
+| **Effort parameter** | low / medium / high / xhigh / max | low / medium / high / xhigh / max | low / medium / high / xhigh / max | low / medium / high / xhigh / max |
+| **Effort default** | high | **medium** | high (levels recalibrated from Sonnet 5) | **medium** |
+| **Sampling params (temperature, top_p, top_k)** | Non-default values return 400 | Non-default values return 400 | Non-default values return 400 | Non-default values return 400 |
+| **Prefilling** | Not possible (thinking always on) | Not possible (thinking always on) | Not supported (400 error) | Not supported (400 error) |
+| **Forced `tool_choice` (`any` / `tool`)** | 400 error — use `auto` + strict tools or structured outputs | 400 error — use `auto` + strict tools or structured outputs | 400 error — use `auto` + strict tools or structured outputs | Accepted, but the response then skips thinking — prefer `auto` |
+| **Thinking display default** | omitted | omitted | omitted | omitted |
+| **Reliable knowledge cutoff** | Jun 2026 | Jun 2026 | Not in the cached source; check the models overview | Not in the cached source; check the models overview |
+| **Best for** | Demanding reasoning, long-horizon agentic work | Long-running agentic coding and knowledge work (default choice) | Everyday coding, agent and enterprise work; speed + intelligence | Fastest and cheapest; classification, routing, extraction, sub-agents, high volume |
 
 Claude Mythos 5.1 (`claude-mythos-5-1`) shares Fable 5.1's specifications and pricing and is invitation-only through Project Glasswing.
 
-Legacy models, still available: Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Opus 4.5, Claude Sonnet 4.6, Claude Sonnet 4.5. Claude Mythos 5 is still active for Glasswing participants. Claude Opus 4.1 was retired on August 5, 2026.
+Legacy models, still available: Claude Sonnet 5, Claude Haiku 4.5, Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Opus 4.5, Claude Sonnet 4.6, Claude Sonnet 4.5. Claude Mythos 5 is still active for Glasswing participants. Claude Opus 4.1 was retired on August 5, 2026.
 
 Source: https://platform.claude.com/docs/en/about-claude/models/overview , https://platform.claude.com/docs/en/models/fable-5-1/overview , https://platform.claude.com/docs/en/models/opus-5-5/overview , https://platform.claude.com/docs/en/build-with-claude/thinking , https://platform.claude.com/docs/en/about-claude/model-deprecations
 
@@ -304,7 +304,38 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 
 ---
 
-## Claude Sonnet 5
+## Claude Sonnet 5.5 (verified 2026-11-02)
+
+Claude Sonnet 5.5 succeeds Sonnet 5 at the same price and tokenizer. Sonnet 5 prompts work without changes; for the hardest long-horizon work an Opus model is the better choice.
+
+- **Effort is recalibrated.** Default stays `high`, but a level no longer thinks as much as on Sonnet 5: start at `medium` for agentic coding and multistep tool use, `low` for chat, content, classification, extraction and search. Reserve `xhigh` and `max` for measured gains. To get less thinking, lower effort; asking for less thinking in the prompt has almost no effect from `medium` up.
+- **Thinking off is `between_tools`.** `thinking: {type: "disabled"}` returns 400; `{type: "between_tools"}` is accepted at `high` or below and takes no other field.
+- **Remove old workarounds.** Refusal steering, tool-call retry shims and "do not be lazy" lines written for Sonnet 5 are no longer needed; remove them and re-run evals first.
+- **Tool use in chat.** It may answer from its own knowledge when a connected tool would serve better. Remove "only use tools when strictly necessary" or "minimize tool calls" (it follows them literally). Where connected sources should win, add: *"Use the search tool to check specifics that may have changed since your training, such as what is allowed, required or charged, even when you feel confident. For researched work such as a report or a comparison, gather current sources rather than writing from your training knowledge."*
+- **Verification at `low`.** It may report a code change as done without running a real check. For coding agents at `low`, require a check that exercises the change (tests, type-checker, build, or the changed command) and say what was not run.
+- **Mid-turn user input.** Text placed inside or directly after a `tool_result` can read as prompt injection. Put user text in a user turn after the last `tool_result`; keep harness notices in a separate system message; avoid task budgets in interactive sessions.
+
+Source: the claude-api skill's model table (cached 2026-10-06) and its migration guide, section "Migrating to Claude Sonnet 5.5"; https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5
+
+---
+
+## Claude Haiku 5.5 (verified 2026-11-02)
+
+Claude Haiku 5.5 succeeds Haiku 4.5 for high-volume, latency-sensitive work: classification, routing, extraction and sub-agents. It follows instructions and runs as a sub-agent substantially better; Haiku 4.5 prompts work without changes.
+
+- **First Haiku with effort.** Levels `low` to `max`, default `medium`. `low` for chat, short tool tasks and simple high-volume requests; `medium` for most work including agentic coding; `high` for knowledge work and strict instruction following. `xhigh` and `max` produce much longer output: compare against Sonnet 5.5 first.
+- **Thinking is on by default.** Responses can start with `thinking` blocks: read content by `type`, not position, and leave `max_tokens` room for thinking on short-answer routes. Lower effort to think less; the model still thinks when the prompt says to answer directly.
+- **Breaking from Haiku 4.5.** `budget_tokens`, non-default sampling parameters and assistant prefill all return 400. Replace prefill with structured outputs or an enum tool.
+- **Search tools.** Give today's date in the system prompt or the tool description. For long prompts or `low` effort, add: *"Your training data ends well before today's date. Records, office holders, prices, versions, rules and anything "latest" may have changed since then, so search for those before you answer, even when you feel sure. Facts that can't change need no search."*
+- **JSON output plus tools.** With thinking off it may skip a needed tool call when JSON output is also requested. Keep thinking on, or add: *"The JSON output format applies to your final answer only. When you need a tool, call it first, with no text before the call, and write the JSON once you have the results."*
+- **Early stop in long agent prompts at `low`.** Add: *"Keep working until everything the user asked for is done, and only stop to ask when you can't go on without the user or before a risky step. When the work the user asked for is done and checked, stop and report."*
+- **No server-side fallback for refusals.** Handle `stop_reason: "refusal"` in the client.
+
+Source: the claude-api skill's model table (cached 2026-10-06) and its migration guide, section "Migrating to Claude Haiku 5.5"; https://platform.claude.com/docs/en/about-claude/models/overview
+
+---
+
+## Claude Sonnet 5 (previous generation)
 
 Claude Sonnet 5 is the best combination of speed and intelligence. It has particular strengths in coding and agentic tasks and performs well on existing Sonnet 4.6 prompts with minimal tuning.
 
@@ -348,7 +379,7 @@ Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering
 
 ---
 
-## Claude Haiku 4.5
+## Claude Haiku 4.5 (previous generation)
 
 Claude Haiku 4.5 is the fastest model with near-frontier intelligence, optimized for classification, high-volume pipelines, and cost-sensitive subagent tasks.
 
@@ -377,16 +408,16 @@ Source: https://platform.claude.com/docs/en/docs/about-claude/models/overview
 
 ---
 
-# Effort Parameter Levels (verified 2026-09-26)
+# Effort Parameter Levels (verified 2026-11-02)
 
-The effort parameter controls how many tokens Claude spends when responding, available on all current models except Haiku 4.5. Set it via `output_config: {effort: "level"}`. Setting effort to the model's default is identical to omitting it.
+The effort parameter controls how many tokens Claude spends when responding, available on every current model (Haiku 4.5, previous generation, has none). Set it via `output_config: {effort: "level"}`. Setting effort to the model's default is identical to omitting it.
 
 | Level | Description | Typical use case |
 |---|---|---|
 | `max` | Absolute maximum capability, no constraints on token spending | Deepest possible reasoning and most thorough analysis |
-| `xhigh` | Extended capability for long-horizon work (Fable 5.1, Mythos 5.1, Fable 5, Mythos 5, Opus 5.5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5) | Long-running agentic and coding tasks (30+ minutes) |
-| `high` | Default on every effort-capable model except Opus 5.5 | Complex reasoning, difficult coding, agentic tasks |
-| `medium` | Balanced, moderate token savings. Default on Opus 5.5 | Cost-sensitive agentic work needing speed/cost/perf balance |
+| `xhigh` | Extended capability for long-horizon work (Fable 5.1, Mythos 5.1, Fable 5, Mythos 5, Opus 5.5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5.5, Sonnet 5, Haiku 5.5) | Long-running agentic and coding tasks (30+ minutes) |
+| `high` | Default on every effort-capable model except Opus 5.5 and Haiku 5.5 | Complex reasoning, difficult coding, agentic tasks |
+| `medium` | Balanced, moderate token savings. Default on Opus 5.5 and Haiku 5.5 | Cost-sensitive agentic work needing speed/cost/perf balance |
 | `low` | Most efficient, significant token savings | Simple tasks, subagents, latency-sensitive workloads |
 
 ### Per-model effort recommendations
@@ -395,6 +426,8 @@ The effort parameter controls how many tokens Claude spends when responding, ava
 - **Opus 5.5:** Default is `medium`, one level below Opus 5 and earlier Opus models, so a request that omits `effort` runs lower than it did on Opus 5. Thinking is always on, so effort is the primary control for reasoning depth and cost. Run an effort sweep on your own evals instead of carrying settings over. Supports per-message effort changes (beta).
 - **Fable 5:** Start with `high` (default). Use `xhigh` for capability-sensitive workloads. Lower levels still often exceed `xhigh` on prior models.
 - **Opus 4.8:** Start with `xhigh` for coding/agentic. Use `high` minimum for intelligence-sensitive. Effort is likely more important for this model than for any prior Opus.
+- **Sonnet 5.5:** Default `high`, levels recalibrated. Start at `medium` for agentic coding and multistep tool use, `low` for chat, classification, extraction and search. Supports per-message effort changes (beta).
+- **Haiku 5.5:** Default `medium`. `low` for chat and high-volume requests, `high` for knowledge work and strict instruction following.
 - **Sonnet 5:** Start with `high` (default). Use `xhigh` for hardest coding/agentic. Sonnet 5 at `medium` is comparable to Sonnet 4.6 at `high`.
 - **Haiku 4.5:** Not supported — use `budget_tokens` instead.
 
@@ -408,25 +441,25 @@ Source: https://platform.claude.com/docs/en/build-with-claude/effort
 
 ## Prefill removal (Claude 4.6+)
 
-Prefilling the last assistant message returns a 400 error on all models from Claude Opus 4.6 onward (including Fable 5, Opus 4.8, and Sonnet 5). Use structured outputs, system prompt instructions, or `output_config.format` instead.
+Prefilling the last assistant message returns a 400 error on all models from Claude Opus 4.6 onward (including Fable 5, Opus 4.8, Sonnet 5, Sonnet 5.5 and Haiku 5.5). Use structured outputs, system prompt instructions, or `output_config.format` instead.
 
 Source: https://platform.claude.com/docs/en/about-claude/models/migration-guide
 
 ## Non-default temperature/top_p/top_k return 400
 
-Setting `temperature`, `top_p`, or `top_k` to non-default values returns a 400 error on Claude Opus 4.7 and every later model (Opus 4.8, Opus 5, Opus 5.5, Sonnet 5, Fable 5, Fable 5.1). Remove these parameters entirely; use prompting to guide behavior. The Python SDK v1.0+ removes them, so passing them raises `TypeError`. (verified 2026-09-26)
+Setting `temperature`, `top_p`, or `top_k` to non-default values returns a 400 error on Claude Opus 4.7 and every later model (Opus 4.8, Opus 5, Opus 5.5, Sonnet 5, Sonnet 5.5, Haiku 5.5, Fable 5, Fable 5.1). Remove these parameters entirely; use prompting to guide behavior. The Python SDK v1.0+ removes them, so passing them raises `TypeError`. (verified 2026-09-26)
 
 Source: https://platform.claude.com/docs/en/about-claude/model-deprecations
 
 ## Thinking display defaults to "omitted"
 
-On Fable 5.1, Fable 5, Opus 5.5, Opus 5, Opus 4.8, Opus 4.7, and Sonnet 5 (list verified 2026-09-26), thinking blocks default to `display: "omitted"` — the `thinking` field is empty unless you explicitly set `display: "summarized"`. This is a silent change from Opus 4.6 and Sonnet 4.6 where the default was `"summarized"`.
+On Fable 5.1, Fable 5, Opus 5.5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5, Sonnet 5.5 and Haiku 5.5 (list verified 2026-11-02), thinking blocks default to `display: "omitted"` — the `thinking` field is empty unless you explicitly set `display: "summarized"`. This is a silent change from Opus 4.6 and Sonnet 4.6 where the default was `"summarized"`.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
 
 ## budget_tokens deprecation
 
-Manual extended thinking (`thinking: {type: "enabled", budget_tokens: N}`) is rejected with a 400 error on Opus 4.7, Opus 4.8, Sonnet 5, Fable 5, and every later model (Opus 5, Opus 5.5, Fable 5.1; verified 2026-09-26). It is deprecated on Opus 4.6 and Sonnet 4.6 (still functional but will be removed). Use adaptive thinking with the effort parameter instead.
+Manual extended thinking (`thinking: {type: "enabled", budget_tokens: N}`) is rejected with a 400 error on Opus 4.7, Opus 4.8, Sonnet 5, Fable 5, and every later model (Opus 5, Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5; verified 2026-11-02). It is deprecated on Opus 4.6 and Sonnet 4.6 (still functional but will be removed). Use adaptive thinking with the effort parameter instead.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
 
@@ -442,15 +475,15 @@ On the Message Batches API, Claude Opus 5.5, Opus 5, Sonnet 5, Opus 4.8, Opus 4.
 
 Source: https://platform.claude.com/docs/en/about-claude/models/overview
 
-## Forced tool use rejected (Fable 5.1, Opus 5.5)
+## Forced tool use rejected (Fable 5.1, Opus 5.5, Sonnet 5.5)
 
-Claude Opus 5.5, Fable 5.1, and Mythos 5.1 reject `tool_choice: {"type": "any"}` and `{"type": "tool", ...}` on every request with a 400 error. Use `tool_choice: {"type": "auto"}` plus a prompt instruction naming the tool, strict tool use, or structured outputs. Do not generate prompts or harness configs that rely on forced tool calls for these models. (verified 2026-09-26)
+Claude Opus 5.5, Sonnet 5.5, Fable 5.1, and Mythos 5.1 reject `tool_choice: {"type": "any"}` and `{"type": "tool", ...}` on every request with a 400 error. Use `tool_choice: {"type": "auto"}` plus a prompt instruction naming the tool, strict tool use, or structured outputs. Do not generate prompts or harness configs that rely on forced tool calls for these models. (verified 2026-09-26)
 
 Source: https://platform.claude.com/docs/en/build-with-claude/thinking
 
 ## New tokenizer (+30% tokens)
 
-Claude Opus 4.7, Opus 4.8, Fable 5, and Sonnet 5 use a newer tokenizer. The same text produces roughly 30% more tokens compared to models before Opus 4.7. Re-run token counting; do not reuse counts from older models.
+Claude Opus 4.7, Opus 4.8, Fable 5, Sonnet 5, Sonnet 5.5 and Haiku 5.5 use a newer tokenizer. The same text produces roughly 30% more tokens compared to models before Opus 4.7. Re-run token counting; do not reuse counts from older models.
 
 Source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5
 

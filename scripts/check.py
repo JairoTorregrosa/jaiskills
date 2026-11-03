@@ -147,6 +147,15 @@ def check_manifests(promoted: list[str]) -> None:
         err(market_path, f"no plugin entry named {plugin.get('name')}")
     elif entries[0].get("version") != plugin.get("version"):
         err(market_path, f"version {entries[0].get('version')} != plugin.json {plugin.get('version')}")
+    codex_path = ROOT / ".codex-plugin" / "plugin.json"
+    if not codex_path.is_file():
+        err(codex_path, "missing: Codex installs the plugin from it")
+    else:
+        codex = json.loads(codex_path.read_text(encoding="utf-8"))
+        if codex.get("name") != plugin.get("name") or codex.get("version") != plugin.get("version"):
+            err(codex_path, f"name/version {codex.get('name')} {codex.get('version')} != .claude-plugin/plugin.json {plugin.get('name')} {plugin.get('version')}")
+        if codex.get("skills") != "./skills/":
+            err(codex_path, 'skills must be "./skills/" so Codex finds every bucket')
 
 
 def check_readme(promoted: list[str], parked: list[str]) -> None:

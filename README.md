@@ -17,6 +17,15 @@ reads a `SKILL.md`. Take the whole set or a single skill, then make it yours.
 
 Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:insistir`, and so on.
 
+**The whole set, as a Codex plugin.** Same skills, same versions.
+
+```bash
+codex plugin marketplace add JairoTorregrosa/jaiskills
+codex plugin add jaiskills@jaiskills
+```
+
+In Codex, insistir and goal-loop run only when you ask for them by name.
+
 **One skill, or another agent**, through [skills.sh](https://skills.sh). It copies the files into
 your project so you can edit them.
 
@@ -68,7 +77,9 @@ default, through the Codex CLI, always read-only) next to Claude as an advisor, 
 reviewer or a judge. Advise gives its view beside Claude's, disagreements first; review runs
 Codex's built-in reviewer; adversarial tries to break a change, optionally with two or three lenses
 in parallel, and Claude checks every finding against the code before showing it; judge scores a
-reviewer's verdict for insistir and goal-loop. GPT never writes the code.
+reviewer's verdict for insistir and goal-loop. GPT never writes the code. When fixes go back for
+another look, a fix-and-recheck loop caps the rounds and keeps a ledger (adapted from tstack's
+`sol-loop`, t3dotgg/tstack).
 <br>*I use it for* the minute before I commit to a plan, an adversarial pass before I ship, and
 the last judge of every insistir run. A model reviewing its own family's work shares its blind
 spots.

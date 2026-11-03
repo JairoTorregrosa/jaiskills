@@ -1,13 +1,40 @@
 ---
-title: OpenAI GPT-5.6 / GPT-5 / Codex Models — Prompt Engineering Reference
-last_verified: 2026-07-16
+title: OpenAI GPT-6 / GPT-5.6 / GPT-5 / Codex Models — Prompt Engineering Reference
+last_verified: 2026-11-02
 sources_verified: true
-covers: GPT-5.6 (Sol, Terra, Luna), GPT-5, GPT-5.1, GPT-5.2, GPT-5.3, Codex (GPT-5.1-Codex-Max, GPT-5.3-Codex)
+covers: GPT-6.1 (Sol, Terra), GPT-6 (Astra, Sol, Luna), GPT-5.6 (Sol, Terra, Luna), GPT-5, GPT-5.1, GPT-5.2, GPT-5.3, Codex (GPT-5.1-Codex-Max, GPT-5.3-Codex)
 ---
 
 > **Verification:** All URLs listed below were fetched and content-verified on 2026-07-16. Each section's Source line points to the specific page supporting that section's claims.
 
-# GPT-5.6 Family (GA 2026-07-09)
+# GPT-6 and GPT-6.1 Family (verified 2026-10-02; Codex catalog checked 2026-11-02)
+
+Current OpenAI generation. GPT-5.6 below is the older generation: target it only to reproduce an earlier result.
+
+| Model | ID | API price vs 6.1 Sol | Knowledge cutoff | Codex catalog (2026-11-02) | Use for |
+|---|---|---|---|---|---|
+| GPT-6.1 Sol | `gpt-6.1-sol` | $2 in / $0.10 cached / $10 out per 1M | 2026-04-30 | "Latest workhorse model for coding and everyday work." | Default: coding, review, debugging, drafting, analysis |
+| GPT-6 Astra | `gpt-6-astra` | 5x | 2026-04-30 | "Frontier intelligence for the most demanding work." | Hardest, most consequential single deliverable; hardest science |
+| GPT-6 Luna | `gpt-6-luna` | 1/20 | 2026-05-18 | "Fast and affordable model for easier tasks." | Clear, repeatable extraction, classification, transformation |
+| GPT-6 Sol | `gpt-6-sol` | Codex credits match 6.1 Sol; API price not in the sources | 2026-04-20 | "Previous generation workhorse model." | Reproducing an earlier GPT-6 Sol result only |
+| GPT-6.1 Terra | `gpt-6.1-terra` | not published | not published | "GPT-6.1 Terra Codex model." | Listed in the Codex catalog with no OpenAI model page or guide as of 2026-11-02: ask the user what it is for, or run the freshness check |
+
+API pages list 1,050,000 context and 128,000 max output for the GPT-6 models; the Codex catalog lists smaller windows (6.1 Sol: 272,000). Efforts: `low`, `medium`, `high`, `xhigh`, `max`; `gpt-6.1-sol` rejects `none` (use `low`). `ultra` is Codex's multi-agent mode, not a model effort.
+
+## GPT-6 prompting rules
+
+- **Underspecified asks get questions, not work.** GPT-6 Sol and 6.1 Sol answer a vague request with clarifying questions. In single-shot or unattended harnesses, add: *"If a detail is missing, choose a reasonable default, state it in one line, and deliver the complete result. Do not ask questions."* plus the carve-out *"If code or a fact that the diagnosis, fix or conclusion depends on is missing, name it and withhold that part instead of guessing."*
+- **Follow-through.** Treat "can you…" as a request to do the work; OpenAI's guide adds a paragraph saying not to stop at acknowledging capability.
+- **Verbosity is a parameter.** Codex sends `text.verbosity: "low"`; at `medium` 6.1 Sol added headings and bold text nobody asked for. Set verbosity in the harness and still state the format and any hard length limit in the prompt.
+- **Effort does not map across generations.** Coming from GPT-6 Sol, start 6.1 Sol one level lower; move up one level only when a named issue remains. If `max` still fails, switch to Astra instead of repeating.
+- **Prose over lists.** For prose deliverables, OpenAI's guide: *"Default to using clear, concise paragraphs, each developing one main idea."*
+- **Supply post-cutoff facts** in the prompt (cutoffs in the table).
+
+Sources: https://openai.com/index/introducing-gpt-6-1-sol/ (2026-09-29); https://developers.openai.com/api/docs/models/gpt-6.1-sol; https://developers.openai.com/api/docs/guides/latest-model ("Using GPT-6"); https://learn.chatgpt.com/docs/models; live Codex model catalog via `askcodex models` (2026-11-02). Detailed per-model probes live in the askcodex skill's model references.
+
+---
+
+# GPT-5.6 Family (GA 2026-07-09, older generation)
 
 The GPT-5.6 family comprises three tiers — Sol, Terra, and Luna — with 1,050,000-token context, 128K output, and a February 2026 knowledge cutoff. All accept text and image input and produce text output. No fine-tuning, audio, or video support on any tier.
 

@@ -13,7 +13,7 @@ option goes first with `(Recomendado)`, and which steps you may skip.
 | | **2A · Responder preguntas** | **2B · Cambiar archivos** | **2C · Llamar mis funciones** | **2D · Conversar con memoria** |
 |---|---|---|---|---|
 | Style | `query()` one-shot | `query()` one-shot | `query()` one-shot | `ClaudeSDKClient` / live `Query` |
-| 3 Modelo | Sonnet 5 | Sonnet 5 | Haiku 4.5 | Sonnet 5 |
+| 3 Modelo | Sonnet 5.5 | Sonnet 5.5 | Haiku 5.5 | Sonnet 5.5 |
 | 4 Instrucción | 4A mínimo + reglas | 4B preset + reglas | 4A mínimo + reglas | 4A mínimo + reglas |
 | 4-bis Reglas | Analista de datos | Asistente de código | Operador cuidadoso | Analista de datos |
 | 5 Herramientas | 5A solo leer | 5C todo + terminal | 5D mis funciones | 5A solo leer |

@@ -86,7 +86,7 @@ question, with exactly these options, in this order.
 |---|---|---|---|---|
 | 1 | ¿En qué lenguaje quieres tu agente? | `Lenguaje` | Python · TypeScript | `previews.md` § Step 1 |
 | 2 | ¿Qué tiene que lograr tu agente? | `Objetivo` | Responder preguntas sobre mis archivos · Cambiar archivos o código · Llamar a mis funciones o APIs · Conversar varias vueltas con memoria | § Step 2 |
-| 3 | ¿Qué tan listo lo necesitas (y cuánto quieres pagar)? | `Modelo` | Sonnet 5 · Haiku 4.5 · Opus 5.5 · Fable 5.1 | § Step 3 |
+| 3 | ¿Qué tan listo lo necesitas (y cuánto quieres pagar)? | `Modelo` | Sonnet 5.5 · Haiku 5.5 · Opus 5.5 · Fable 5.1 | § Step 3 |
 | 4 | ¿Qué personalidad y reglas fijas tiene tu agente? | `Instrucción` | Mínimo + mis reglas · Preset de Claude Code + mis reglas · Solo el preset · Mío completo desde cero | § Step 4 |
 | 5 | ¿Qué puede hacer tu agente en el mundo? | `Herramientas` | Solo leer · Leer y escribir archivos · Todo, incluida la terminal · Mis propias funciones | § Step 5 |
 | 6 | ¿Tu agente necesita saber un procedimiento tuyo? | `Skills` | No por ahora · Sí, una skill nueva · Sí, ya tengo skills en este proyecto | § Step 6 |

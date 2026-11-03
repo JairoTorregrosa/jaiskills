@@ -27,6 +27,9 @@ the request → skip Codex, go straight to the fallback path and label the resul
 user's Codex config says (it may set `danger-full-access`). Never ask Codex for a patch to apply,
 never pass it a writable sandbox. Claude verifies what it reports and does any fixing.
 
+**If you are Codex**, a Codex review of your own work is same-provider: label every result
+"same-provider (Codex reviewing Codex)", or ask the user to run this from Claude Code.
+
 Paths below are relative to this skill's directory, `${CLAUDE_SKILL_DIR}` (other harnesses: the
 absolute path of the folder holding this SKILL.md). Shell state does not survive between Bash
 calls: set `REPO` in the same call that runs the script.
@@ -128,6 +131,34 @@ design assumptions the approach depends on. Findings are JSON forced by
 [references/adversarial.md](references/adversarial.md) for the procedure: target and focus,
 Claude's own view first, one run or 2-3 parallel lenses, merging, verifying every finding, and
 the presentation.
+
+## Fix and re-check loop (review or adversarial)
+
+When the caller fixes findings and asks again (a `full-send` or `full-stop` run, "loop until Codex
+agrees"), run rounds under this budget. Adapted from tstack's `sol-loop` (t3dotgg/tstack, MIT).
+
+1. **Budget.** 3 rounds. Round 1 reviews the whole change; later rounds review only code changed
+   since the last round plus the open finding ids. Extend to 5 only for security, permissions,
+   auth, data loss or state/concurrency while a gating finding stays open with evidence, or when
+   the user asks. One reviewer per round: never start a second one in parallel.
+2. **Gating.** A finding gates only when you confirmed it yourself (open the file:line or rerun the
+   command) and it breaks the intended case or a caller will hit it. Another path, a rare case,
+   small performance cost or extra compatibility is a nit whatever severity Codex gave it.
+3. **Answer each finding.** Agree: smallest fix; prefer deleting or narrowing code over a new
+   lock, cache, helper or option; add one focused test only when the intent needs it. Disagree:
+   say why with evidence. Nit or out of scope: decline in one line and list it as a follow-up.
+   Never agree just to end the loop.
+4. **Ledger** across rounds: id · severity · outcome (fixed / disagree / declined) · evidence.
+   Send it with the next round so Codex marks each old id `resolved` or `still open: <reason>`.
+   Re-run the checks and `git diff --shortstat <base>` each round: when review grew the diff,
+   cut first.
+5. **Stop.** Agreed: verdict `ship` (or no confirmed findings) on the current diff, no gating
+   finding open. Early stop: a round returns only nits. Stuck: one item disputed after two
+   replies, or the budget ends; show both sides in 2-3 lines each and let the user decide. The
+   end of the budget is not approval.
+6. **Report:** rounds, model, what changed because of Codex, diff size before → after, fixed and
+   declined findings with reasons. In a PR description add one line: `Reviewed with second-opinion:
+   <N> rounds with <model>, verdict <verdict>`.
 
 ## Judge mode
 
