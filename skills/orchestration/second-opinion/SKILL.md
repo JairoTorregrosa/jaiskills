@@ -149,7 +149,11 @@ agrees"), run rounds under this budget. Adapted from tstack's `sol-loop` (t3dotg
    say why with evidence. Nit or out of scope: decline in one line and list it as a follow-up.
    Never agree just to end the loop.
 4. **Ledger** across rounds: id · severity · outcome (fixed / disagree / declined) · evidence.
-   Send it with the next round so Codex marks each old id `resolved` or `still open: <reason>`.
+   Rounds 2 and later always run in adversarial mode, even when round 1 was review mode: the
+   built-in reviewer takes no instructions (`ask_codex.sh --review` exits 2 on a non-empty
+   stdin), so it cannot receive the ledger. Put the ledger and "mark each old id `resolved` or
+   `still open: <reason>`; review only the code changed since round <n-1>" in the adversarial
+   focus.
    Re-run the checks and `git diff --shortstat <base>` each round: when review grew the diff,
    cut first.
 5. **Stop.** Agreed: verdict `ship` (or no confirmed findings) on the current diff, no gating
