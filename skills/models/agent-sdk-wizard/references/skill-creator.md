@@ -48,7 +48,9 @@ need any other skill installed.
    the user's domain has rules or reference data; do not create empty ones.
 5. **scripts/** when a step is deterministic (sum, parse, validate): a small Python script the
    body runs with `python3 ${CLAUDE_SKILL_DIR}/scripts/<x>.py <args>` and whose output the agent
-   uses. Code computes; the model decides. Test the script once yourself.
+   uses. Code computes; the model decides. Test the script once yourself. If the agent has no
+   `Bash` (most guardrails remove it), put that deterministic logic in a custom tool
+   (`@tool` / `tool()`, step 5) instead of `scripts/`, and have the procedure call the tool.
 6. **Degrees of freedom**: fragile, exact procedures → precise steps and scripts; judgment calls
    → principles and examples.
 7. Wire it in the agent (`setting_sources=["project"]`, `skills=["<name>"]`, `cwd` at or below

@@ -12,6 +12,24 @@ before using one. Adaptation for this wizard: sample data goes in `workspace/dat
 `workspace/entregas/`; the wizard's templates already print the transcript to the terminal, so
 ignore the `salidas/` convention below unless the user asks for a log file.
 
+Where this file and the wizard disagree, the wizard wins: with `skills=[…]` the SDK adds the
+`Skill` tool by itself (no need to list it in `tools`/`allowed_tools`); the caps of the family
+(`max_turns`, `max_budget_usd` in its *Guardrail* line) are the defaults; logs go to the
+terminal.
+
+## Family → archetype (step 2) and its first option at each step
+
+| Family | Archetype | 5 Herramientas | 6 Skill | 8–9 Guardrail |
+|---|---|---|---|---|
+| 1 Asistente personal | 2C (custom tool + files) | Read, Glob, Grep, Write + `mcp__agenda__hoy` | `resumen-del-dia` | `disallowed_tools` Bash/Edit/WebFetch + hook: Write only in `entregas/` |
+| 2 Código, QA, DevOps | 2A (read-only) | Read, Glob, Grep (+ `mcp__repo__correr_tests`) | `revisar-diff` | `disallowed_tools` Write/Edit/Bash; review printed or written to `entregas/` with a Write-only-there hook |
+| 3 Datos y análisis | 2C | Read, Write + `mcp__datos__perfil_columna` | `auditar-tabla` | no Bash/WebFetch; read-only data |
+| 4 Finanzas | 2C | Read, Grep + `mcp__finanzas__sumar_por_categoria` (+ structured output) | `clasificar-gastos` | never pay/transfer; no WebFetch |
+| 5 Ventas | 2C | Read, Write + `mcp__crm__buscar_cuenta` | `investigar-cuenta` | drafts only, never send |
+| 6 Marketing y contenido | 2C (writes drafts) | Read, Write + `mcp__marca__validar_copy` | `redactar-con-marca` | Write only in `entregas/`; never publish |
+| 7 Investigación | 2C + WebSearch/WebFetch | Read, WebSearch, WebFetch, Write + `mcp__vigia__ya_visto` | `revisar-fuentes` | cite every source; Write only in `entregas/` |
+| 8 Documentos, atención, tutor | 2A, or 2D for a tutor that converses | Read, Glob, Grep, Write (+ `mcp__base__buscar_faq`) | `responder-ticket` / tutor skill | drafts only; a human confirms grades |
+
 Las ocho categorías salen de 392 propuestas de asistentes al workshop. Cada sección describe una versión pequeña y local que se termina en una tarde, con datos de ejemplo en `workspace/datos/`. El sistema real se conecta cuando esa versión ya corre bien.
 
 Convenciones: el agente escribe sus entregas en `workspace/entregas/`; la bitácora va aparte, en `salidas/<fecha-hora>/`. Además: los MCP se declaran inline en `mcp_servers`; la tool propia vive en un servidor en proceso y se llama `mcp__<servidor>__<tool>`; la skill va en `workspace/.claude/skills/<nombre>/SKILL.md` y exige `"Skill"` en `tools`. Topes de partida: `max_turns=12`, `max_budget_usd=0.25`. Cada corrida deja `salidas/<fecha>/eventos.jsonl` y `salidas/<fecha>/transcript.md`.

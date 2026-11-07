@@ -37,7 +37,9 @@ show it to them in full before generating, and accept edits.
    Apply edits, then generate.
 5. If the result feeds another program (a dashboard, a spreadsheet, an API), propose structured
    output: write a small JSON Schema (3–8 fields, `required` listed, descriptions in Spanish) and
-   in the prompt describe the fields' meaning, not the JSON syntax.
+   in the prompt describe the fields' meaning, not the JSON syntax, and add: "entrega el
+   resultado solo por la salida estructurada; no lo repitas como texto" (otherwise the model
+   tends to print the JSON twice).
 
 ## Skeleton
 

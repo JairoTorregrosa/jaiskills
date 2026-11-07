@@ -26,9 +26,9 @@ INICIO ─► PREFLIGHT ─► ELEGIR_CREDENCIAL ─► (A) ANT ─────�
 | PREFLIGHT | every row of the preflight table passes | ELEGIR_CREDENCIAL |
 | PREFLIGHT | a row fails | INSTALAR (give the exact command for their OS, wait, re-run the row) |
 | ELEGIR_CREDENCIAL | the user picks A, B or C (one `AskUserQuestion`, header `Credencial`) | that path |
-| ESCRIBIR_ENV | `.env` holds `AGENTE_AUTH` plus exactly one credential line, and `.gitignore` lists `.env` | VERIFICAR |
+| ESCRIBIR_ENV | the agent folder exists (create it now: name from the goal if known, else `mi-agente`; rename it at generation if needed), its `.gitignore` lists `.env`, and its `.env` holds `AGENTE_AUTH` plus exactly one credential line — written with your file-writing tool (Write), never with `echo`/`printf` in a shell | VERIFICAR |
 | VERIFICAR | the path's check passes | LISTA (say which org/account will pay, in one line) |
-| VERIFICAR | the check fails | DIAGNOSTICAR (match the message in the table at the end, fix, re-verify; after 2 failures offer the next path) |
+| VERIFICAR | the check fails | DIAGNOSTICAR (match the message in the table at the end and fix; a rejected key (`401`): ask once to re-copy it from the Console, then offer path A; any other path: after 2 failures offer the next one) |
 
 Never leave a state on a guess. "It probably works" is not a transition.
 

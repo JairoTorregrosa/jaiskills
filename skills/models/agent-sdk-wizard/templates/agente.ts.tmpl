@@ -20,6 +20,10 @@
 
 import { query, type Options, type SDKMessage } from "@anthropic-ai/claude-agent-sdk";
 import { prepararCredenciales } from "./credenciales.js";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const AQUI = dirname(fileURLToPath(import.meta.url)); // funciona desde cualquier carpeta
 
 prepararCredenciales(); // ANTES de crear la sesión
 «SI el paso 5 fue "mis propias funciones"
@@ -110,6 +114,9 @@ const opciones: Options = {
   forwardSubagentText: true,                 // paso 7: ver también el TEXTO del ayudante
   «FIN SI
   permissionMode: "{{PERMISSION_MODE}}",     // paso 8: quién autoriza cada acción
+  «SI hay herramientas que el agente NUNCA debe usar (casi siempre: Bash, Edit, WebFetch…)
+  disallowedTools: {{TOOLS_PROHIBIDAS}},     // paso 8: allowedTools aprueba; esto prohíbe
+  «FIN SI
   «SI el paso 8 fue "que me pregunte a mí"
   canUseTool: aprobar,                       // paso 8: tu función decide, más abajo
   «FIN SI
@@ -122,7 +129,7 @@ const opciones: Options = {
   «SI la salida tiene que ser datos (JSON) que otro programa lee
   outputFormat: { type: "json_schema", schema: ESQUEMA },   // salida validada
   «FIN SI
-  cwd: "{{CWD}}",                            // la carpeta que el agente ve
+  cwd: join(AQUI, "{{CWD}}"),                // la carpeta que el agente ve (junto a este archivo)
   maxTurns: {{MAX_TURNS}},                   // freno: máximo de vueltas del ciclo
   maxBudgetUsd: {{MAX_BUDGET}},              // freno: tope de gasto estimado, en dólares
   stderr: () => {},                          // cambia a (l) => process.stderr.write(l) para depurar
@@ -136,13 +143,26 @@ function imprimir(mensaje: SDKMessage): void {
   const sangria =
     "parent_tool_use_id" in mensaje && mensaje.parent_tool_use_id ? "   ↳ " : "";
 
+  if (mensaje.type === "system" && mensaje.subtype === "init") {
+    // El arranque: qué skills y servidores ve el agente. Si tu skill no está, no la va a usar.
+    «SI el paso 6 usó skills
+    console.log(`[init] skill «{{NOMBRE_SKILL}}» cargada: ${mensaje.skills.includes("{{NOMBRE_SKILL}}")}`);
+    «FIN SI
+    «SI el paso 5 usó un MCP o tus funciones
+    console.log(`[init] servidores: ${mensaje.mcp_servers.map((s) => `${s.name}:${s.status}`).join(", ")}`);
+    «FIN SI
+    return;
+  }
+
   if (mensaje.type === "assistant") {
     for (const bloque of mensaje.message.content) {
       if (bloque.type === "tool_use") {
         const input = (bloque.input ?? {}) as Record<string, unknown>;
-        // El argumento más informativo de cada herramienta nativa.
+        // El argumento más informativo de cada herramienta nativa (rutas relativas: se leen mejor).
+        const ruta = (input.file_path ?? input.path) as string | undefined;
         const arg =
-          input.command ?? input.file_path ?? input.pattern ?? input.prompt ??
+          input.skill ?? input.command ?? ruta?.replace(String(opciones.cwd), "").replace(/^[\\/]/, "") ??
+          input.pattern ?? input.prompt ??
           // tus funciones (paso 5) tienen argumentos propios: van completos
           Object.entries(input).map(([k, v]) => `${k}=${v}`).join(", ");
         console.log(`${sangria}🔧 ${bloque.name}(${String(arg).slice(0, 80)})`);
@@ -215,6 +235,7 @@ rl.close();
    query() abre una sesión NUEVA cada vez y no recuerda nada. El objeto Query en
    modo streaming input sí mantiene el historial.
 
+// Ojo: en una sesión, total_cost_usd del resultado es ACUMULADO (sube de turno en turno).
 async function* turnos() {
   yield { type: "user" as const, session_id: "", parent_tool_use_id: null,
           message: { role: "user" as const, content: "{{PROMPT_PRUEBA}}" } };

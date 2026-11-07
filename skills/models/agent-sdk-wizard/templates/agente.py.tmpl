@@ -19,6 +19,7 @@
 # La credencial sale de .env (ver credenciales.py): ant, API key o suscripción.
 
 import asyncio
+from pathlib import Path
 from typing import Any
 
 from credenciales import preparar_credenciales
@@ -26,6 +27,7 @@ from credenciales import preparar_credenciales
 from claude_agent_sdk import (
     query,
     ClaudeSDKError,
+    SystemMessage,
     ClaudeAgentOptions,
     AssistantMessage,
     ResultMessage,
@@ -73,6 +75,9 @@ async def {{NOMBRE_TOOL}}(args: dict[str, Any]) -> dict[str, Any]:
     name="{{NOMBRE_SERVIDOR}}", version="1.0.0", tools=[{{NOMBRE_TOOL}}]
 )
 «FIN SI
+
+
+AQUI = Path(__file__).resolve().parent         # funciona desde cualquier carpeta
 
 
 # ─── Paso 4 · el system prompt ────────────────────────────────────────────
@@ -131,13 +136,16 @@ opciones = ClaudeAgentOptions(
     forward_subagent_text=True,               # paso 7: ver también el TEXTO del ayudante
     «FIN SI
     permission_mode="{{PERMISSION_MODE}}",    # paso 8: quién autoriza cada acción
+    «SI hay herramientas que el agente NUNCA debe usar (casi siempre: Bash, Edit, WebFetch…)
+    disallowed_tools={{TOOLS_PROHIBIDAS}},    # paso 8: allowed_tools aprueba; esto prohíbe
+    «FIN SI
     «SI el paso 9 pidió un hook
     hooks={"{{EVENTO_HOOK}}": [HookMatcher({{MATCHER}}hooks=[HOOK])]},   # paso 9: tu vigilante
     «FIN SI
     «SI la salida tiene que ser datos (JSON) que otro programa lee
     output_format={"type": "json_schema", "schema": ESQUEMA},   # salida validada
     «FIN SI
-    cwd="{{CWD}}",                            # la carpeta que el agente ve
+    cwd=AQUI / "{{CWD}}",                     # la carpeta que el agente ve (junto a este archivo)
     max_turns={{MAX_TURNS}},                  # freno: máximo de vueltas del ciclo
     max_budget_usd={{MAX_BUDGET}},            # freno: tope de gasto estimado, en dólares
     stderr=lambda linea: None,                # cambia a print(linea, end="") para depurar
@@ -151,13 +159,27 @@ def imprimir(mensaje: Any) -> None:
     # Un mensaje con parent_tool_use_id salió de adentro de un ayudante (paso 7).
     sangria = "   ↳ " if getattr(mensaje, "parent_tool_use_id", None) else ""
 
+    if isinstance(mensaje, SystemMessage) and mensaje.subtype == "init":
+        # El arranque: qué skills y servidores ve el agente. Si tu skill no está, no la va a usar.
+        «SI el paso 6 usó skills
+        print(f"[init] skill «{{NOMBRE_SKILL}}» cargada: {'{{NOMBRE_SKILL}}' in mensaje.data.get('skills', [])}")
+        «FIN SI
+        «SI el paso 5 usó un MCP o tus funciones
+        print(f"[init] servidores: {[(s.get('name'), s.get('status')) for s in mensaje.data.get('mcp_servers', [])]}")
+        «FIN SI
+        return
+
     if isinstance(mensaje, AssistantMessage):
         for bloque in mensaje.content:
             if isinstance(bloque, ToolUseBlock):
                 # El argumento más informativo de cada herramienta nativa.
+                ruta = bloque.input.get("file_path") or bloque.input.get("path")
+                if ruta:
+                    ruta = str(ruta).removeprefix(str(opciones.cwd)).lstrip("/\\")   # relativa (Mac y Windows)
                 arg = (
-                    bloque.input.get("command")
-                    or bloque.input.get("file_path")
+                    bloque.input.get("skill")
+                    or bloque.input.get("command")
+                    or ruta
                     or bloque.input.get("pattern")
                     or bloque.input.get("prompt")
                     # tus funciones (paso 5) tienen argumentos propios: van completos
@@ -224,6 +246,7 @@ TURNOS = [
 
 async def main() -> None:
     print(f"▶ {{NOMBRE}}\n")
+    # Ojo: en una sesión, total_cost_usd del resultado es ACUMULADO (sube de turno en turno).
     async with ClaudeSDKClient(options=opciones) as cliente:
         for turno in TURNOS:
             print(f"\n💬 {turno}")

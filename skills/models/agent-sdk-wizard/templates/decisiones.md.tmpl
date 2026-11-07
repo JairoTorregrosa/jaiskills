@@ -10,14 +10,15 @@
 
 # Decisiones de {{NOMBRE}}
 
-Las nueve respuestas del wizard, la opción exacta del SDK que produjo cada una, y dónde leer
+La credencial y las nueve respuestas del wizard, la opción exacta del SDK que produjo cada una, y dónde leer
 más. Generado el {{FECHA}}.
 
-Versiones contra las que se escribió esto: **TypeScript SDK 0.3.251** · **Python SDK 0.2.148**
-(empaca Claude Code 2.1.251).
+Versiones contra las que se probó: **TypeScript SDK 0.3.315** · **Python SDK 0.2.176**
+(empaca Claude Code 2.1.316).
 
 | # | Pregunta | Tu respuesta | Código exacto | Dónde leer más |
 |---|---|---|---|---|
+| 0 | ¿Con qué pagas? | {{R0}} | `AGENTE_AUTH={{C0}}` en `.env` (lo aplica `credenciales.{{EXT}}`) | [ant CLI](https://platform.claude.com/docs/en/api/sdks/cli) · [authentication](https://code.claude.com/docs/en/authentication) |
 | 1 | ¿En qué lenguaje? | {{R1}} | `{{C1}}` | [quickstart](https://code.claude.com/docs/en/agent-sdk/quickstart.md) |
 | 2 | ¿Qué tiene que lograr? | {{R2}} | `{{C2}}` | [agent-loop](https://code.claude.com/docs/en/agent-sdk/agent-loop.md) |
 | 3 | ¿Qué modelo? | {{R3}} | `{{C3}}` | [modelos](https://platform.claude.com/docs/en/about-claude/models/overview.md) |

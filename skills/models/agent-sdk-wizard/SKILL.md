@@ -41,7 +41,17 @@ Goal given by the user (may be empty): $ARGUMENTS
    words). Then ask step 2 anyway with the matching archetype first — the idea is a goal, not an
    archetype — and use the family's tools, custom tool, skill and guardrail as the recommended
    options for steps 5–9.
-3. **Empty** → after step 0, start at step 1 with no preamble.
+   **When an idea maps to a family, the family wins** over `arquetipos.md` for: the rules
+   (4-bis), tools (5), skill (6), guardrail (8–9: `disallowed_tools` + a `PreToolUse` hook
+   written for that guardrail), `max_turns`/`max_budget_usd`, `cwd` (`./workspace`) and sample
+   data. The archetype only decides `query()` vs a live session and the shape of the test
+   prompt. Combine options when the family needs it (e.g. `Read`, `Glob`, `Grep`, `Write` **and**
+   a custom tool). `ideas.md` has the family → archetype table.
+4. **Sample data**: when the family needs files the templates do not ship (an agenda, a bank
+   statement, a diff, a lesson), write small realistic ones yourself in `workspace/datos/`
+   (10–20 rows or a page; include the edge cases the agent must catch) and make the test prompt
+   exercise them.
+5. **Empty** → after step 0, start at step 1 with no preamble.
 
 ## Decision table — is this the right skill?
 
@@ -125,8 +135,11 @@ Each is a separate `AskUserQuestion` call with its own previews. Ask only when t
 | 4 | answer was 4A, 4B or 4D | ¿Qué reglas fijas le pones? | `Reglas` | Analista de datos · Asistente de código · Operador cuidadoso |
 | 5 | answer was 5D (own functions) | ¿Además quieres conectar un servidor que ya existe? | `MCP` | No, solo mis funciones · Sí, un servidor MCP externo |
 
-If the user picks "Otra" on the `Reglas` sub-question, take their free text verbatim as the
-rules paragraph.
+If the user brought an idea, the first `Reglas` option is **"Las de mi idea (Recomendado)"**,
+with a preview listing the 3–4 rules you derived from the idea and its family (that is what
+goes into `<limites>` and `<como_trabajas>` of the system prompt); the three presets follow. If
+the user picks "Otra", take their free text verbatim as the rules paragraph. Either way the
+final prompt is built with `references/system-prompt.md`.
 
 ### What each step decides
 
