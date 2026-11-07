@@ -1,32 +1,62 @@
 ---
 name: agent-sdk-wizard
 description: >-
-  Build a working Claude Agent SDK agent by asking the user 9 illustrated questions, one at a
-  time, then generating and running the code. Trigger on "crea un agente", "quiero hacer un
-  agente con el SDK", "ayúdame a armar mi agente", "nuevo agente paso a paso", "agent sdk
-  wizard", "build an agent with the Claude Agent SDK", "help me create an agent step by step",
-  "set up an agent project". Each question is one AskUserQuestion call whose options all carry an
-  ASCII diagram in `preview`, in plain language for someone who has never seen an agent. Produces
-  a directory with agente.py or agente.ts, its manifest, a README, a decisiones.md, and a real
-  test run. NOT for the raw Messages API, Managed Agents, or the Claude Code CLI itself — those
-  are different products; say so and stop.
+  Build a working Claude Agent SDK agent on Mac or Windows: a preflight and credential step
+  (ant CLI login by default, a Console API key, or a Pro/Max token), then 9 illustrated
+  questions, one at a time, then it writes the agent with a full system prompt (and a
+  well-designed skill when one helps) and runs it. Trigger on "crea un agente", "quiero hacer
+  un agente con el SDK", "ayúdame a armar mi agente", "tengo una idea de agente", "nuevo agente
+  paso a paso", "agent sdk wizard", "build an agent with the Claude Agent SDK", "help me create
+  an agent step by step". Each question is one AskUserQuestion call whose options carry an ASCII
+  diagram in `preview`, in plain language for someone who has never seen an agent. Produces a
+  directory with agente.py or agente.ts, credenciales, .env, README, decisiones.md and a real
+  test run. NOT for the raw Messages API, Managed Agents, or the Claude Code CLI itself; say so
+  and stop.
 argument-hint: "[qué quieres que haga el agente — opcional]"
 ---
 
-# agent-sdk-wizard — 9 illustrated questions → a running agent
+# agent-sdk-wizard — preflight + 9 illustrated questions → a running agent
 
 The user knows what they want the agent to do. They do not know which of the ~65 SDK options
-does it. This skill closes that gap by **asking, not explaining**: nine questions, each with a
-drawing of what changes, then it writes the agent and runs it.
+does it, and often has never created an API key. This skill closes both gaps: step 0 gets the
+machine and one credential ready (Mac or Windows), then **asking, not explaining**: nine
+questions, each with a drawing of what changes, then it writes the agent — with a real system
+prompt and, when it helps, a real skill — and runs it.
+
+The skill is self-contained: every file it needs is in this folder (`references/`,
+`templates/`). It does not depend on any other skill being installed.
 
 Goal given by the user (may be empty): $ARGUMENTS
 
 ## How to start
 
-- **Goal given above** → that text is the goal. Use it as the pre-filled proposal for step 2:
-  ask the question anyway, say in one line which archetype it maps to, and put that option
-  first. Do not skip step 2 — the user's phrasing is a goal, not an archetype.
-- **Empty** → start at step 1 with no preamble.
+1. **Step 0 always comes first: preflight + credential.** Read `references/auth.md` and follow
+   its state machine: detect Mac or Windows, run the preflight checks yourself, give exact
+   install commands for what is missing, then ask the `Credencial` question (A `ant` login,
+   recommended · B API key · C Pro/Max token), write `.env`, and verify. Skip the question only
+   if a verified `.env` already exists in the target folder (`credenciales` prints the mode).
+2. **Goal given above, or a free-form idea** ("quiero un agente que me ordene las facturas") →
+   read `references/ideas.md`, say in one line which of the eight families it belongs to and
+   what small first version you propose (its *primer agente recomendado*, adapted to their
+   words). Then ask step 2 anyway with the matching archetype first — the idea is a goal, not an
+   archetype — and use the family's tools, custom tool, skill and guardrail as the recommended
+   options for steps 5–9.
+   **When an idea maps to a family, the family wins** over `arquetipos.md` for: the rules
+   (4-bis), tools (5), skill (6), guardrail (8–9: `disallowed_tools` + a `PreToolUse` hook
+   written for that guardrail), `max_turns`/`max_budget_usd`, `cwd` (`./workspace`) and sample
+   data. The archetype only decides `query()` vs a live session and the shape of the test
+   prompt. Model: Sonnet 5.5 first for any idea that reads and writes or researches; Haiku 5.5
+   only for pure lookups. Step 9's first option becomes **"El guardián de mi idea"**: the
+   family's guardrail, from `templates/hooks.*` (`solo_en_entregas` / `soloEnEntregas` covers
+   "escribe solo en entregas/"; adapt it for other paths or for SQL), previewed as a small
+   diagram like the other step 9 options. Reorder step 2 so the family's archetype goes first.
+   Combine options when the family needs it (e.g. `Read`, `Glob`, `Grep`, `Write` **and**
+   a custom tool). `ideas.md` has the family → archetype table.
+   **Sample data**: when the family needs files the templates do not ship (an agenda, a bank
+   statement, a diff, a lesson), write small realistic ones yourself in `workspace/datos/`
+   (10–20 rows or a page; include the edge cases the agent must catch) and make the test prompt
+   exercise them.
+3. **Empty** → after step 0, start at step 1 with no preamble.
 
 ## Decision table — is this the right skill?
 
@@ -61,7 +91,12 @@ These are not suggestions. Breaking one breaks the wizard.
    smart person who has not seen this before: one concrete analogy, one drawing.
 10. **Never invent an API name.** Every option maps to exact code in
     `references/opciones-sdk.md`, verified against TS SDK 0.3.251 / Python SDK 0.2.148 /
-    Claude Code 2.1.251. If it is not in that file, do not write it.
+    Claude Code 2.1.251 and re-run on Python SDK 0.2.176 / TS SDK 0.3.315–0.3.316 (2026-11-07). If it is
+    not in that file, do not write it.
+11. **Secrets.** A pasted key or token goes only into `.env`, after `.gitignore` lists `.env`.
+    Never echo it, never put it in a command line, a log, the README or `decisiones.md`.
+12. **Commands for the user's OS.** Every command you ask the user to run comes in the form for
+    their shell (zsh/bash on Mac, PowerShell on Windows). `auth.md` has both.
 
 ## Skipping steps
 
@@ -74,7 +109,7 @@ When the goal makes a step meaningless, **say so in one line and skip it with th
   question, take the recommended option for each, and go straight to generation. Show them the
   9 decisions afterwards so nothing is a surprise.
 
-Never skip step 1, step 2, or step 5.
+Never skip step 0, step 1, step 2, or step 5.
 
 ## The nine steps
 
@@ -84,6 +119,7 @@ question, with exactly these options, in this order.
 
 | # | `question` | `header` | Options (recommended first) | Preview section |
 |---|---|---|---|---|
+| 0 | ¿Con qué vas a pagar lo que gaste tu agente? | `Credencial` | Login con ant · API key de la consola · Mi suscripción Pro/Max | `previews.md` § Step 0 (after the preflight, `auth.md`) |
 | 1 | ¿En qué lenguaje quieres tu agente? | `Lenguaje` | Python · TypeScript | `previews.md` § Step 1 |
 | 2 | ¿Qué tiene que lograr tu agente? | `Objetivo` | Responder preguntas sobre mis archivos · Cambiar archivos o código · Llamar a mis funciones o APIs · Conversar varias vueltas con memoria | § Step 2 |
 | 3 | ¿Qué tan listo lo necesitas (y cuánto quieres pagar)? | `Modelo` | Sonnet 5.5 · Haiku 5.5 · Opus 5.5 · Fable 5.1 | § Step 3 |
@@ -104,8 +140,11 @@ Each is a separate `AskUserQuestion` call with its own previews. Ask only when t
 | 4 | answer was 4A, 4B or 4D | ¿Qué reglas fijas le pones? | `Reglas` | Analista de datos · Asistente de código · Operador cuidadoso |
 | 5 | answer was 5D (own functions) | ¿Además quieres conectar un servidor que ya existe? | `MCP` | No, solo mis funciones · Sí, un servidor MCP externo |
 
-If the user picks "Otra" on the `Reglas` sub-question, take their free text verbatim as the
-rules paragraph.
+If the user brought an idea, the first `Reglas` option is **"Las de mi idea (Recomendado)"**,
+with a preview listing the 3–4 rules you derived from the idea and its family (that is what
+goes into `<limites>` and `<como_trabajas>` of the system prompt); the three presets follow. If
+the user picks "Otra", take their free text verbatim as the rules paragraph. Either way the
+final prompt is built with `references/system-prompt.md`.
 
 ### What each step decides
 
@@ -116,9 +155,10 @@ Exact TS and Python code for every answer: `references/opciones-sdk.md`.
 | 1 | `agente.py` + `pyproject.toml`, or `agente.ts` + `package.json`. Also `query()` vs `ClaudeSDKClient`/`Query` — decided by step 2, not asked. |
 | 2 | The test prompt, the `cwd`, the sample data, and the defaults for steps 3–9 (`arquetipos.md`). |
 | 3 | `model=` (+ `effort=` if the sub-question ran). |
-| 4 | `system_prompt=` — plain string, or the `preset` object with `append`. |
+| 0 | `.env` (`AGENTE_AUTH` + one credential), `.env.example`, `.gitignore`, `credenciales.py`/`.ts`. |
+| 4 | `SYSTEM_PROMPT`, built with `references/system-prompt.md` and shown to the user before generating; plain string, or the `preset` object with `append`. Plus `output_format` when the result feeds another program. |
 | 5 | `allowed_tools=[…]`; for own functions also the `@tool` / `tool()` skeleton, `create_sdk_mcp_server`, and `mcp_servers={…}`. |
-| 6 | `.claude/skills/<name>/SKILL.md`, `setting_sources=["project"]`, `skills=[…]`. |
+| 6 | `<cwd>/.claude/skills/<name>/SKILL.md` (+ `references/`, `scripts/` when they carry real content), written with `references/skill-creator.md`; `setting_sources=["project"]`, `skills=[…]`. |
 | 7 | `agents={…}` with `AgentDefinition`, plus `"Agent"` in `allowed_tools`, plus the `parent_tool_use_id` filter in the stream reader. |
 | 8 | `permission_mode=`, `allowed_tools` / `disallowed_tools`, and the `can_use_tool` callback if chosen. |
 | 9 | `hooks={…}` with the ready-made function from `templates/hooks.py` or `templates/hooks.ts`. |
@@ -138,9 +178,13 @@ and substitute.
 | `agente.ts` | `templates/agente.ts.tmpl` | step 1 = TypeScript |
 | `pyproject.toml` | `templates/pyproject.toml` | step 1 = Python |
 | `package.json` | `templates/package.json` | step 1 = TypeScript |
+| `credenciales.py` / `credenciales.ts` | `templates/credenciales.py` / `.ts`, copied as is | always |
+| `.env` | written in step 0 (`auth.md`) | always; never committed |
+| `.env.example` | `templates/env.example` | always |
+| `.gitignore` | `templates/gitignore` | always, **before** `.env` |
 | `hooks.py` / `hooks.ts` | `templates/hooks.py` / `templates/hooks.ts` | step 9 ≠ "No por ahora" |
-| `.claude/skills/<n>/SKILL.md` | `templates/skill.md.tmpl` | step 6 = "una skill nueva" |
-| `workspace/ventas.csv` | `templates/ventas.csv` | goal needs sample data (see `arquetipos.md`) |
+| `<cwd>/.claude/skills/<n>/SKILL.md` (+ `references/…`) | `templates/skill.md.tmpl` + `references/skill-creator.md` | step 6 = "una skill nueva" |
+| `workspace/datos/ventas.csv` | `templates/ventas.csv` (it is clean: seed errors if the agent audits quality) | goal needs sample data (see `arquetipos.md`) |
 | `README.md` | `templates/README.md.tmpl` | always |
 | `decisiones.md` | `templates/decisiones.md.tmpl` | always |
 | `agente.ipynb` | derive from `agente.py` | only if the user asked for a notebook |
@@ -150,6 +194,12 @@ Non-negotiables in the generated code:
 - The whole configuration is **one visible block** at the top — `opciones = ClaudeAgentOptions(…)`
   or `const opciones: Options = {…}` — and **every line carries a `# paso N: …` comment**. That
   block is the point: it is the map from the nine answers to the SDK.
+- **The system prompt follows `references/system-prompt.md`**: rol, contexto, objetivo, cómo
+  trabajas, herramientas, límites, formato de salida — never a one-liner, no `{{…}}` left.
+- **The skill lives under the agent's `cwd`**: with `cwd="./workspace"`, the skill goes in
+  `workspace/.claude/skills/<n>/`. That is where the SDK looks.
+- **`credenciales` runs before the first `query()`**, and the README tells the user how to switch
+  mode (edit `AGENTE_AUTH` in `.env`).
 - **`max_turns` and `max_budget_usd` are always set.** Defaults: `max_turns=25`,
   `max_budget_usd=0.15`. No generated agent ships without both.
 - The stream reader prints text, tool calls as `🔧 nombre(argumento)`, tool errors, and the final
@@ -159,21 +209,28 @@ Non-negotiables in the generated code:
 
 ### Notebook variant
 
-If the user wants `agente.ipynb`, the cell body is the same code with three changes: drop
-`import asyncio`, drop `async def main()` and `asyncio.run(main())`, and put the `async for`
-at the top level of the cell. `await`, never `asyncio.run` — a kernel already has a running
+If the user wants `agente.ipynb`, the cell body is the same code with four changes: drop
+`import asyncio`, drop `async def main()` and `asyncio.run(main())`, put the `async for`
+at the top level of the cell, and replace `AQUI = Path(__file__).resolve().parent` with
+`AQUI = Path.cwd()` (a cell has no `__file__`; the notebook lives in the agent folder and
+Jupyter starts there). Call `preparar_credenciales()` in the first cell. `await`, never `asyncio.run` — a kernel already has a running
 event loop. Do not add `nest_asyncio`; it is not needed.
 
 ## Test run — the wizard is not done until the agent runs
 
-1. Check the key: `echo "${ANTHROPIC_API_KEY:+present}"`. If it is empty, tell the user in one
-   line: *"Necesito tu API key de la consola de Anthropic. Córrela en tu terminal:
-   `export ANTHROPIC_API_KEY=sk-ant-…`"*, and wait. The SDK does not read `.env` on its own.
-2. Install: `uv sync` (Python) or `npm install` (TypeScript), inside the generated directory.
-3. Run once with the test prompt from step 2: `uv run agente.py` or `npx tsx agente.ts`.
-4. Show the user the `result` line: turns and cost.
-5. **If it fails, fix it before saying done.** `references/errores.md` maps the exact message to
-   its cause and its fix. Do not hand back a broken agent with an explanation.
+1. `.env` exists and step 0 verified it. If not, go back to step 0 — do not ask the user to
+   `export` anything; `credenciales.py`/`.ts` reads `.env` itself.
+2. Install inside the generated directory: `uv sync` (Python) or `npm install` (TypeScript).
+   Same command on Mac and Windows.
+3. Run once with the test prompt: `uv run agente.py` or `npx tsx agente.ts`. The first line must
+   be `[auth] …` naming the mode you set up; if it names another, stop and fix `.env`.
+4. Show the user the `result` line: turns and cost. Path A or B: tell them it was charged to the
+   credits' organization; path C: to their plan.
+5. If a skill was created, the run must show `🔧 Skill(<name>)`. If it does not, fix the
+   description (see `skill-creator.md`) and run again.
+6. **If it fails, fix it before saying done.** `references/errores.md` (and the DIAGNOSTICAR
+   table in `auth.md` for credential messages) maps the exact message to its cause and its fix.
+   Do not hand back a broken agent with an explanation.
 
 ## Closing
 

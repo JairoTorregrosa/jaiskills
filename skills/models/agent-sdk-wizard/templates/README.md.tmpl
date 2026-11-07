@@ -16,16 +16,27 @@ Hecho con el [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk).
 
 ## Cómo correrlo
 
-Tres comandos. El primero solo la primera vez.
+Dos comandos (iguales en Mac y en Windows). El primero solo la primera vez.
 
 ```bash
 {{COMANDO_INSTALAR}}                          # instala el SDK
-export ANTHROPIC_API_KEY=sk-ant-…             # tu llave de console.anthropic.com
-{{COMANDO_CORRER}}                            # corre el agente
+{{COMANDO_CORRER}}                            # corre el agente con la pregunta de prueba
+{{COMANDO_CORRER}} "tu pregunta"              # o con la tuya
 ```
 
-Si te dice `Invalid API key`, la variable no está en **esta** terminal. El SDK no lee `.env`
-por su cuenta: o la exportas aquí, o la cargas tú antes de llamarlo.
+### La credencial
+
+`credenciales.{{EXT}}` lee `.env` y usa **una sola** forma de pagar (la primera línea que
+imprime el agente dice cuál):
+
+| `AGENTE_AUTH` en `.env` | Qué hace | Quién paga |
+|---|---|---|
+| `ant` (configurado: {{AUTH_ELEGIDA}}) | usa tu login de `ant auth login` (perfil en `ANTHROPIC_PROFILE`) | la organización de ese login (los créditos) |
+| `api_key` | usa `ANTHROPIC_API_KEY` | la organización dueña de la key |
+| `suscripcion` | usa `CLAUDE_CODE_OAUTH_TOKEN` de `claude setup-token` | tu plan Pro/Max |
+
+Para cambiar, edita `.env` (hay un ejemplo en `.env.example`). `.env` está en `.gitignore`:
+nunca lo subas a git.
 
 ## Qué vas a ver en pantalla
 
@@ -40,7 +51,10 @@ por su cuenta: o la exportas aquí, o la cargas tú antes de llamarlo.
 ```
 
 - `🔧` es el agente **pidiendo** una herramienta. No la ejecuta él: la ejecuta este programa.
-- La última línea es el recibo: cuántas vueltas dio el ciclo y qué costó esa corrida.
+- La última línea es el recibo: cuántas vueltas dio el ciclo y qué costó esa corrida (en una
+  conversación de varias vueltas, el costo es **acumulado** desde la primera pregunta). Ese
+  conteo de turnos puede salir mayor que `{{K_TURNS}}` sin que el freno haya fallado: cuenta
+  más cosas que las vueltas que limita. El freno confiable es `{{K_BUDGET}}`.
 - Si aparece `⚠️ terminó por: error_max_turns` o `error_max_budget_usd`, chocó con uno de los
   dos frenos. Están en `agente.{{EXT}}` y se suben ahí.
 
@@ -90,8 +104,9 @@ El porqué de cada decisión, y a qué parte de la documentación ir para profun
 
 | Lo que ves | Qué pasa |
 |---|---|
-| `Invalid API key` | `ANTHROPIC_API_KEY` no está en esta terminal |
-| `Credit balance is too low` | la cuenta de la consola se quedó sin créditos |
+| `[auth] Falta …` / `[auth] No encuentro el perfil …` | `.env` incompleto: el mensaje dice qué falta; con `ant`, corre `ant auth status` |
+| `Not logged in` / `Invalid API key` / `401` | la credencial de `.env` no sirve: vuelve a `ant auth login`, o pega de nuevo la key |
+| `Credit balance is too low` | la organización que paga no tiene créditos: ¿iniciaste sesión con el correo de los créditos? |
 | el agente responde que no pudo, sin error | pidió una herramienta que no está en `{{K_TOOLS}}` |
 | `error_max_turns` | dio todas las vueltas permitidas; sube `{{K_TURNS}}` |
 | `error_max_budget_usd` | tocó el tope de gasto; sube `{{K_BUDGET}}` |

@@ -5,9 +5,9 @@ version = "0.1.0"
 description = "{{OBJETIVO}}"
 requires-python = ">=3.10"
 dependencies = [
-    # Versión verificada del SDK: 0.2.148 (empaca Claude Code 2.1.251).
+    # Versión verificada del SDK: 0.2.176 (empaca Claude Code 2.1.316).
     # El paquete trae el binario `claude` adentro: no hay que instalar nada más.
-    "claude-agent-sdk>=0.2.148",
+    "claude-agent-sdk>=0.2.170",
 ]
 
 [tool.uv]

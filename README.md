@@ -91,12 +91,15 @@ cross-reviewed by the other provider.
 
 ### Building on models
 
-**[agent-sdk-wizard](skills/models/agent-sdk-wizard/SKILL.md)**: nine questions, one at a time,
-each option drawn as a small diagram of how your agent changes if you pick it. Out comes a runnable
-Claude Agent SDK agent in Python or TypeScript, with a README, the decisions behind it and a real
-test run. It talks in your language, Spanish by default.
-<br>*I use it for* people building their first agent. It was born from my Claude Agent SDK workshop
-at Platzi Conf 2026.
+**[agent-sdk-wizard](skills/models/agent-sdk-wizard/SKILL.md)**: first it checks your machine
+(Mac or Windows) and sets up one way to pay: an `ant auth login` with the account that has your
+credits, a Console API key, or your Pro/Max plan. Then nine questions, one at a time, each option
+drawn as a small diagram of how your agent changes if you pick it. Out comes a runnable Claude
+Agent SDK agent in Python or TypeScript, with a full system prompt, a well-built skill when one
+helps, a README, the decisions behind it and a real test run. Bring a rough idea; it maps it to a
+small first version. It talks in your language, Spanish by default.
+<br>*I use it for* people building their first agent: my Claude Agent SDK workshops at Platzi
+Conf 2026, Universidad Santo Tomás and Universidad Javeriana.
 
 **[managed-agents-wizard](skills/models/managed-agents-wizard/SKILL.md)**: takes you from "I want an
 agent that…" to a Claude Managed Agents agent that runs on its own: it explains Agent, Environment,
@@ -155,7 +158,7 @@ file-todos, compound-knowledge and insistir's plan deepening are adapted from Ev
 - insistir is built for Claude Code's agent teams, which are experimental: set
   `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and run it in an interactive session. Without them it
   runs the same crew as plain subagents, and the completion hook may not apply.
-- agent-sdk-wizard's test run needs an `ANTHROPIC_API_KEY` (and Node for a TypeScript agent).
+- agent-sdk-wizard's test run needs one credential: the `ant` CLI logged in (default), an API key, or a `claude setup-token` token (and Node for a TypeScript agent).
 - managed-agents-wizard needs the `ant` CLI 1.40 or later, logged in (`ant auth login`), and
   `ANTHROPIC_API_KEY` (or the `ant` login) for its test sessions, which cost real money (capped).
 - Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion and the

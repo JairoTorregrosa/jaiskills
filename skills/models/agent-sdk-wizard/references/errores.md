@@ -11,9 +11,11 @@ Ordered by how often a first-time run hits them.
 
 | Message / symptom | Cause | Fix |
 |---|---|---|
-| `Invalid API key` / `Not logged in` | `ANTHROPIC_API_KEY` is not in the environment of the process running the agent. **The SDK does not read `.env` by itself.** | `export ANTHROPIC_API_KEY=…` in the same shell, or load the `.env` with `dotenv` before calling the SDK. Check with `env \| grep ANTHROPIC` — direnv and IDE terminals load different environments. |
+| `Invalid API key` / `Not logged in` | No valid credential reached the bundled Claude Code. The SDK does not read `.env` by itself — the generated `credenciales.py/.ts` does, and only if it runs before `query()` | Check the first output line is `[auth] …`; then follow the DIAGNOSTICAR table in `auth.md` (it covers `ant`, API key and Pro/Max token, with Mac and Windows commands) |
+| `[auth] …` and the program exits | `credenciales` refused to start: `.env` missing, `AGENTE_AUTH` wrong, or the `ant` profile file not found | The message says which; `auth.md` § DIAGNOSTICAR |
 | `Credit balance is too low` | The Console organization is out of credits, **or** an `ANTHROPIC_API_KEY` in the environment is diverting requests away from a Pro/Max subscription | Top up, or unset the variable if they meant to use the subscription |
 | `You've hit your session limit · resets 3:45pm` | Plan quota exhausted. Session and weekly limits are **shared across models** — switching model does not help | Wait for the reset, or use an API key |
+| `npm ERR! code ETARGET` / `No matching version found` for the SDK | The machine has an npm release-age cooldown (`min-release-age` / `before`) newer than the pinned version | The template pins a range (`^0.3.300`); if it still fails, pin the newest version older than the cooldown (`npm view @anthropic-ai/claude-agent-sdk time`) |
 | `error: externally-managed-environment` on `pip install` | System Python on Debian/Ubuntu/Homebrew | `uv` (what the template uses), or `python3 -m venv .venv` |
 | `Claude Code not found at: <path>` (`CLINotFoundError`, Python) | The SDK launches `claude` as a subprocess and did not find it | The SDK normally bundles it. If `cli_path` was set, check the file exists. Verify `claude --version` works **in the same environment** — an IDE or service manager has a different `PATH` |
 | `Native CLI binary for <platform>-<arch> not found` (TS) | The per-platform package was skipped, almost always `npm ci --omit=optional` | Reinstall without skipping optional dependencies |
@@ -40,6 +42,8 @@ Ordered by how often a first-time run hits them.
 | `result.subtype == "error_max_turns"` | Hit `max_turns` | Raise it, or accept the cut and read the `result` |
 | `result.subtype == "error_max_budget_usd"` | Hit `max_budget_usd`. Subagent spend counts | Raise it, or narrow the task |
 | `Budget limit reached` when launching a subagent | Same. Requires Claude Code v2.1.217+ for the cut to apply | Same |
+| `num_turns` in the result is higher than `max_turns` and still `success` | Observed 2026-11-07 (19 and 26 turns with `max_turns=15`): `num_turns` counts more than the loop iterations the cap limits. Not investigated further | Treat `max_budget_usd` as the reliable brake; read the transcript, not the counter |
+| `🔧 ToolSearch(…)` appears without being in `allowed_tools` | Claude Code defers some tool definitions (often custom tools) and loads them on demand | Harmless; it costs one turn. Mention it to the user so it does not look like a leak |
 | `subtype == "success"` but the last API request failed | Real behaviour, documented: **read `terminal_reason` before `subtype`** | Check `terminal_reason` and `is_error` too |
 
 ## Crashes

@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.7.0 (2026-11-07): agent-sdk-wizard sets up the credential and writes better agents
+
+- **Step 0, preflight + credential, Mac and Windows.** `references/auth.md` is an explicit state
+  machine: run the checks (Python/uv, Node, git, `ant`, network, stray credential variables),
+  give the install command for the user's shell (Homebrew / winget, PowerShell), then one
+  `Credencial` question: A `ant auth login` with the account that claimed the credits
+  (recommended, no key to create), B a Console API key pasted into `.env`, C a Pro/Max token from
+  `claude setup-token`. Each path has a real check (`ant models list`, `GET /v1/models`, or the
+  capped test run).
+- **Credential precedence, verified** on Claude Code 2.1.316 (bundled in Python SDK 0.2.176):
+  `ANTHROPIC_API_KEY` > `CLAUDE_CODE_OAUTH_TOKEN` > explicit `ANTHROPIC_PROFILE` > claude.ai login
+  > implicit `ant` profile. A machine logged in to Claude Code with Pro/Max pays with the plan
+  unless `ANTHROPIC_PROFILE` is explicit, and a nonexistent profile name is ignored silently.
+  New `templates/credenciales.py|ts` read `AGENTE_AUTH` from `.env`, keep exactly one credential
+  in the agent's process, pin the `ant` config dir, refuse to start when the profile file is
+  missing, and print one `[auth]` line without secrets. Templates add `.env.example` and
+  `.gitignore`.
+- **System prompt.** `references/system-prompt.md` (from Anthropic's prompting guide and the SDK
+  docs): rol, contexto, objetivo, cómo trabajas, herramientas, límites, formato de salida, with a
+  why per rule; shown to the user before generating. Templates take `{{SYSTEM_PROMPT}}`, an
+  optional `output_format` JSON Schema, a prompt from the command line, and catch SDK errors.
+- **Skills.** `references/skill-creator.md`, a self-contained condensed authoring guide
+  (description with triggers, procedure with a verification step, `references/` and `scripts/`
+  when they carry content); the skill lives under the agent's `cwd`.
+- **Ideas.** `references/ideas.md`: the eight idea families from the 2026-09-19 Bogotá workshop
+  (392 proposals), so a free-form idea maps to a small first agent.
+- SDK pins: Python `claude-agent-sdk>=0.2.170`, TS `^0.3.300` (a range, so machines with an npm release-age cooldown still install; tested on 0.2.176 and 0.3.315).
+
 ## 1.6.0 (2026-11-02): Codex plugin, current models, review loop
 
 - **Codex plugin.** `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` ship the same
