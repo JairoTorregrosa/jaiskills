@@ -34,8 +34,12 @@ def _leer_env(ruta: Path) -> dict[str, str]:
 
 
 def _carpetas_de_ant(env: dict[str, str]) -> list[Path]:
-    # Dónde guarda `ant` sus perfiles. La primera que exista gana.
-    candidatas = [env.get("ANTHROPIC_CONFIG_DIR"), os.environ.get("ANTHROPIC_CONFIG_DIR")]
+    # Dónde guarda `ant` sus perfiles. Si .env (o tu shell) nombra una carpeta,
+    # SOLO esa cuenta: buscar en otra podría usar otra cuenta con el mismo perfil.
+    explicita = env.get("ANTHROPIC_CONFIG_DIR") or os.environ.get("ANTHROPIC_CONFIG_DIR")
+    if explicita:
+        return [Path(explicita)]
+    candidatas: list[str | None] = []
     if os.environ.get("XDG_CONFIG_HOME"):
         candidatas.append(str(Path(os.environ["XDG_CONFIG_HOME"]) / "anthropic"))
     candidatas.append(str(Path.home() / ".config" / "anthropic"))
@@ -51,13 +55,14 @@ def _parar(mensaje: str) -> None:
 def preparar_credenciales() -> str:
     """Deja en el entorno UNA credencial y devuelve el modo. Nunca imprime secretos."""
     env = _leer_env(Path(__file__).with_name(".env"))
-    modo = env.get("AGENTE_AUTH") or os.environ.get("AGENTE_AUTH", "")
+    # Todo sale de .env, nada de tu shell: así no se cuela otra cuenta.
+    modo = env.get("AGENTE_AUTH", "")
     if modo not in MODOS:
         _parar("Falta AGENTE_AUTH en .env (ant | api_key | suscripcion). "
                "Copia .env.example a .env y llénalo, o corre otra vez el paso 0 del wizard.")
 
     variable = MODOS[modo]
-    valor = env.get(variable) or os.environ.get(variable, "")
+    valor = env.get(variable, "")
     if not valor:
         _parar(f"AGENTE_AUTH={modo} pero falta {variable} en .env.")
 

@@ -35,7 +35,11 @@ function leerEnv(ruta: string): Record<string, string> {
 
 function carpetasDeAnt(env: Record<string, string>): string[] {
   // Dónde guarda `ant` sus perfiles. La primera que exista gana.
-  const c = [env.ANTHROPIC_CONFIG_DIR, process.env.ANTHROPIC_CONFIG_DIR];
+  // Si .env (o tu shell) nombra una carpeta, SOLO esa cuenta: buscar en otra
+  // podría usar otra cuenta con el mismo nombre de perfil.
+  const explicita = env.ANTHROPIC_CONFIG_DIR || process.env.ANTHROPIC_CONFIG_DIR;
+  if (explicita) return [explicita];
+  const c: (string | undefined)[] = [];
   if (process.env.XDG_CONFIG_HOME) c.push(join(process.env.XDG_CONFIG_HOME, "anthropic"));
   c.push(join(homedir(), ".config", "anthropic"));
   if (process.env.APPDATA) c.push(join(process.env.APPDATA, "anthropic")); // Windows
@@ -51,14 +55,15 @@ function parar(mensaje: string): never {
 export function prepararCredenciales(): Modo {
   const aqui = dirname(fileURLToPath(import.meta.url));
   const env = leerEnv(join(aqui, ".env"));
-  const modo = (env.AGENTE_AUTH ?? process.env.AGENTE_AUTH ?? "") as Modo;
+  // Todo sale de .env, nada de tu shell: así no se cuela otra cuenta.
+  const modo = (env.AGENTE_AUTH ?? "") as Modo;
   if (!(modo in MODOS)) {
     parar("Falta AGENTE_AUTH en .env (ant | api_key | suscripcion). " +
           "Copia .env.example a .env y llénalo, o corre otra vez el paso 0 del wizard.");
   }
 
   const variable = MODOS[modo];
-  const valor = env[variable] ?? process.env[variable] ?? "";
+  const valor = env[variable] ?? "";
   if (!valor) parar(`AGENTE_AUTH=${modo} pero falta ${variable} en .env.`);
 
   for (const otra of Object.values(MODOS)) if (otra !== variable) delete process.env[otra];
