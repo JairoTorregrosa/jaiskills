@@ -26,7 +26,7 @@
   when they carry content); the skill lives under the agent's `cwd`.
 - **Ideas.** `references/ideas.md`: the eight idea families from the 2026-09-19 Bogotá workshop
   (392 proposals), so a free-form idea maps to a small first agent.
-- SDK pins: Python `claude-agent-sdk>=0.2.176`, TS `^0.3.319`.
+- SDK pins: Python `claude-agent-sdk>=0.2.170`, TS `^0.3.300` (a range, so machines with an npm release-age cooldown still install; tested on 0.2.176 and 0.3.315).
 
 ## 1.6.0 (2026-11-02): Codex plugin, current models, review loop
 
