@@ -33,7 +33,7 @@ async for mensaje in query(prompt="…", options=opciones):
 ### TypeScript
 
 ```bash
-npm init -y && npm pkg set type=module      # requires Node >= 18
+npm init -y && npm pkg set type=module      # requires Node >= 20.11
 npm install @anthropic-ai/claude-agent-sdk
 npm install zod@^4                          # peer dep of the SDK — v4, NOT v3
 npm install --save-dev tsx @types/node

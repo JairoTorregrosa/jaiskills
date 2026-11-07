@@ -99,7 +99,8 @@ async def registrar_uso(
 #   hooks={"Stop": [HookMatcher(hooks=[HOOK])]}
 # Esto es un `if`, no un modelo: verificación determinista, gratis y honesta.
 
-ENTREGABLE = pathlib.Path("./out/reporte.md")
+# Relativo al cwd del AGENTE (p. ej. ./workspace), no a la carpeta desde donde lo corres.
+ENTREGABLE = pathlib.Path("out/reporte.md")
 
 
 async def exigir_entregable(
@@ -110,7 +111,9 @@ async def exigir_entregable(
     if input_data.get("stop_hook_active"):
         return {}
 
-    if ENTREGABLE.exists():
+    # El input de todo hook trae el cwd de la sesión: ahí escribe el agente.
+    ruta = pathlib.Path(input_data.get("cwd") or ".") / ENTREGABLE
+    if ruta.exists():
         return {}  # verificación pasada: que termine
 
     return {

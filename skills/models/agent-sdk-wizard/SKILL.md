@@ -204,9 +204,11 @@ Non-negotiables in the generated code:
 
 ### Notebook variant
 
-If the user wants `agente.ipynb`, the cell body is the same code with three changes: drop
-`import asyncio`, drop `async def main()` and `asyncio.run(main())`, and put the `async for`
-at the top level of the cell. `await`, never `asyncio.run` — a kernel already has a running
+If the user wants `agente.ipynb`, the cell body is the same code with four changes: drop
+`import asyncio`, drop `async def main()` and `asyncio.run(main())`, put the `async for`
+at the top level of the cell, and replace `AQUI = Path(__file__).resolve().parent` with
+`AQUI = Path.cwd()` (a cell has no `__file__`; the notebook lives in the agent folder and
+Jupyter starts there). Call `preparar_credenciales()` in the first cell. `await`, never `asyncio.run` — a kernel already has a running
 event loop. Do not add `nest_asyncio`; it is not needed.
 
 ## Test run — the wizard is not done until the agent runs

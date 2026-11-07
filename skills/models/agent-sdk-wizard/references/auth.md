@@ -45,7 +45,7 @@ now if the user already said it; otherwise check both and only block on what ste
 |---|---|---|---|
 | Python | `python3 --version` | `py --version` or `python --version` | 3.10+ (workshop asks 3.11+) |
 | uv | `uv --version` | `uv --version` | any |
-| Node (TS path only) | `node --version` | `node --version` | 18+ |
+| Node (TS path only) | `node --version` | `node --version` | 20.11+ (18 is end-of-life) |
 | git | `git --version` | `git --version` | any |
 | ant | `ant --version` | `ant --version` | 2.7+ (path A) |
 | network | `curl -sI https://api.anthropic.com \| head -1` | `(Invoke-WebRequest https://api.anthropic.com -Method Head -SkipHttpErrorCheck).StatusCode` | any HTTP status = reachable |
