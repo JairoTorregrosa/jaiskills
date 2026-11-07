@@ -180,6 +180,8 @@ def imprimir(mensaje: Any) -> None:
                     bloque.input.get("skill")
                     or bloque.input.get("command")
                     or ruta
+                    or bloque.input.get("url")
+                    or bloque.input.get("query")
                     or bloque.input.get("pattern")
                     or bloque.input.get("prompt")
                     # tus funciones (paso 5) tienen argumentos propios: van completos

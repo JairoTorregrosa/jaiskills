@@ -162,7 +162,7 @@ function imprimir(mensaje: SDKMessage): void {
         const ruta = (input.file_path ?? input.path) as string | undefined;
         const arg =
           input.skill ?? input.command ?? ruta?.replace(String(opciones.cwd), "").replace(/^[\\/]/, "") ??
-          input.pattern ?? input.prompt ??
+          input.url ?? input.query ?? input.pattern ?? input.prompt ??
           // tus funciones (paso 5) tienen argumentos propios: van completos
           Object.entries(input).map(([k, v]) => `${k}=${v}`).join(", ");
         console.log(`${sangria}🔧 ${bloque.name}(${String(arg).slice(0, 80)})`);

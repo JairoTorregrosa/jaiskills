@@ -45,7 +45,12 @@ Goal given by the user (may be empty): $ARGUMENTS
    (4-bis), tools (5), skill (6), guardrail (8–9: `disallowed_tools` + a `PreToolUse` hook
    written for that guardrail), `max_turns`/`max_budget_usd`, `cwd` (`./workspace`) and sample
    data. The archetype only decides `query()` vs a live session and the shape of the test
-   prompt. Combine options when the family needs it (e.g. `Read`, `Glob`, `Grep`, `Write` **and**
+   prompt. Model: Sonnet 5.5 first for any idea that reads and writes or researches; Haiku 5.5
+   only for pure lookups. Step 9's first option becomes **"El guardián de mi idea"**: the
+   family's guardrail, from `templates/hooks.*` (`solo_en_entregas` / `soloEnEntregas` covers
+   "escribe solo en entregas/"; adapt it for other paths or for SQL), previewed as a small
+   diagram like the other step 9 options. Reorder step 2 so the family's archetype goes first.
+   Combine options when the family needs it (e.g. `Read`, `Glob`, `Grep`, `Write` **and**
    a custom tool). `ideas.md` has the family → archetype table.
    **Sample data**: when the family needs files the templates do not ship (an agenda, a bank
    statement, a diff, a lesson), write small realistic ones yourself in `workspace/datos/`
@@ -179,7 +184,7 @@ and substitute.
 | `.gitignore` | `templates/gitignore` | always, **before** `.env` |
 | `hooks.py` / `hooks.ts` | `templates/hooks.py` / `templates/hooks.ts` | step 9 ≠ "No por ahora" |
 | `<cwd>/.claude/skills/<n>/SKILL.md` (+ `references/…`) | `templates/skill.md.tmpl` + `references/skill-creator.md` | step 6 = "una skill nueva" |
-| `workspace/ventas.csv` | `templates/ventas.csv` | goal needs sample data (see `arquetipos.md`) |
+| `workspace/datos/ventas.csv` | `templates/ventas.csv` (it is clean: seed errors if the agent audits quality) | goal needs sample data (see `arquetipos.md`) |
 | `README.md` | `templates/README.md.tmpl` | always |
 | `decisiones.md` | `templates/decisiones.md.tmpl` | always |
 | `agente.ipynb` | derive from `agente.py` | only if the user asked for a notebook |

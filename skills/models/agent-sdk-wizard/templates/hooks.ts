@@ -10,7 +10,7 @@
 
 import { appendFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, isAbsolute, relative, resolve, basename } from "node:path";
 import type {
   HookCallback,
   PreToolUseHookInput,
@@ -106,6 +106,31 @@ export const exigirEntregable: HookCallback = async (input) => {
     reason:
       `Falta el entregable: escribe tus conclusiones en ${ENTREGABLE} ` +
       "antes de terminar.",
+  };
+};
+
+// ─── 9E · Escribir solo en entregas/ (el guardián de casi todas las ideas) ─
+// Evento PreToolUse, matcher "Write|Edit". Se registra así:
+//   hooks: { PreToolUse: [{ matcher: "Write|Edit", hooks: [HOOK] }] }
+
+const CARPETA_PERMITIDA = "entregas"; // relativa al cwd del agente
+
+export const soloEnEntregas: HookCallback = async (input) => {
+  const pre = input as PreToolUseHookInput;
+  const cwd = resolve(pre.cwd ?? ".");
+  const ruta = String((pre.tool_input as Record<string, unknown>).file_path ?? "");
+  const destino = isAbsolute(ruta) ? resolve(ruta) : resolve(cwd, ruta);
+  const rel = relative(join(cwd, CARPETA_PERMITIDA), destino);
+  if (rel && !rel.startsWith("..") && !isAbsolute(rel)) return {}; // dentro de entregas/
+  return {
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      // Lo lee el MODELO: dile dónde sí puede escribir.
+      permissionDecisionReason:
+        `Solo puedes escribir dentro de ${CARPETA_PERMITIDA}/. ` +
+        `Guarda el archivo como ${CARPETA_PERMITIDA}/${basename(destino)}.`,
+    },
   };
 };
 
