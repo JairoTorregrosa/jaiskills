@@ -24,6 +24,8 @@ from typing import Any
 
 from credenciales import preparar_credenciales
 
+AQUI = Path(__file__).resolve().parent         # funciona desde cualquier carpeta (y tus funciones la usan)
+
 from claude_agent_sdk import (
     query,
     ClaudeSDKError,
@@ -75,9 +77,6 @@ async def {{NOMBRE_TOOL}}(args: dict[str, Any]) -> dict[str, Any]:
     name="{{NOMBRE_SERVIDOR}}", version="1.0.0", tools=[{{NOMBRE_TOOL}}]
 )
 «FIN SI
-
-
-AQUI = Path(__file__).resolve().parent         # funciona desde cualquier carpeta
 
 
 # ─── Paso 4 · el system prompt ────────────────────────────────────────────

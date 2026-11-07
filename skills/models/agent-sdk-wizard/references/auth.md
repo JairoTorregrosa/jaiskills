@@ -81,7 +81,9 @@ key ever exists, and the token refreshes itself (access token lasts ~8 h).
 1. `ant auth login` — tell the user: *sign in with the SAME email you used to claim the workshop
    credits, and if it asks for an organization, choose the one that received the credits.*
    Headless/remote machine: `ant auth login --no-browser` prints the URL instead.
-2. `ant auth status` — never repeat its credentials line (it prints the start of the token); read back to the user the line `Logged in to <org> as <email>` and the
+2. `ant auth status | grep -E 'Logged in|Active profile|Config dir'` (Windows:
+   `ant auth status | Select-String 'Logged in|Active profile|Config dir'`) — the filter keeps
+   the start of the token out of the chat; read back to the user the line `Logged in to <org> as <email>` and the
    active profile name (`Active profile: <name>`, usually `default`). Ask in one line: *"¿Esta es
    la organización donde reclamaste los créditos?"* If not: `ant auth logout`, then log in again.
 3. `ant --profile <name> models list --format json` (the profile you will write to `.env`, not
@@ -93,7 +95,7 @@ key ever exists, and the token refreshes itself (access token lasts ~8 h).
    `%USERPROFILE%\.config`)*. The generated `credenciales.py/.ts` searches the usual places and
    pins the one it finds; if `ant` printed something else, write it to `.env` as
    `ANTHROPIC_CONFIG_DIR=<that path>`.
-5. `.env`:
+5. `.env` (the profile name from step 2, not necessarily `default`):
    ```
    AGENTE_AUTH=ant
    ANTHROPIC_PROFILE=<profile name from ant auth status>
