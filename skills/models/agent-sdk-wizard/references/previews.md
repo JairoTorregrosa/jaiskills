@@ -18,6 +18,60 @@ One diagram per option. Paste the fenced block **without the fence** into the
 
 ---
 
+## Step 0 · Credencial — "¿Con qué vas a pagar lo que gaste tu agente?"
+
+Asked after the preflight passes (`auth.md`). Description lines: A "Sin crear ninguna key; usa los
+créditos del taller", B "Una key de la consola, guardada en .env", C "Tu plan Pro/Max; no usa los
+créditos".
+
+### 0A · Login con ant *(Recomendado)*
+
+```
+tú ─► ant auth login ─► navegador: platform.claude.com
+                         (el MISMO correo de los créditos)
+                              │
+                              ▼
+        ~/.config/anthropic  ← token que se renueva solo
+                              │
+ agente.py ──► SDK ──► [ claude ] lee ese perfil
+                              │
+                              ▼
+        paga la organización que tiene los créditos
+        sin key que copiar, pegar ni filtrar
+```
+
+### 0B · API key de la consola
+
+```
+platform.claude.com/settings/keys ─► "Create key"
+                              │  sk-ant-api03-…  (se ve UNA vez)
+                              ▼
+     la pegas aquí ─► .env   (en .gitignore, nunca a git)
+                              │
+ agente.py ──► SDK ──► [ claude ] usa la key
+                              │
+                              ▼
+        paga la organización dueña de la key
+        si la key se filtra, cualquiera gasta tus créditos
+```
+
+### 0C · Mi suscripción Pro/Max
+
+```
+tú ─► claude setup-token ─► navegador: claude.ai
+                              │  sk-ant-oat01-…
+                              ▼
+     la pegas aquí ─► .env   (en .gitignore, nunca a git)
+                              │
+ agente.py ──► SDK ──► [ claude ] usa tu plan
+                              │
+                              ▼
+        cuenta contra los límites de TU plan
+        no usa los créditos · solo para uso personal
+```
+
+---
+
 ## Step 1 · Lenguaje — "¿En qué lenguaje quieres tu agente?"
 
 ### 1A · Python *(Recomendado)*

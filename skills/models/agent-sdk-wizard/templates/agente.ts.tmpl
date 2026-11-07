@@ -1,8 +1,12 @@
 «TEMPLATE — this file is not valid TypeScript until you substitute. Delete this line.
 
-  Placeholders          {{NOMBRE}} {{OBJETIVO}} {{MODELO}} {{EFFORT}} {{REGLAS}}
+  Placeholders          {{NOMBRE}} {{OBJETIVO}} {{MODELO}} {{EFFORT}} {{SYSTEM_PROMPT}}
                         {{TOOLS}} {{MAX_TURNS}} {{MAX_BUDGET}} {{CWD}}
-                        {{PROMPT_PRUEBA}} {{PERMISSION_MODE}}
+                        {{PROMPT_PRUEBA}} {{PERMISSION_MODE}} {{ESQUEMA_JSON}}
+  {{SYSTEM_PROMPT}}     built with references/system-prompt.md — never a one-liner.
+                        Step 4 = "preset de Claude Code": the option line becomes
+                        systemPrompt: { type: "preset", preset: "claude_code", append: SYSTEM_PROMPT },
+  Next to this file     credenciales.ts (copy as is), .env, .env.example, .gitignore.
   Optional blocks       lines between «SI …» and «FIN SI». Keep the block or delete it
                         whole, and delete the marker lines either way.
   Every option line     must end with its "// paso N: …" comment. That block is the map
@@ -12,9 +16,12 @@
 // {{NOMBRE}} — {{OBJETIVO}}
 //
 // Generado por la skill agent-sdk-wizard. Corre con:  npx tsx agente.ts
-// Necesita ANTHROPIC_API_KEY en el entorno (el SDK no lee .env solo).
+// La credencial sale de .env (ver credenciales.ts): ant, API key o suscripción.
 
 import { query, type Options, type SDKMessage } from "@anthropic-ai/claude-agent-sdk";
+import { prepararCredenciales } from "./credenciales.js";
+
+prepararCredenciales(); // ANTES de crear la sesión
 «SI el paso 5 fue "mis propias funciones"
 import { tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
@@ -50,6 +57,20 @@ const {{NOMBRE_SERVIDOR_CAMEL}} = createSdkMcpServer({
 });
 «FIN SI
 
+// ─── Paso 4 · el system prompt ────────────────────────────────────────────
+// Lo más importante del agente. Armado con references/system-prompt.md:
+// rol, contexto, objetivo, cómo usar las herramientas, límites, formato
+// de salida y cuándo parar. Cada regla dice POR QUÉ: el modelo generaliza.
+
+const SYSTEM_PROMPT = `{{SYSTEM_PROMPT}}`;
+
+«SI la salida tiene que ser datos (JSON) que otro programa lee
+// ─── Salida estructurada ──────────────────────────────────────────────────
+// El SDK valida la respuesta final contra este JSON Schema y la entrega en
+// result.structured_output. Si no logra cumplirlo: error_max_structured_output_retries.
+const ESQUEMA = {{ESQUEMA_JSON}};
+«FIN SI
+
 // ─── Las nueve decisiones, en un solo bloque ──────────────────────────────
 // Cambiar el agente = cambiar una línea de aquí. La tabla paso → línea está
 // en README.md, y el porqué de cada una en decisiones.md.
@@ -59,7 +80,7 @@ const opciones: Options = {
   «SI eligieron Opus 5.5 o Fable 5.1
   effort: "{{EFFORT}}",                      // paso 3: cuánto piensa antes de responder
   «FIN SI
-  systemPrompt: `{{REGLAS}}`,                // paso 4: quién es y qué reglas fijas tiene
+  systemPrompt: SYSTEM_PROMPT,               // paso 4: quién es, qué logra, reglas y cuándo parar
   allowedTools: {{TOOLS}},                   // paso 5: qué puede hacer en el mundo
   // ↑ Si el paso 8 fue "que me pregunte a mí", esta lista va VACÍA ([]): una
   //   herramienta con nombre pelado aquí se auto-aprueba antes de llegar a tu
@@ -97,6 +118,9 @@ const opciones: Options = {
   «FIN SI
   «SI el paso 9 pidió un hook
   hooks: { {{EVENTO_HOOK}}: [{ {{MATCHER}}hooks: [HOOK] }] },   // paso 9: tu vigilante
+  «FIN SI
+  «SI la salida tiene que ser datos (JSON) que otro programa lee
+  outputFormat: { type: "json_schema", schema: ESQUEMA },   // salida validada
   «FIN SI
   cwd: "{{CWD}}",                            // la carpeta que el agente ve
   maxTurns: {{MAX_TURNS}},                   // freno: máximo de vueltas del ciclo
@@ -143,17 +167,27 @@ function imprimir(mensaje: SDKMessage): void {
       // error_max_turns · error_max_budget_usd · error_during_execution
       console.log(`\n⚠️  terminó por: ${mensaje.subtype}`);
     }
+    if ("structured_output" in mensaje && mensaje.structured_output !== undefined) {
+      console.log(JSON.stringify(mensaje.structured_output, null, 2));
+    }
     const costo = mensaje.total_cost_usd ?? 0;
     const segundos = (mensaje.duration_ms ?? 0) / 1000;
     console.log(`${mensaje.num_turns} turnos · $${costo.toFixed(4)} · ${segundos.toFixed(0)}s`);
   }
 }
 
-const PROMPT = "{{PROMPT_PRUEBA}}";
+// npx tsx agente.ts "tu pregunta"  — sin argumento usa la prueba del wizard
+const PROMPT = process.argv.slice(2).join(" ") || "{{PROMPT_PRUEBA}}";
 
 console.log(`▶ {{NOMBRE}}\n`);
-for await (const mensaje of query({ prompt: PROMPT, options: opciones })) {
-  imprimir(mensaje);
+try {
+  for await (const mensaje of query({ prompt: PROMPT, options: opciones })) {
+    imprimir(mensaje);
+  }
+} catch (error) {
+  // Tope de vueltas o de gasto, o credencial rechazada: el resultado ya se
+  // imprimió arriba; aquí va el motivo, sin stack trace.
+  console.log(`\n⚠️  el agente paró: ${(error as Error).message}`);
 }
 
 «SI el paso 8 fue "que me pregunte a mí", añade esto ANTES del bloque de opciones.

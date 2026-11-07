@@ -11,7 +11,8 @@ Ordered by how often a first-time run hits them.
 
 | Message / symptom | Cause | Fix |
 |---|---|---|
-| `Invalid API key` / `Not logged in` | `ANTHROPIC_API_KEY` is not in the environment of the process running the agent. **The SDK does not read `.env` by itself.** | `export ANTHROPIC_API_KEY=…` in the same shell, or load the `.env` with `dotenv` before calling the SDK. Check with `env \| grep ANTHROPIC` — direnv and IDE terminals load different environments. |
+| `Invalid API key` / `Not logged in` | No valid credential reached the bundled Claude Code. The SDK does not read `.env` by itself — the generated `credenciales.py/.ts` does, and only if it runs before `query()` | Check the first output line is `[auth] …`; then follow the DIAGNOSTICAR table in `auth.md` (it covers `ant`, API key and Pro/Max token, with Mac and Windows commands) |
+| `[auth] …` and the program exits | `credenciales` refused to start: `.env` missing, `AGENTE_AUTH` wrong, or the `ant` profile file not found | The message says which; `auth.md` § DIAGNOSTICAR |
 | `Credit balance is too low` | The Console organization is out of credits, **or** an `ANTHROPIC_API_KEY` in the environment is diverting requests away from a Pro/Max subscription | Top up, or unset the variable if they meant to use the subscription |
 | `You've hit your session limit · resets 3:45pm` | Plan quota exhausted. Session and weekly limits are **shared across models** — switching model does not help | Wait for the reset, or use an API key |
 | `error: externally-managed-environment` on `pip install` | System Python on Debian/Ubuntu/Homebrew | `uv` (what the template uses), or `python3 -m venv .venv` |

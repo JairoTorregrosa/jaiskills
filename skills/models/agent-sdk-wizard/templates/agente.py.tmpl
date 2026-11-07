@@ -1,8 +1,12 @@
 «TEMPLATE — this file is not valid Python until you substitute. Delete this line.
 
-  Placeholders          {{NOMBRE}} {{OBJETIVO}} {{MODELO}} {{EFFORT}} {{REGLAS}}
+  Placeholders          {{NOMBRE}} {{OBJETIVO}} {{MODELO}} {{EFFORT}} {{SYSTEM_PROMPT}}
                         {{TOOLS}} {{MAX_TURNS}} {{MAX_BUDGET}} {{CWD}}
-                        {{PROMPT_PRUEBA}} {{PERMISSION_MODE}}
+                        {{PROMPT_PRUEBA}} {{PERMISSION_MODE}} {{ESQUEMA_JSON}}
+  {{SYSTEM_PROMPT}}     built with references/system-prompt.md — never a one-liner.
+                        Step 4 = "preset de Claude Code": the option line becomes
+                        system_prompt={"type": "preset", "preset": "claude_code", "append": SYSTEM_PROMPT},
+  Next to this file     credenciales.py (copy as is), .env, .env.example, .gitignore.
   Optional blocks       lines between «SI …» and «FIN SI». Keep the block or delete it
                         whole, and delete the marker lines either way.
   Every option line     must end with its "# paso N: …" comment. That block is the map
@@ -12,13 +16,16 @@
 # {{NOMBRE}} — {{OBJETIVO}}
 #
 # Generado por la skill agent-sdk-wizard. Corre con:  uv run agente.py
-# Necesita ANTHROPIC_API_KEY en el entorno (el SDK no lee .env solo).
+# La credencial sale de .env (ver credenciales.py): ant, API key o suscripción.
 
 import asyncio
 from typing import Any
 
+from credenciales import preparar_credenciales
+
 from claude_agent_sdk import (
     query,
+    ClaudeSDKError,
     ClaudeAgentOptions,
     AssistantMessage,
     ResultMessage,
@@ -68,6 +75,21 @@ async def {{NOMBRE_TOOL}}(args: dict[str, Any]) -> dict[str, Any]:
 «FIN SI
 
 
+# ─── Paso 4 · el system prompt ────────────────────────────────────────────
+# Lo más importante del agente. Armado con references/system-prompt.md:
+# rol, contexto, objetivo, cómo usar las herramientas, límites, formato
+# de salida y cuándo parar. Cada regla dice POR QUÉ: el modelo generaliza.
+
+SYSTEM_PROMPT = """{{SYSTEM_PROMPT}}"""
+
+«SI la salida tiene que ser datos (JSON) que otro programa lee
+# ─── Salida estructurada ──────────────────────────────────────────────────
+# El SDK valida la respuesta final contra este JSON Schema y la entrega en
+# ResultMessage.structured_output. Si no logra cumplirlo: error_max_structured_output_retries.
+ESQUEMA = {{ESQUEMA_JSON}}
+«FIN SI
+
+
 # ─── Las nueve decisiones, en un solo bloque ──────────────────────────────
 # Cambiar el agente = cambiar una línea de aquí. La tabla paso → línea está
 # en README.md, y el porqué de cada una en decisiones.md.
@@ -77,7 +99,7 @@ opciones = ClaudeAgentOptions(
     «SI eligieron Opus 5.5 o Fable 5.1
     effort="{{EFFORT}}",                      # paso 3: cuánto piensa antes de responder
     «FIN SI
-    system_prompt="""{{REGLAS}}""",           # paso 4: quién es y qué reglas fijas tiene
+    system_prompt=SYSTEM_PROMPT,              # paso 4: quién es, qué logra, reglas y cuándo parar
     allowed_tools={{TOOLS}},                  # paso 5: qué puede hacer en el mundo
     # ↑ Si el paso 8 fue "que me pregunte a mí", esta lista va VACÍA ([]): una
     #   herramienta con nombre pelado aquí se auto-aprueba antes de llegar a tu
@@ -111,6 +133,9 @@ opciones = ClaudeAgentOptions(
     permission_mode="{{PERMISSION_MODE}}",    # paso 8: quién autoriza cada acción
     «SI el paso 9 pidió un hook
     hooks={"{{EVENTO_HOOK}}": [HookMatcher({{MATCHER}}hooks=[HOOK])]},   # paso 9: tu vigilante
+    «FIN SI
+    «SI la salida tiene que ser datos (JSON) que otro programa lee
+    output_format={"type": "json_schema", "schema": ESQUEMA},   # salida validada
     «FIN SI
     cwd="{{CWD}}",                            # la carpeta que el agente ve
     max_turns={{MAX_TURNS}},                  # freno: máximo de vueltas del ciclo
@@ -148,6 +173,9 @@ def imprimir(mensaje: Any) -> None:
         else:
             # error_max_turns · error_max_budget_usd · error_during_execution
             print(f"\n⚠️  terminó por: {mensaje.subtype}")
+        if getattr(mensaje, "structured_output", None) is not None:
+            import json
+            print(json.dumps(mensaje.structured_output, ensure_ascii=False, indent=2))
         costo = mensaje.total_cost_usd or 0.0
         segundos = (mensaje.duration_ms or 0) / 1000
         print(f"{mensaje.num_turns} turnos · ${costo:.4f} · {segundos:.0f}s")
@@ -165,12 +193,21 @@ PROMPT = "{{PROMPT_PRUEBA}}"
 
 async def main() -> None:
     print(f"▶ {{NOMBRE}}\n")
-    async for mensaje in query(prompt=PROMPT, options=opciones):
-        imprimir(mensaje)
-        imprimir_error_de_tool(mensaje)
+    try:
+        async for mensaje in query(prompt=PROMPT, options=opciones):
+            imprimir(mensaje)
+            imprimir_error_de_tool(mensaje)
+    except ClaudeSDKError as error:
+        # Tope de vueltas o de gasto, o credencial rechazada: el resultado ya se
+        # imprimió arriba; aquí va el motivo, sin traceback.
+        print(f"\n⚠️  el agente paró: {error}")
 
 
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        PROMPT = " ".join(sys.argv[1:])       # uv run agente.py "tu pregunta"
+    preparar_credenciales()                   # ANTES de crear la sesión
     asyncio.run(main())
 
 

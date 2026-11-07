@@ -19,7 +19,7 @@ Two naming traps that bite constantly:
 
 ```bash
 uv init && uv add claude-agent-sdk     # requires Python >= 3.10
-export ANTHROPIC_API_KEY=tu-api-key
+# credencial: .env + credenciales.py/.ts (references/auth.md), no un export
 uv run agente.py
 ```
 
@@ -37,7 +37,7 @@ npm init -y && npm pkg set type=module      # requires Node >= 18
 npm install @anthropic-ai/claude-agent-sdk
 npm install zod@^4                          # peer dep of the SDK — v4, NOT v3
 npm install --save-dev tsx @types/node
-export ANTHROPIC_API_KEY=tu-api-key
+# credencial: .env + credenciales.py/.ts (references/auth.md), no un export
 npx tsx agente.ts
 ```
 
