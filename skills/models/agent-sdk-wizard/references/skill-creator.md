@@ -44,7 +44,7 @@ need any other skill installed.
    - `## Recursos`: one bullet per extra file, saying **when** to read it.
 4. **references/** when there is real detail (a category table, a style guide, an API's field
    list, a checklist longer than ~30 lines): `references/<tema>.md`, linked from the body with
-   "lee [references/categorias.md](references/categorias.md) cuando …". Create at least one when
+   "lee `references/categorias.md` cuando …". Create at least one when
    the user's domain has rules or reference data; do not create empty ones.
 5. **scripts/** when a step is deterministic (sum, parse, validate): a small Python script the
    body runs with `python3 ${CLAUDE_SKILL_DIR}/scripts/<x>.py <args>` and whose output the agent
