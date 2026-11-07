@@ -84,8 +84,9 @@ key ever exists, and the token refreshes itself (access token lasts ~8 h).
 2. `ant auth status` — read back to the user the line `Logged in to <org> as <email>` and the
    active profile name (`Active profile: <name>`, usually `default`). Ask in one line: *"¿Esta es
    la organización donde reclamaste los créditos?"* If not: `ant auth logout`, then log in again.
-3. `ant models list --format json` must print a model list. That is a free, real call with the
-   token: it proves the login works. (Use `--transform` or just check the exit code; do not dump
+3. `ant --profile <name> models list --format json` (the profile you will write to `.env`, not
+   just the active one) must exit 0. That is a free, real call with the token: it proves the
+   login works for that profile. (Use `--transform` or just check the exit code; do not dump
    the list.)
 4. Note the config dir `ant auth status` prints (`Config dir: …`). Mac/Linux:
    `~/.config/anthropic`. Windows: whatever it prints *(inferred: under `%APPDATA%` or
@@ -162,7 +163,9 @@ calls for the rows marked ✓call (bundled Claude Code 2.1.316):
 | 4 | claude.ai login of Claude Code (`/login`, Pro/Max) | 5 | `authMethod: claude.ai` |
 | 5 | the active `ant` profile, implicit (no variable) | — | works only with no claude.ai login ✓call; with `ANTHROPIC_CONFIG_DIR` pointed at an empty dir → `Not logged in · Please run /login` ✓call |
 
-Trap: `ANTHROPIC_PROFILE=<name that does not exist>` is ignored silently → row 4 or 5 pays.
+Traps: `ANTHROPIC_PROFILE=<name that does not exist>` is ignored silently → row 4 or 5 pays.
+A profile whose token expired and has no `refresh_token` (old logins) fails every call:
+`credenciales` refuses both cases before the first call.
 
 `credenciales.py` / `credenciales.ts` (generated next to the agent) turn this into a single
 state: they read `AGENTE_AUTH` from `.env`, set only that credential, **remove the other two

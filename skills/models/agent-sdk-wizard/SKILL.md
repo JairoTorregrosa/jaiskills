@@ -47,11 +47,11 @@ Goal given by the user (may be empty): $ARGUMENTS
    data. The archetype only decides `query()` vs a live session and the shape of the test
    prompt. Combine options when the family needs it (e.g. `Read`, `Glob`, `Grep`, `Write` **and**
    a custom tool). `ideas.md` has the family → archetype table.
-4. **Sample data**: when the family needs files the templates do not ship (an agenda, a bank
+   **Sample data**: when the family needs files the templates do not ship (an agenda, a bank
    statement, a diff, a lesson), write small realistic ones yourself in `workspace/datos/`
    (10–20 rows or a page; include the edge cases the agent must catch) and make the test prompt
    exercise them.
-5. **Empty** → after step 0, start at step 1 with no preamble.
+3. **Empty** → after step 0, start at step 1 with no preamble.
 
 ## Decision table — is this the right skill?
 
@@ -86,7 +86,7 @@ These are not suggestions. Breaking one breaks the wizard.
    smart person who has not seen this before: one concrete analogy, one drawing.
 10. **Never invent an API name.** Every option maps to exact code in
     `references/opciones-sdk.md`, verified against TS SDK 0.3.251 / Python SDK 0.2.148 /
-    Claude Code 2.1.251 and re-run on Python SDK 0.2.176 / TS SDK 0.3.319 (2026-11-07). If it is
+    Claude Code 2.1.251 and re-run on Python SDK 0.2.176 / TS SDK 0.3.315–0.3.316 (2026-11-07). If it is
     not in that file, do not write it.
 11. **Secrets.** A pasted key or token goes only into `.env`, after `.gitignore` lists `.env`.
     Never echo it, never put it in a command line, a log, the README or `decisiones.md`.

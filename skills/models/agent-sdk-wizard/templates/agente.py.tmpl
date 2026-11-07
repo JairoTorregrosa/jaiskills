@@ -190,9 +190,10 @@ def imprimir(mensaje: Any) -> None:
                 print(f"{sangria}{bloque.text.strip()}")
 
     elif isinstance(mensaje, ResultMessage):
-        if mensaje.subtype == "success":
+        if mensaje.subtype == "success" and not mensaje.is_error:
             print(f"\n{'─' * 60}")
         else:
+            FALLO[0] = True   # el programa termina con código 1
             # error_max_turns · error_max_budget_usd · error_during_execution
             print(f"\n⚠️  terminó por: {mensaje.subtype}")
         if getattr(mensaje, "structured_output", None) is not None:
@@ -211,6 +212,7 @@ def imprimir_error_de_tool(mensaje: Any) -> None:
 
 
 PROMPT = "{{PROMPT_PRUEBA}}"
+FALLO = [False]   # lo marca imprimir() o el except si la corrida no terminó bien
 
 
 async def main() -> None:
@@ -223,6 +225,7 @@ async def main() -> None:
         # Tope de vueltas o de gasto, o credencial rechazada: el resultado ya se
         # imprimió arriba; aquí va el motivo, sin traceback.
         print(f"\n⚠️  el agente paró: {error}")
+        FALLO[0] = True
 
 
 if __name__ == "__main__":
@@ -231,6 +234,7 @@ if __name__ == "__main__":
         PROMPT = " ".join(sys.argv[1:])       # uv run agente.py "tu pregunta"
     preparar_credenciales()                   # ANTES de crear la sesión
     asyncio.run(main())
+    sys.exit(1 if FALLO[0] else 0)            # un fallo no se ve como éxito
 
 
 «SI el paso 2 fue "conversar con memoria", reemplaza main() por esto y añade
