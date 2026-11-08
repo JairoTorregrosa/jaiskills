@@ -21,7 +21,6 @@ scripts/sync-askcodex.py     re-sync the askcodex mirror from an askcodex checko
 .claude-plugin/              plugin.json (the shipped skill list) and marketplace.json (the repo is its own marketplace)
 .codex-plugin/plugin.json    the same plugin for Codex (`skills: ./skills/` reaches every bucket)
 .agents/plugins/             marketplace.json for Codex (`codex plugin marketplace add JairoTorregrosa/jaiskills`)
-.claude/CLAUDE.md            imports this file for Claude Code sessions in this repo
 ```
 
 Status buckets, created only when a skill needs one:
@@ -55,9 +54,9 @@ claude plugin validate .claude-plugin/plugin.json --strict   # plugin + componen
 claude plugin validate . --strict                            # marketplace
 ```
 
-Keep `CLAUDE.md` out of the repo root: strict validation rejects it there, because a plugin-root
-`CLAUDE.md` is never loaded for plugin users. Claude Code reads these rules from
-`.claude/CLAUDE.md`, which imports this file.
+This file is the only agent instructions file. Claude Code and Codex both read it. Do not add a
+`CLAUDE.md`, `CLAUDE.local.md` or `.claude/CLAUDE.md`: Claude Code skips `AGENTS.md` when one
+exists, and strict validation rejects a plugin-root `CLAUDE.md`.
 
 ## Writing a skill
 
