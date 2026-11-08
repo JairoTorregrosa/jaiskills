@@ -192,6 +192,8 @@ def check_wiring() -> None:
 
 def check_hygiene(files: list[Path]) -> None:
     for f in files:
+        if f.name in {"CLAUDE.md", "CLAUDE.local.md"}:
+            err(f, "use AGENTS.md: Claude Code skips AGENTS.md when a CLAUDE file exists")
         if f == SELF or f.suffix.lower() in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".wav", ".mp4"}:
             continue
         try:
