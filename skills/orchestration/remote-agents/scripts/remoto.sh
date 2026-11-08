@@ -150,12 +150,12 @@ spawn)
 
   if [ "$engine" = claude ]; then
     agent_cmd='claude -p --verbose --output-format stream-json'
-    if [ "$safe" = 1 ]; then agent_cmd+=' --permission-mode acceptEdits'; else agent_cmd+=' --dangerously-skip-permissions'; fi
+    if [ "$safe" = 1 ]; then agent_cmd+=' --permission-mode acceptEdits'; else agent_cmd+=" --permission-mode auto"; fi
     [ -n "$model" ] && agent_cmd+=" --model $model"
   else
     # shellcheck disable=SC2016  # $JOB expands inside the generated run.sh on the remote
     agent_cmd='codex exec --skip-git-repo-check --output-last-message "$JOB/result.txt"'
-    if [ "$safe" = 1 ]; then agent_cmd+=' --sandbox workspace-write'; else agent_cmd+=' --dangerously-bypass-approvals-and-sandbox'; fi
+    if [ "$safe" = 1 ]; then agent_cmd+=' --sandbox workspace-write'; else agent_cmd+=' --approve-for-me'; fi
     [ -n "$model" ] && agent_cmd+=" -m $model"
     [ -n "$effort" ] && agent_cmd+=" -c model_reasoning_effort=$effort"
     agent_cmd+=' -'

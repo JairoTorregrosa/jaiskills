@@ -94,7 +94,7 @@ Models: omit `-m` and the host CLI uses its own configured default (`model` in t
 
 - **Self-contained prompts.** The top failure mode is a prompt that references context the worker cannot see. Include repo path, task, constraints, verification commands, and the REPORT contract.
 - **One job = one task.** Split multiple deliverables into parallel jobs.
-- **Permissions.** Default is full bypass (claude `--dangerously-skip-permissions`, codex `--dangerously-bypass-approvals-and-sandbox`): use only on a host you own that holds nothing you cannot lose. Pass `--safe` when the task only edits files (claude `acceptEdits`, codex `--sandbox workspace-write`).
+- **Permissions.** Default is classifier review (claude `--permission-mode auto`, codex `--approve-for-me`): a second model reviews each risky action instead of a human, and blocked actions are skipped, not prompted. Pass `--safe` when the task only edits files (claude `acceptEdits`, codex `--sandbox workspace-write`).
 - **Do not kill what you did not spawn.** `ls` shows every job on the host, including other sessions'.
 - **Ground the report.** A job succeeded only after DONE status *and* a result whose REPORT says success; DONE with an error-shaped result is a failure.
 - **No background remnants.** Headless processes die with their background children. Every worker prompt says: "Do all polling/waiting synchronously; do not leave background tasks running; your final message must contain all evidence." A result that says "waiting for background tasks" is incomplete: verify the work directly or respawn.
