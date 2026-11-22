@@ -2,15 +2,14 @@
 
 Render by replacing each `{{PLACEHOLDER}}`, write to a file, pipe it to `scripts/ask_codex.sh`
 with `--schema references/verdict.schema.json`. Leave a section's placeholder as `none` when the
-caller has nothing for it; never delete the section.
+user has nothing for it; never delete the section.
 
-- `{{TASK_SPEC}}`: task text from the plan or goal contract.
+- `{{TASK_SPEC}}`: task text from the task or plan the user gives.
 - `{{ACCEPTANCE_CRITERIA}}`: numbered list, verbatim.
 - `{{DIFF}}`: the diff inline when under ~12,000 characters; otherwise the instruction
   `Run: git diff <base>..<head> -- <paths>` with the real range and paths.
 - `{{CHECK_RESULTS}}`: command, exit code, trimmed output for each test/typecheck/lint/evidence run.
-- `{{EXTRA_CHECKS}}`: caller-specific hunts (goal-loop: its `agents/judge.md` body and the
-  held-out results). `none` when the user asks for a judge.
+- `{{EXTRA_CHECKS}}`: extra hunts the user names; `none` otherwise.
 - `{{REVIEWER_VERDICT}}`: the reviewer's JSON or text verdict, verbatim.
 
 Forbidden in any placeholder: the implementer's reasoning, chain-of-thought, self-assessment,
@@ -39,7 +38,7 @@ directory: open files and run read-only commands to verify claims. Do not modify
 
 {{CHECK_RESULTS}}
 
-## Additional checks for this caller
+## Additional checks
 
 {{EXTRA_CHECKS}}
 

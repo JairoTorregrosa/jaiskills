@@ -9,10 +9,9 @@ agents: imperative, concrete, numbers over adjectives, no marketing, no tutorial
 
 ```
 skills/<bucket>/<skill>/     one skill per directory; everything it needs lives inside it
-  creative/                  things people look at: videos, pages
-  orchestration/             getting agents to finish: pipelines, goal loops, cross-provider judges, remote workers
+  creative/                  things people look at: videos
+  orchestration/             getting agents to finish: cross-provider advisors, reviewers and judges
   models/                    building on models: SDK agents, prompts, OpenAI from the terminal
-  knowledge/                 keeping what worked: solution docs, file-based TODOs
 agents/                      plugin subagents, when a skill needs one; the plugin format requires them at the root
 hooks/hooks.json             hook wiring only, when a skill needs hooks; hook scripts live in the owning skill
 scripts/check.py             catalog lint: every invariant below that a machine can check
@@ -34,7 +33,7 @@ Status buckets, created only when a skill needs one:
 `scripts/check.py` enforces all of them except private hostnames (a review item); CI runs it on
 every push and pull request.
 
-1. Every skill in a use bucket (`creative`, `orchestration`, `models`, `knowledge`) is listed in
+1. Every skill in a use bucket (`creative`, `orchestration`, `models`) is listed in
    `.claude-plugin/plugin.json` `skills` and has a README catalog entry that links its `SKILL.md`.
    Status-bucket skills appear in neither.
 2. Frontmatter `name` equals the directory name; `description` is at most 1024 characters; no
@@ -42,8 +41,7 @@ every push and pull request.
 3. Every skill has `agents/openai.yaml` (Codex picker metadata), and its invocation policy matches
    the SKILL.md frontmatter.
 4. No `commands/` directory: skills are the slash commands (`/jaiskills:<skill>` from the plugin).
-5. No home-directory paths, no secrets, no private hostnames except as a documented, overridable
-   default (`REMOTO_HOST`, default `jetson`).
+5. No home-directory paths, no secrets, no private hostnames.
 6. Relative Markdown links resolve; hook commands in `hooks/hooks.json` point at existing scripts.
 
 Before every commit:
@@ -62,7 +60,7 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
 
 - **Invocation.** Model-invoked by default: `description` is model-facing, lists trigger phrases in
   English and the Spanish Jairo actually uses, and says what the skill is not for. User-invoked only
-  for heavy orchestrators the model must never start on its own (`goal-loop`):
+  for heavy orchestrators the model must never start on its own:
   `disable-model-invocation: true` in SKILL.md, `policy.allow_implicit_invocation: false` in
   `agents/openai.yaml`, and a one-line human-readable description.
 - **Arguments.** `argument-hint` in the frontmatter, `$ARGUMENTS` in the body.
@@ -80,7 +78,7 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
   and need a fallback, because skills.sh installs have no plugin agents.
 - **Codex** runs headless through `codex exec` via `skills/orchestration/second-opinion/`
   (`scripts/ask_codex.sh`), never through an MCP server (codex-cli removed `mcp-server` in 0.154).
-  In second-opinion and goal-loop, Codex only advises, reviews or judges, always
+  In second-opinion, Codex only advises, reviews or judges, always
   read-only: it never implements. Its model defaults to `gpt-6-astra` (see the script).
 - **Voice.** Write SKILL.md and every reference the way you brief a subagent that has no context:
   second person; an opening line with the goal; `## Context you must respect` (what the tool is and
@@ -93,8 +91,8 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
   path.
 - **Scripts.** Python with a PEP 723 header, run by `uv run --script`. Bash with
   `#!/usr/bin/env bash`, bash 3.2 compatible, shellcheck-clean.
-- **Credit** adapted work in one line in the skill and in its README entry (file-todos and
-  compound-knowledge come from EveryInc's compound-engineering plugin).
+- **Credit** adapted work in one line in the skill and in its README entry (second-opinion's
+  fix-and-recheck loop comes from tstack's `sol-loop`).
 
 ## Adding, changing or removing a skill
 

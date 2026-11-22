@@ -15,7 +15,7 @@ reads a `SKILL.md`. Take the whole set or a single skill, then make it yours.
 /plugin install jaiskills@jaiskills
 ```
 
-Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:goal-loop`, and so on.
+Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:second-opinion`, and so on.
 
 **The whole set, as a Codex plugin.** Same skills, same versions.
 
@@ -23,8 +23,6 @@ Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:goal
 codex plugin marketplace add JairoTorregrosa/jaiskills
 codex plugin add jaiskills@jaiskills
 ```
-
-In Codex, goal-loop runs only when you ask for it by name.
 
 **One skill, or another agent**, through [skills.sh](https://skills.sh). It copies the files into
 your project so you can edit them.
@@ -49,36 +47,18 @@ it under my own name.
 cumbia music video, a 60-second paper explainer, 15-second openers for my series, model-race clips
 for LinkedIn, a Blender trailer for a metro line and a security explainer that took four rounds.
 
-**[image-to-frontend](skills/creative/image-to-frontend/SKILL.md)**: turns a brief or a reference
-image into four visual directions, a build spec and a working React or HTML page, iterated until it
-matches.
-<br>*I use it for* turning a screenshot I like, or a paragraph about a product, into a real first
-page instead of a mockup.
-
 ### Getting agents to actually finish
-
-**[goal-loop](skills/orchestration/goal-loop/SKILL.md)** (you start it: `/jaiskills:goal-loop <goal>`):
-loops toward a goal with a checkable finish line, the way gradient descent does: specialized agents,
-a loss, textual gradients, early stopping. Some checks are hidden from the implementer, so gaming
-the visible ones shows up as a gap and the iteration doesn't count.
-<br>*I use it for* work with a hard finish line. The metaprompt skill came out of it, done in 2 of
-its 5 allowed iterations.
 
 **[second-opinion](skills/orchestration/second-opinion/SKILL.md)**: puts GPT (GPT-6 Astra by
 default, through the Codex CLI, always read-only) next to Claude as an advisor, an adversarial
 reviewer or a judge. Advise gives its view beside Claude's, disagreements first; review runs
 Codex's built-in reviewer; adversarial tries to break a change, optionally with two or three lenses
 in parallel, and Claude checks every finding against the code before showing it; judge scores a
-reviewer's verdict for goal-loop. GPT never writes the code. When fixes go back for
+reviewer's verdict when you ask it to. GPT never writes the code. When fixes go back for
 another look, a fix-and-recheck loop caps the rounds and keeps a ledger (adapted from tstack's
 `sol-loop`, t3dotgg/tstack).
 <br>*I use it for* the minute before I commit to a plan, and an adversarial pass before I ship. A model
 reviewing its own family's work shares its blind spots.
-
-**[remote-agents](skills/orchestration/remote-agents/SKILL.md)**: runs headless Claude Code and
-Codex workers on another machine over SSH. Jobs survive disconnects; results come back
-cross-reviewed by the other provider.
-<br>*I use it for* long jobs on the Jetson at home while my laptop sleeps.
 
 ### Building on models
 
@@ -117,28 +97,8 @@ subscription, no API key: text (or schema-checked JSON to parse), image generati
 <br>*I use it for* images for my talks and videos, and a quick GPT answer without leaving the
 terminal.
 
-### Keeping what worked
-
-**[compound-knowledge](skills/knowledge/compound-knowledge/SKILL.md)**: when a hard problem is
-solved, parallel agents write it up as a searchable solution doc in `docs/solutions/`. goal-loop
-reads those docs before it plans the next loop.
-<br>*I use it for* not solving the same problem twice. One entry it wrote: why reviewers from the
-same model family approve citation drift that a cross-provider judge catches.
-
-**[file-todos](skills/knowledge/file-todos/SKILL.md)**: review findings become markdown files that
-move from pending to ready to complete. You triage them one by one, then parallel workers fix the
-approved ones.
-<br>*I use it for* findings I won't fix today. In the metaprompt build, the judge's findings became
-five todos, all closed.
-
-file-todos and compound-knowledge are adapted from EveryInc's
-[compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin).
-
 ## How they fit together
 
-- **A big change:** goal-loop does the work, second-opinion judges it, file-todos
-  keeps what's left, and compound-knowledge writes down the lesson. That's how the metaprompt skill
-  was built.
 - **A video:** motion-design directs it end to end; askcodex makes image plates when a scene needs
   one.
 
@@ -149,11 +109,9 @@ file-todos and compound-knowledge are adapted from EveryInc's
 - agent-sdk-wizard's test run needs one credential: the `ant` CLI logged in (default), an API key, or a `claude setup-token` token (and Node for a TypeScript agent).
 - managed-agents-wizard needs the `ant` CLI 1.40 or later, logged in (`ant auth login`), and
   `ANTHROPIC_API_KEY` (or the `ant` login) for its test sessions, which cost real money (capped).
-- Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion and the
-  judge in goal-loop (without it, both fall back to a Claude judge); the
-  [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI for askcodex and image-to-frontend;
-  for remote-agents, a Linux host you reach over SSH with a key, with `python3`, `setsid` and
-  `claude` or `codex` logged in, plus `rsync` on your machine.
+- Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion
+  (without it, it falls back to a Claude subagent); the
+  [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI for askcodex.
 
 ## Upgrading from 0.x
 
