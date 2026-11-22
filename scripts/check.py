@@ -29,7 +29,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-USE_BUCKETS = ("creative", "orchestration", "models", "knowledge")
+USE_BUCKETS = ("creative", "orchestration", "models")
 STATUS_BUCKETS = ("in-progress", "deprecated")
 SELF = Path(__file__).resolve()
 

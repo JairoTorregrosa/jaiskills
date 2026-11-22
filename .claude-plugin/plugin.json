@@ -1,8 +1,8 @@
 {
   "name": "jaiskills",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "displayName": "jaiskills — Jairo's personal agent skills",
-  "description": "Jairo Torregrosa's personal skill catalog: code-driven videos people are proud to share, image-to-frontend, cross-validated multi-agent work (goal-loop, second-opinion, remote agents over SSH), a Claude Agent SDK wizard, a Claude Managed Agents wizard (idea to a scheduled, tested agent, debugging included), model- and harness-specific prompts, OpenAI from the terminal (askcodex), solution docs and file-based TODOs.",
+  "description": "Jairo Torregrosa's personal skill catalog: code-driven videos people are proud to share, a cross-provider second opinion (GPT as advisor, adversarial reviewer or judge), a Claude Agent SDK wizard, a Claude Managed Agents wizard (idea to a scheduled, tested agent, debugging included), model- and harness-specific prompts, and OpenAI from the terminal (askcodex).",
   "author": {
     "name": "Jairo Torregrosa",
     "url": "https://github.com/JairoTorregrosa"
@@ -26,15 +26,10 @@
   ],
   "skills": [
     "./skills/creative/motion-design",
-    "./skills/creative/image-to-frontend",
-    "./skills/orchestration/goal-loop",
     "./skills/orchestration/second-opinion",
-    "./skills/orchestration/remote-agents",
     "./skills/models/agent-sdk-wizard",
     "./skills/models/managed-agents-wizard",
     "./skills/models/metaprompt",
-    "./skills/models/askcodex",
-    "./skills/knowledge/compound-knowledge",
-    "./skills/knowledge/file-todos"
+    "./skills/models/askcodex"
   ]
 }

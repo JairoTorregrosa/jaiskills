@@ -6,7 +6,7 @@ description: >-
   diff or design, beside Claude's own view, with follow-ups), review (Codex's built-in reviewer on
   uncommitted work, a branch or a commit), adversarial (tries to break confidence in a change;
   optional parallel lenses; every finding verified by Claude before it is shown), judge (scores a
-  reviewer's verdict for goal-loop or a user). Trigger on "second opinion", "segunda opinión",
+  reviewer's verdict when the user asks). Trigger on "second opinion", "segunda opinión",
   "ask codex/GPT to review", "que codex lo revise", "revisión adversarial", "adversarial review",
   "que GPT ataque este cambio", "critica este plan", "challenge this design", "judge this review",
   "usa astra". Falls back to a Claude subagent, labelled same-provider, when Codex is unavailable.
@@ -166,17 +166,17 @@ agrees"), run rounds under this budget. Adapted from tstack's `sol-loop` (t3dotg
 
 ## Judge mode
 
-Scores a reviewer's verdict for goal-loop or a user who asks to judge a review.
+Scores a reviewer's verdict when the user asks to judge a review. No skill calls this mode.
 
 **Send only artifacts:**
 
 | Input | Source |
 |---|---|
-| Task spec + acceptance criteria | plan task or goal contract |
+| Task spec + acceptance criteria | the task or plan the user gives |
 | Diff (inline) or range + paths | `git diff <base>..<head> -- <files>` |
 | Check results | reviewer `checks`, verifier evidence runs |
-| Caller-specific checks | goal-loop: `agents/judge.md` body + held-out results; else `none` |
-| Reviewer verdict | reviewer JSON, verbatim; goal-loop has no reviewer: pass `none` |
+| Extra checks | hunts the user names; else `none` |
+| Reviewer verdict | reviewer JSON or text, verbatim; `none` when there is no reviewer |
 
 **Never send the implementer's reasoning, chain-of-thought, self-assessment or summary of what it
 did.** The judge sees artifacts only; anything else anchors it.
@@ -202,7 +202,7 @@ Steps:
    |---|---|---|
    | Auto-approve | `verdict` APPROVED, score ≥ 4.0, no critical or major finding | judge confirms quality |
    | Auto-revise | score < 2.5, or any critical or major finding | fix now; findings become the fixer's input |
-   | Middle | anything else (minor findings only, or 2.5 ≤ score < 4.0) | caller decides; the reviewer verdict is the tiebreaker |
+   | Middle | anything else (minor findings only, or 2.5 ≤ score < 4.0) | user decides; the reviewer verdict is the tiebreaker |
 
    Reviewer vs judge:
 
@@ -213,9 +213,9 @@ Steps:
    Reviewer REVISE   + judge any          → REVISE; union of reviewer and judge findings
    ```
 
-   Callers without a reviewer (goal-loop) treat only auto-approve as a pass. Always return every
-   finding, whatever the band: callers carry them into their summary.
-6. Return to the caller: the verdict JSON, the recomputed score, the band, the provider label
+   With no reviewer verdict (`none`), only auto-approve is a pass. Always return every
+   finding, whatever the band.
+6. Report to the user: the verdict JSON, the recomputed score, the band, the provider label
    (`codex <model>` or `same-provider fallback (Claude)`), and `elapsed_s`.
 
 **When the judge is worth its cost:** multi-file, cross-cutting or security-sensitive tasks; any

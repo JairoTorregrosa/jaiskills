@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.0 (2026-11-22): five unused skills removed
+
+- **BREAKING: `file-todos`, `compound-knowledge`, `goal-loop`, `remote-agents` and
+  `image-to-frontend` are gone.** None was used (0-3 invocations each in four months). Removed
+  `skills/knowledge/` (file-todos, compound-knowledge), `skills/orchestration/goal-loop/`,
+  `skills/orchestration/remote-agents/` (with `remoto.sh`) and `skills/creative/image-to-frontend/`.
+  The plugin now ships 6 skills; the `knowledge` bucket is dropped from `scripts/check.py`. The last
+  version with these skills is tagged `v2.0.0`.
+- **second-opinion:** judge mode serves only a user who asks to judge a review; the goal-loop
+  inputs (`agents/judge.md`, held-out results, no-reviewer caller) are gone from SKILL.md and
+  `references/judge-prompt.md`.
+- **README, AGENTS.md, manifests:** catalog, "How they fit together", requirements, layout,
+  credits and descriptions no longer mention the removed skills.
+
 ## 2.0.0 (2026-11-22): insistir removed
 
 - **BREAKING: `insistir` is gone.** It was retired and no longer used. Removed
