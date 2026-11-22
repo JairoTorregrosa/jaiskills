@@ -6,7 +6,7 @@
 #
 # Links every skill outside skills/deprecated/. Use it instead of the plugin,
 # not with it: with both, Claude Code lists every skill twice. Plugin subagents
-# (insistir's crew) and hooks only come with the plugin.
+# and hooks, if any, only come with the plugin.
 #
 # Usage: scripts/link-skills.sh [--dry-run] [--force] [--unlink]
 #   --dry-run  print what would change

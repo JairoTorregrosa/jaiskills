@@ -29,13 +29,13 @@ Read `dependencies` from each frontmatter (IDs like `["001", "005"]`).
 
 Spawn one worker per TODO in the wave, all in one message so they run in parallel. Wait for the whole wave before starting the next.
 
-Worker type: `subagent_type: "jaiskills:insistir-worker"` (a plugin agent). When that type is not available (skills.sh or other non-plugin installs ship no plugin agents), spawn a general-purpose subagent with the same brief. No subagent support at all → resolve the TODOs yourself, one at a time, following the same brief.
+Worker type: `subagent_type: "general-purpose"`. No subagent support at all → resolve the TODOs yourself, one at a time, following the same brief.
 
 Brief (fill the braces; the worker has no conversation history):
 
 ```
 name: todo-resolver-{id}
-subagent_type: jaiskills:insistir-worker
+subagent_type: general-purpose
 prompt: |
   ## Context
   You are resolving one TODO filed from a review finding. Other workers are

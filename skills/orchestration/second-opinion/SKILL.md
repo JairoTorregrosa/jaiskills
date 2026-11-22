@@ -6,7 +6,7 @@ description: >-
   diff or design, beside Claude's own view, with follow-ups), review (Codex's built-in reviewer on
   uncommitted work, a branch or a commit), adversarial (tries to break confidence in a change;
   optional parallel lenses; every finding verified by Claude before it is shown), judge (scores a
-  reviewer's verdict for insistir and goal-loop). Trigger on "second opinion", "segunda opinión",
+  reviewer's verdict for goal-loop or a user). Trigger on "second opinion", "segunda opinión",
   "ask codex/GPT to review", "que codex lo revise", "revisión adversarial", "adversarial review",
   "que GPT ataque este cambio", "critica este plan", "challenge this design", "judge this review",
   "usa astra". Falls back to a Claude subagent, labelled same-provider, when Codex is unavailable.
@@ -166,7 +166,7 @@ agrees"), run rounds under this budget. Adapted from tstack's `sol-loop` (t3dotg
 
 ## Judge mode
 
-Scores a reviewer's verdict for insistir, goal-loop, or a user who asks to judge a review.
+Scores a reviewer's verdict for goal-loop or a user who asks to judge a review.
 
 **Send only artifacts:**
 
