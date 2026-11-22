@@ -13,8 +13,8 @@ skills/<bucket>/<skill>/     one skill per directory; everything it needs lives 
   orchestration/             getting agents to finish: pipelines, goal loops, cross-provider judges, remote workers
   models/                    building on models: SDK agents, prompts, OpenAI from the terminal
   knowledge/                 keeping what worked: solution docs, file-based TODOs
-agents/                      plugin subagents (insistir's crew); the plugin format requires them at the root
-hooks/hooks.json             hook wiring only; hook scripts live in the owning skill
+agents/                      plugin subagents, when a skill needs one; the plugin format requires them at the root
+hooks/hooks.json             hook wiring only, when a skill needs hooks; hook scripts live in the owning skill
 scripts/check.py             catalog lint: every invariant below that a machine can check
 scripts/link-skills.sh       symlink skills into ~/.claude/skills and ~/.agents/skills (instead of the plugin)
 scripts/sync-askcodex.py     re-sync the askcodex mirror from an askcodex checkout and re-apply its one local delta
@@ -62,7 +62,7 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
 
 - **Invocation.** Model-invoked by default: `description` is model-facing, lists trigger phrases in
   English and the Spanish Jairo actually uses, and says what the skill is not for. User-invoked only
-  for heavy orchestrators the model must never start on its own (`insistir`, `goal-loop`):
+  for heavy orchestrators the model must never start on its own (`goal-loop`):
   `disable-model-invocation: true` in SKILL.md, `policy.allow_implicit_invocation: false` in
   `agents/openai.yaml`, and a one-line human-readable description.
 - **Arguments.** `argument-hint` in the frontmatter, `$ARGUMENTS` in the body.
@@ -76,11 +76,11 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
   ```
 - **Calling another skill.** Write "Call the Skill tool with `second-opinion`": bare name, one skill
   per call. Never link across skill folders. A user-invoked skill cannot be called by another
-  skill; tell the human to run it. Plugin subagents stay namespaced (`jaiskills:insistir-worker`)
+  skill; tell the human to run it. Plugin subagents stay namespaced (`jaiskills:<agent>`)
   and need a fallback, because skills.sh installs have no plugin agents.
 - **Codex** runs headless through `codex exec` via `skills/orchestration/second-opinion/`
   (`scripts/ask_codex.sh`), never through an MCP server (codex-cli removed `mcp-server` in 0.154).
-  In second-opinion, insistir and goal-loop, Codex only advises, reviews or judges, always
+  In second-opinion and goal-loop, Codex only advises, reviews or judges, always
   read-only: it never implements. Its model defaults to `gpt-6-astra` (see the script).
 - **Voice.** Write SKILL.md and every reference the way you brief a subagent that has no context:
   second person; an opening line with the goal; `## Context you must respect` (what the tool is and
@@ -93,8 +93,8 @@ exists, and strict validation rejects a plugin-root `CLAUDE.md`.
   path.
 - **Scripts.** Python with a PEP 723 header, run by `uv run --script`. Bash with
   `#!/usr/bin/env bash`, bash 3.2 compatible, shellcheck-clean.
-- **Credit** adapted work in one line in the skill and in its README entry (file-todos,
-  compound-knowledge and insistir's plan deepening come from EveryInc's compound-engineering plugin).
+- **Credit** adapted work in one line in the skill and in its README entry (file-todos and
+  compound-knowledge come from EveryInc's compound-engineering plugin).
 
 ## Adding, changing or removing a skill
 

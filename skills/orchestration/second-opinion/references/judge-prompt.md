@@ -10,7 +10,7 @@ caller has nothing for it; never delete the section.
   `Run: git diff <base>..<head> -- <paths>` with the real range and paths.
 - `{{CHECK_RESULTS}}`: command, exit code, trimmed output for each test/typecheck/lint/evidence run.
 - `{{EXTRA_CHECKS}}`: caller-specific hunts (goal-loop: its `agents/judge.md` body and the
-  held-out results). `none` for insistir.
+  held-out results). `none` when the user asks for a judge.
 - `{{REVIEWER_VERDICT}}`: the reviewer's JSON or text verdict, verbatim.
 
 Forbidden in any placeholder: the implementer's reasoning, chain-of-thought, self-assessment,

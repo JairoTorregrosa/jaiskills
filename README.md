@@ -15,7 +15,7 @@ reads a `SKILL.md`. Take the whole set or a single skill, then make it yours.
 /plugin install jaiskills@jaiskills
 ```
 
-Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:insistir`, and so on.
+Each skill is also a slash command: `/jaiskills:motion-design`, `/jaiskills:goal-loop`, and so on.
 
 **The whole set, as a Codex plugin.** Same skills, same versions.
 
@@ -24,7 +24,7 @@ codex plugin marketplace add JairoTorregrosa/jaiskills
 codex plugin add jaiskills@jaiskills
 ```
 
-In Codex, insistir and goal-loop run only when you ask for them by name.
+In Codex, goal-loop runs only when you ask for it by name.
 
 **One skill, or another agent**, through [skills.sh](https://skills.sh). It copies the files into
 your project so you can edit them.
@@ -35,8 +35,7 @@ npx skills@latest add JairoTorregrosa/jaiskills --skill motion-design   # just o
 ```
 
 Pick one route. With both, every skill shows up twice. Through skills.sh the commands are
-`/<skill>`, and insistir's reviewer agents and completion hook stay behind: those come only with
-the plugin.
+`/<skill>`.
 
 ## The catalog
 
@@ -58,13 +57,6 @@ page instead of a mockup.
 
 ### Getting agents to actually finish
 
-**[insistir](skills/orchestration/insistir/SKILL.md)** (you start it: `/jaiskills:insistir <task>`):
-splits a big task across parallel workers and has every worker's output reviewed by a different
-agent. Nothing is marked done without an APPROVED verdict, and a hook enforces it.
-<br>*I use it for* changes too big for one agent, where the reviewer must never be the author. It
-built the reference guides of my metaprompt skill, and its cross-provider judge caught source
-citations that the Claude reviewers had approved.
-
 **[goal-loop](skills/orchestration/goal-loop/SKILL.md)** (you start it: `/jaiskills:goal-loop <goal>`):
 loops toward a goal with a checkable finish line, the way gradient descent does: specialized agents,
 a loss, textual gradients, early stopping. Some checks are hidden from the implementer, so gaming
@@ -77,12 +69,11 @@ default, through the Codex CLI, always read-only) next to Claude as an advisor, 
 reviewer or a judge. Advise gives its view beside Claude's, disagreements first; review runs
 Codex's built-in reviewer; adversarial tries to break a change, optionally with two or three lenses
 in parallel, and Claude checks every finding against the code before showing it; judge scores a
-reviewer's verdict for insistir and goal-loop. GPT never writes the code. When fixes go back for
+reviewer's verdict for goal-loop. GPT never writes the code. When fixes go back for
 another look, a fix-and-recheck loop caps the rounds and keeps a ledger (adapted from tstack's
 `sol-loop`, t3dotgg/tstack).
-<br>*I use it for* the minute before I commit to a plan, an adversarial pass before I ship, and
-the last judge of every insistir run. A model reviewing its own family's work shares its blind
-spots.
+<br>*I use it for* the minute before I commit to a plan, and an adversarial pass before I ship. A model
+reviewing its own family's work shares its blind spots.
 
 **[remote-agents](skills/orchestration/remote-agents/SKILL.md)**: runs headless Claude Code and
 Codex workers on another machine over SSH. Jobs survive disconnects; results come back
@@ -129,8 +120,8 @@ terminal.
 ### Keeping what worked
 
 **[compound-knowledge](skills/knowledge/compound-knowledge/SKILL.md)**: when a hard problem is
-solved, parallel agents write it up as a searchable solution doc in `docs/solutions/`. insistir
-reads those docs before it plans the next task.
+solved, parallel agents write it up as a searchable solution doc in `docs/solutions/`. goal-loop
+reads those docs before it plans the next loop.
 <br>*I use it for* not solving the same problem twice. One entry it wrote: why reviewers from the
 same model family approve citation drift that a cross-provider judge catches.
 
@@ -140,12 +131,12 @@ approved ones.
 <br>*I use it for* findings I won't fix today. In the metaprompt build, the judge's findings became
 five todos, all closed.
 
-file-todos, compound-knowledge and insistir's plan deepening are adapted from EveryInc's
+file-todos and compound-knowledge are adapted from EveryInc's
 [compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin).
 
 ## How they fit together
 
-- **A big change:** insistir or goal-loop does the work, second-opinion judges it, file-todos
+- **A big change:** goal-loop does the work, second-opinion judges it, file-todos
   keeps what's left, and compound-knowledge writes down the lesson. That's how the metaprompt skill
   was built.
 - **A video:** motion-design directs it end to end; askcodex makes image plates when a scene needs
@@ -155,14 +146,11 @@ file-todos, compound-knowledge and insistir's plan deepening are adapted from Ev
 
 - Claude Code for the plugin, or any agent that reads `SKILL.md` files.
 - [uv](https://docs.astral.sh/uv/) for the Python scripts, and `ffmpeg` for motion-design.
-- insistir is built for Claude Code's agent teams, which are experimental: set
-  `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and run it in an interactive session. Without them it
-  runs the same crew as plain subagents, and the completion hook may not apply.
 - agent-sdk-wizard's test run needs one credential: the `ant` CLI logged in (default), an API key, or a `claude setup-token` token (and Node for a TypeScript agent).
 - managed-agents-wizard needs the `ant` CLI 1.40 or later, logged in (`ant auth login`), and
   `ANTHROPIC_API_KEY` (or the `ant` login) for its test sessions, which cost real money (capped).
 - Optional: the [Codex CLI](https://github.com/openai/codex), logged in, for second-opinion and the
-  judges in insistir and goal-loop (without it they fall back to a Claude judge); the
+  judge in goal-loop (without it, both fall back to a Claude judge); the
   [askcodex](https://github.com/JairoTorregrosa/askcodex) CLI for askcodex and image-to-frontend;
   for remote-agents, a Linux host you reach over SSH with a key, with `python3`, `setsid` and
   `claude` or `codex` logged in, plus `rsync` on your machine.

@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.0 (2026-11-22): insistir removed
+
+- **BREAKING: `insistir` is gone.** It was retired and no longer used. Removed
+  `skills/orchestration/insistir/` (skill, plan template, deepen-plan, spawn prompts, state
+  script, hook scripts), its crew agents (`agents/insistir-worker.md`, `insistir-reviewer.md`,
+  `insistir-researcher.md`, `insistir-learnings-researcher.md`) and `hooks/hooks.json` (reviewer
+  Bash whitelist and review-before-complete, both insistir-only). The plugin now ships 11 skills
+  and no subagents or hooks. Migration: run `/jaiskills:goal-loop` for big changes; the last
+  version with insistir is tagged `v1.7.0`.
+- **file-todos:** resolve workers are `general-purpose` subagents (was `jaiskills:insistir-worker`).
+- **goal-loop:** the factory searches `docs/solutions/` with a read-only `Explore` subagent (was
+  `jaiskills:insistir-learnings-researcher`).
+- **compound-knowledge, second-opinion, README, AGENTS.md, link-skills.sh:** no longer mention
+  insistir; judge mode serves goal-loop or a user.
+
 ## 1.7.0 (2026-11-07): agent-sdk-wizard sets up the credential and writes better agents
 
 - **Step 0, preflight + credential, Mac and Windows.** `references/auth.md` is an explicit state

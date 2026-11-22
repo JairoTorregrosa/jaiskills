@@ -2,8 +2,8 @@
 name: compound-knowledge
 description: >
   Document a solved problem as one searchable file in the project's
-  docs/solutions/<category>/ so future sessions (and insistir's learnings
-  researcher) find it instead of re-solving it. Three parallel read-only
+  docs/solutions/<category>/ so future sessions find it instead of re-solving
+  it. Three parallel read-only
   subagents extract context, root cause and fix, and prevention; you write the
   single file. Use right after a non-trivial fix is confirmed: "that worked",
   "it's fixed", "problem solved", "document this fix", "write up the solution",
@@ -25,7 +25,7 @@ If that is empty, document the most recently solved problem in this conversation
 
 ## Convention (per project)
 
-`docs/solutions/` at the project root is the knowledge store. insistir's learnings researcher greps it during planning, so keep paths, frontmatter and tags exactly as below.
+`docs/solutions/` at the project root is the knowledge store. Future sessions (goal-loop's factory among them) grep it before they plan, so keep paths, frontmatter and tags exactly as below.
 
 Categories (subdirectories of `docs/solutions/`):
 

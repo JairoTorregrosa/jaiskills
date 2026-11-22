@@ -85,7 +85,7 @@ Write the contract to `loops/<slug>/loop.md` and the held-out set to `loops/<slu
 
 Generate the four goal-specialized agent prompt files in `loops/<slug>/agents/` using [references/factory-templates.md](references/factory-templates.md). Before generating:
 
-1. Read `loops/archive.md` (if present) and search `docs/solutions/` for prior loops in similar domains: spawn `subagent_type: "jaiskills:insistir-learnings-researcher"` when the plugin agents are installed, else grep `docs/solutions/` directly.
+1. Read `loops/archive.md` (if present) and search `docs/solutions/` for prior loops in similar domains: spawn one `subagent_type: "Explore"` subagent (read-only) that greps `docs/solutions/` with the goal's keywords and their synonyms and returns the matching file paths with a one-line summary each; with no subagent support, grep `docs/solutions/` yourself.
 2. Specialize each template with: the goal domain, the repo's toolchain and conventions, domain-specific failure modes from the archive, and the contract's constraints.
 3. Record in `loop.md` which archive entries seeded the designs (stepping stones).
 
